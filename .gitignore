@@ -4,6 +4,7 @@
 *.xcf
 *.obj
 *.pdb
+*.asd
 build/release.exe
 build/debug.exe
 gitdesk.exe
