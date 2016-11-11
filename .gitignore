@@ -4,7 +4,7 @@
 *.xcf
 *.obj
 *.pdb
-release.exe
-debug.exe
+build/release.exe
+build/debug.exe
 gitdesk.exe
 config.txt
