@@ -6,4 +6,5 @@
 *.pdb
 release.exe
 debug.exe
+gitdesk.exe
 config.txt
