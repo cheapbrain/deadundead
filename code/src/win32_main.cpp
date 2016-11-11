@@ -35,11 +35,11 @@ int main(int argc, char *argv[]) {
 	active_monitor = glfwGetPrimaryMonitor();
 	active_mode = (GLFWvidmode *)glfwGetVideoMode(active_monitor);
 
-  glewExperimental = 1;
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, gl_major);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, gl_minor);
+  //glewExperimental = 1;
+	//glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, gl_major);
+	//glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, gl_minor);
 	glfwWindowHint(GLFW_RESIZABLE, 0);
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	
 	window = glfwCreateWindow(width, height, title, NULL, NULL);
 
