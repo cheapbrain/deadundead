@@ -7,7 +7,8 @@ typedef struct {
 	PositionComponent positionComponents[MAX_ENTITIES];
 	VelocityComponent velocityComponents[MAX_ENTITIES];
 	AppearanceComponent appearanceComponents[MAX_ENTITIES];
-	PhysicsComponent physicsComponents[MAX_ENTITIES];
+	MassComponent massComponents[MAX_ENTITIES];
+	CollisionComponent collisionComponents[MAX_ENTITIES];
 	PlayerComponent playerComponents[MAX_ENTITIES];
 	BombComponent bombComponents[MAX_ENTITIES];
 } World;

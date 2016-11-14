@@ -3,9 +3,9 @@ typedef enum {
 	COMPONENT_POSITION = 1 << 0,
 	COMPONENT_VELOCITY = 1 << 1,
 	COMPONENT_APPEARANCE = 1 << 2,
-	COMPONENT_PHYSICS = 1 << 3,
-	COMPONENT_PLAYER = 1 << 4,
-	COMPONENT_BOMB = 1 << 5
+	COMPONENT_MASS = 1 << 3,
+	COMPONENT_COLLISION = 1 << 4,
+	COMPONENT_PLAYER = 1 << 5
 	//MORE
 } Component;
 
@@ -25,14 +25,14 @@ typedef struct {
 typedef struct {
 	float mass;
 	//TO-DO
-} PhysicsComponent;
+} MassComponent;
+
+typedef struct {
+	//TO-DO
+} CollisionComponent;
 
 typedef struct {
 	char* name;
 	float health; //possibile che necessiti un componente Health
 	//TO-DO
-} PlayerComponent;
-
-typedef struct {
-	float timeLeft;
-} BombComponent;
+} PlayerComponent
