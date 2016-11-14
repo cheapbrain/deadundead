@@ -40,7 +40,7 @@ void RenderFunction(World *world) {
 	PositionComponent p;
 	AppearanceComponent a;
 	for (int entity = 0; entity < ENTITY_COUNT; ++entity) {
-		if ((world->mask[entity] & RENDER_MASK) == RENDER_MASK) { //se deve collidere
+		if ((world->mask[entity] & RENDER_MASK) == RENDER_MASK) { //se deve essere disegnato
 			//TO-DO disegno
 		}
 	}
@@ -49,7 +49,7 @@ void RenderFunction(World *world) {
 void InputFunction(World *world) {
 	PlayerComponent p;
 	for (int entity = 0; entity < ENTITY_COUNT; ++entity) {
-		if ((world->mask[entity] & INPUT_MASK) == INPUT_MASK) { //se deve collidere
+		if ((world->mask[entity] & INPUT_MASK) == INPUT_MASK) { //se prende input
 			//TO-DO update velocità e tanto altro
 		}
 	}
