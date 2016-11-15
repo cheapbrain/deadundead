@@ -2,7 +2,7 @@
 
 #define MAX_ENTITIES 1000;
 
-typedef struct {
+struct World {
 	int mask[MAX_ENTITIES];
 	PositionComponent positionComponents[MAX_ENTITIES];
 	VelocityComponent velocityComponents[MAX_ENTITIES];
@@ -10,8 +10,7 @@ typedef struct {
 	MassComponent massComponents[MAX_ENTITIES];
 	CollisionComponent collisionComponents[MAX_ENTITIES];
 	PlayerComponent playerComponents[MAX_ENTITIES];
-	BombComponent bombComponents[MAX_ENTITIES];
-} World;
+};
 
 //creazione e distruzione nuova entità generica
 int createEntity(World *world);

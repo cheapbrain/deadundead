@@ -1,4 +1,4 @@
-typedef enum {
+enum {
 	COMPONENT_NONE = 0,
 	COMPONENT_POSITION = 1 << 0,
 	COMPONENT_VELOCITY = 1 << 1,
@@ -10,29 +10,29 @@ typedef enum {
 } Component;
 
 //Lista di tutti i componenti utilizzabili
-typedef struct {
+struct PositionComponent {
 	float x, y;
-} PositionComponent;
+};
 
-typedef struct {
+struct VelocityComponent {
 	float speedX, speedY;
-} VelocityComponent;
+};
 
-typedef struct {
+struct AppearanceComponent {
 	//TO-DO
-} AppearanceComponent;
+};
 
-typedef struct {
+struct MassComponent {
 	float mass;
 	//TO-DO
-} MassComponent;
+};
 
-typedef struct {
+struct CollisionComponent {
 	//TO-DO
-} CollisionComponent;
+};
 
-typedef struct {
+struct PlayerComponent {
 	char* name;
 	float health; //possibile che necessiti un componente Health
 	//TO-DO
-} PlayerComponent
+};

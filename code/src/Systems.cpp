@@ -8,7 +8,7 @@ void MovementFunction(World *world){
 		if ((world->mask[entity] & MOVEMENT_MASK) == MOVEMENT_MASK){ //se può mouversi
 			p = &(world->positionComponents[entity]);
 			v = &(world->velocityComponents[entity]);
-			//v->y -= 0.98f; eventuale attrito, da discutere
+			//v-> -= 0.98f; eventuale attrito, da discutere
 			p->x += v->x;
 			p->y += v->y;
 		}
