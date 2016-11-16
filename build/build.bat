@@ -20,15 +20,11 @@ set "_link=%_link_debug%%_libs%"
 
 for /R ..\code\src\ %%i in (*.cpp) do %_compile% %%~i /Foobjs\%%~ni.obj
 
-@echo on
 set seq=
 for %%i in (objs/*.*) do set seq=!seq! objs\%%~ni.obj 
-echo %seq%
 
 %_link% %seq%
 
-@echo off
-rem forfiles /P ..\code\src /M *.cpp /C "%_compile% @relpath /Foobjs\\@fname.obj"
 rem cl /nologo /DDEBUG /D_CRT_SECURE_NO_WARNINGS /c /FC /EHa- /Od /Gd /W3 /MD /Gm- /GR- /Zi /I..\code\include ..\code\src\win32_main.cpp ..\code\src\renderer.cpp ..\code\src\assets.cpp ..\code\src\math.cpp
 rem link /NOLOGO /OUT:debug.exe /OPT:REF /SUBSYSTEM:windows /INCREMENTAL:NO /LIBPATH:..\code\lib win32_main.obj renderer.obj assets.obj math.obj kernel32.lib user32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib glu32.lib gdi32.lib opengl32.lib glfw3.lib glew32.lib
 
