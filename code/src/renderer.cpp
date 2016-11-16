@@ -17,7 +17,7 @@ void init(SpriteRenderer *renderer, Texture *default_texture, Shader *default_sh
 	glEnableVertexAttribArray(1);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, size * sizeof(float), NULL, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, size * sizeof(float), NULL, GL_STREAM_DRAW);
 
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(0 * sizeof(float)));
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(4 * sizeof(float)));
@@ -46,9 +46,9 @@ void bind(SpriteRenderer *renderer) {
 
 void flush(SpriteRenderer *renderer) {
 	if (renderer->size > 0) {
-		glBufferData(GL_ARRAY_BUFFER, renderer->capacity * sizeof(float), NULL, GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, renderer->capacity * sizeof(float), NULL, GL_STREAM_DRAW);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, renderer->size * sizeof(float), renderer->buffer);
-		glDrawArrays(GL_TRIANGLES, 0, renderer->size / 8);
+		glDrawArrays(GL_TRIANGLES, 0, renderer->size >> 3);
 		renderer->size = 0;
 	}
 }
