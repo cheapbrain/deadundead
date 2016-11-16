@@ -1,13 +1,13 @@
 #include "Components.h"
 
-#define MAX_ENTITIES 1000;
+#define MAX_ENTITIES 1000
 
 struct World {
 	int mask[MAX_ENTITIES];
 	PositionComponent positionComponents[MAX_ENTITIES];
 	VelocityComponent velocityComponents[MAX_ENTITIES];
 	AppearanceComponent appearanceComponents[MAX_ENTITIES];
-	MassComponent massComponents[MAX_ENTITIES];
+	BodyComponent bodyComponents[MAX_ENTITIES];
 	CollisionComponent collisionComponents[MAX_ENTITIES];
 	PlayerComponent playerComponents[MAX_ENTITIES];
 };
@@ -16,7 +16,7 @@ struct World {
 int createEntity(World *world);
 void destroyEntity(World *world, int entity);
 
-int createPlayer(World *world, float x, float y, float speedX, float speedY, float mass, char* name); //mancano parametri
+int createPlayer(World *world, float x, float y, char* name); //mancano parametri
 
 
 
