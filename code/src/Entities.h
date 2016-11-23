@@ -1,113 +1,85 @@
 #pragma once
 
-#define ENTITY_NUMBER 8
+#define TYPES_NUMBER 5
 
-const int collisions[ENTITY_NUMBER*ENTITY_NUMBER] = {
-	0,1,0,0,0,0,0,1,
-	1,0,0,1,1,0,0,1,
-	0,0,0,0,0,0,0,0,
-	0,1,0,0,0,0,0,1,
-	0,1,0,0,0,0,0,1,
-	0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,
-	1,1,0,1,1,0,0,0
+//matrice per decidere le collisioni, basata sui tipi di entità
+const int collisions[TYPES_NUMBER*TYPES_NUMBER] = {
+	0,1,0,0,1,
+	1,0,0,1,1,
+	0,0,0,0,0,
+	0,1,0,0,1,
+	1,1,0,1,0
 };
+
+//lista delle interazioni delle entità non raccoglibili
+vvv steady_interactions[2] = {damage, boost};
 
 enum Type {
 	PLATFORM,
 	PLAYER,
-	WEAPON,
-	ACTIVE,
-	PASSIVE,
-	CONSUMABLE,
-	CONTROLLER,
+	PICKUP,
+	STEADY,
 	PROJECTILE
 };
 
-struct Type_list_struct {
-	Type* list;
-	int size;
-};
-typedef Type_list_struct* Type_list;
-Type_list new_type_list(int);
-
 //
 //TIPI FUNZIONI: 1a LETTERA TIPO RITORNO, POI TIPI INGRESSO
-// v void, i int, c char, f float, d double (puntatori omessi)
+// v void, i int, c char, f float, d double 
+//(puntatori omessi, v come argomento è sempre puntatore)
 //
 typedef void(*vv)(const void*);
+typedef void(*vvf)(const void*, float);
 typedef int(*ivv)(const void*, const void*);
+typedef void(*vvv) (const void*, const void*);
 
-struct Entity_struct {
-	Type type;
-	int id;
-	float x, y;
-};
-typedef Entity_struct* Entity;
-Entity new_entity();
 
+//
+//STRUTTURE ENTITA'
+//
 struct Platform_struct {
-	Entity e;
-	vv update;
+	Type type;
+	float x, y;
+	vvf update;
 };
 typedef Platform_struct* Platform;
 Platform new_platform();
-void update_platform(const void*);
-
-struct Player_struct {
-	Entity e;
-	char *name;
-	vv update;
-	ivv collides;
-};
-typedef Player_struct* Player;
-Player new_player();
-void update_player(const void*);
-
-struct Weapon_struct {
-	Entity e;
-	vv update;
-};
-typedef Weapon_struct* Weapon;
-Weapon new_weapon();
-void update_weapon(const void*);
-
-struct Active_struct {
-	Entity e;
-	vv update;
-};
-typedef Active_struct* Active;
-Active new_active();
-void update_active(const void*);
-
-struct Passive_struct {
-	Entity e;
-	vv update;
-};
-typedef Passive_struct* Passive;
-Passive new_passive();
-void update_passive(const void*);
-
-struct Consumable_struct {
-	Entity e;
-	vv update;
-};
-typedef Consumable_struct* Consumable;
-Consumable new_consumable();
-void update_consumable(const void*);
-
-struct Controller_struct {
-	Entity e;
-	vv update;
-};
-typedef Controller_struct* Controller;
-Controller new_controller();
-void update_controller(const void*);
+void update_platform(const void*, float);
 
 struct Projectile_struct {
-	Entity e;
-	vv update;
+	Type type;
+	float x, y;
+	vvf update;
+	float speed_x, speed_y;
+	vv move;
+	ivv colliding;
 };
 typedef Projectile_struct* Projectile;
 Projectile new_projectile();
-void update_projectile(const void*);
+void update_projectile(const void*, float);
+
+struct Interactable_struct {
+	Type type;
+	float x, y;
+	vvf update;
+	int id;
+	vvv interact;
+};
+typedef Interactable_struct* Interactable;
+Interactable new_interactable(Type,int);
+
+struct Player_struct {
+	Type type;
+	float x, y;
+	vvf update;
+	float speed_x, speed_y;
+	vv move;
+	ivv colliding;
+	char *name;
+	int held;
+	float health;
+	vvv interact;
+};
+typedef Player_struct* Player;
+Player new_player(char*);
+void update_player(const void*, float);
+void interact_player(const void*, const void*);

@@ -5,41 +5,26 @@
 //
 //COMMON
 //
-Type get_type(const void *e) {
-	return *(Type*)e;
+Type get_type(const void *super) {
+	return *(Type*)super;
 }
-int is_in(Type t, Type_list list) {
-	for (int i = 0; i < list->size; i++)
-		if (list->list[i] == t) return 1;
-	return 0;
+vvv get_interaction(Interactable i) {
+	switch (i->type) {
+	case PICKUP: return pickup; break;
+	case STEADY: return steady_interactions[i->id];	break;
+	}
+}
+void move(const void* entity) {
+	Projectile e = (Projectile)entity;
+	e->x += e->speed_x;
+	e->y += e->speed_y;
 }
 int colliding(const void* entity_1, const void* entity_2) {
-	Entity e1 = (Entity)entity_1;
-	Entity e2 = (Entity)entity_2;
-	if (collisions[e1->type*ENTITY_NUMBER + e2->type] == 1) { //devono collidere
-		//TO-DO collisione
+	Type t1=get_type(entity_1), t2=get_type(entity_2);
+	if (collisions[t1*TYPES_NUMBER + t2] == 1)
+		return 0; //TO-DO collisione
+	else 
 		return 0;
-	}
-	else return 0;
-}
-
-//
-//TYPE_LIST
-//
-Type_list new_type_list(int size) {
-	Type_list l = (Type_list)malloc(sizeof(Type_list_struct));
-	l->size = size;
-	l->list = (Type*)malloc(sizeof(Type)*size);
-	return l;
-}
-
-//
-//ENTITY
-//
-Entity new_entity() {
-	Entity e = (Entity)malloc(sizeof(Entity_struct));
-	e->id = 0;
-	return e;
 }
 
 //
@@ -47,110 +32,121 @@ Entity new_entity() {
 //
 Platform new_platform() {
 	Platform p = (Platform)malloc(sizeof(Platform_struct));
-	p->e = new_entity();
-	p->e->type = PLATFORM;
+	p->type = PLATFORM;
+	p->x = 0;
+	p->y = 0;
 	p->update = &update_platform;
 	return p;
 }
-void update_platform(const void* self) {
+void update_platform(const void* self, float delta) {
 	Platform ego = (Platform)self;
-}
-
-//
-//PLAYER
-//
-Player new_player() {
-	Player p = (Player)malloc(sizeof(Player_struct));
-	p->e = new_entity();
-	p->e->type = PLAYER;
-	p->update = &update_player;
-	p->collides = &colliding;
-	return p;
-}
-void update_player(const void* self) {
-	Player ego = (Player)self;
-}
-
-//
-//WEAPON
-//
-Weapon new_weapon() {
-	Weapon w = (Weapon)malloc(sizeof(Weapon_struct));
-	w->e = new_entity();
-	w->e->type = WEAPON;
-	w->update = &update_weapon;
-	return w;
-}
-void update_weapon(const void* self) {
-	Weapon ego = (Weapon)self;
-}
-
-//
-//ACTIVE
-//
-Active new_active() {
-	Active w = (Active)malloc(sizeof(Active_struct));
-	w->e = new_entity();
-	w->e->type = ACTIVE;
-	w->update = &update_active;
-	return w;
-}
-void update_active(const void* self) {
-	Active ego = (Active)self;
-}
-
-//
-//PASSIVE
-//
-Passive new_passive() {
-	Passive w = (Passive)malloc(sizeof(Passive_struct));
-	w->e = new_entity();
-	w->e->type = PASSIVE;
-	w->update = &update_passive;
-	return w;
-}
-void update_passive(const void* self) {
-	Passive ego = (Passive)self;
-}
-
-//
-//CONSUMABLE
-//
-Consumable new_consumable() {
-	Consumable w = (Consumable)malloc(sizeof(Consumable_struct));
-	w->e = new_entity();
-	w->e->type = CONSUMABLE;
-	w->update = &update_consumable;
-	return w;
-}
-void update_consumable(const void* self) {
-	Consumable ego = (Consumable)self;
-}
-
-//
-//CONTROLLER
-//
-Controller new_controller() {
-	Controller w = (Controller)malloc(sizeof(Controller_struct));
-	w->e = new_entity();
-	w->e->type = CONTROLLER;
-	w->update = &update_controller;
-	return w;
-}
-void update_controller(const void* self) {
-	Controller ego = (Controller)self;
 }
 
 //
 //PROJECTILE
 //
 Projectile new_projectile() {
-	Projectile w = (Projectile)malloc(sizeof(Projectile_struct));
-	w->e = new_entity();
-	w->e->type = PROJECTILE;
-	w->update = &update_projectile;
-	return w;
+	Projectile p = (Projectile)malloc(sizeof(Projectile_struct));
+	p->type = PROJECTILE;
+	p->update = &update_projectile;
+	p->colliding = &colliding;
+	p->move = &move;
+	return p;
 }
-void update_projectile(const void* self) {
+void update_projectile(const void* self, float delta) {
 	Projectile ego = (Projectile)self;
+}
+
+//
+//INTERACTABLE
+//
+Interactable new_interactable(Type t, int id) {
+	if (id>=0) {
+		Interactable i = (Interactable)malloc(sizeof(Interactable_struct));
+		i->type = t;
+		i->id = 0;
+		i->x = 0;
+		i->y = 0;
+		//TO-DO
+		//i->update;
+		i->interact = get_interaction(i);
+		return i;
+	}
+	else return NULL;
+}
+
+//
+//PLAYER
+//
+Player new_player(char* name) {
+	Player p = (Player)malloc(sizeof(Player_struct));
+	p->type = PLAYER;
+	p->x = 0;
+	p->y = 0;
+	p->speed_x = 0;
+	p->speed_y = 0;
+	p->held = -1;
+	p->health = 100.f;
+	p->name = name;
+	p->update = &update_player;
+	p->colliding = &colliding;
+	p->move = &move;
+	return p;
+}
+void update_player(const void* self, float delta) {
+	Player ego = (Player)self;
+}
+void interact_player(const void* self, const void* target) {
+	Player player = (Player)self;
+	Interactable interactable = (Interactable)target;
+	interactable->interact(interactable, player);
+}
+
+//INTERAZIONI
+void pickup(const void* entity_1, const void* entity_2) {
+	Interactable item = (Interactable)entity_1;
+	Player player = (Player)entity_2;
+	int held = player->held;
+	player->held = item->id;
+	free(item);
+	item = new_interactable(PICKUP, held);
+}
+void boost(const void* entity_1, const void* entity_2) {
+	Interactable item = (Interactable)entity_1;
+	Player player = (Player)entity_2;
+	player->speed_y = -10.f;
+}
+void damage(const void* entity_1, const void* entity_2) {
+	Interactable item = (Interactable)entity_1;
+	Player player = (Player)entity_2;
+	player->health -= 10.f;
+}
+
+
+
+#define PLAYERS_NUM 4
+#define PLATFORMS_NUM 10
+#define INTERACTABLES_NUM 3
+void prova() {
+	//inizializzazioni varie
+	int i;
+	float delta = 0; //ottenuto in altra maniera
+	Platform platforms[PLATFORMS_NUM];
+	Player players[PLAYERS_NUM];
+	Interactable interactables[INTERACTABLES_NUM];
+	for (i = 0; i < PLATFORMS_NUM; i++)
+		platforms[i]=new_platform();
+	for (i = 0; i < PLAYERS_NUM; i++)
+		players[i] = new_player((char*)(&i));
+	interactables[0] = new_interactable(PICKUP, 0);
+	interactables[1] = new_interactable(STEADY, 0);
+	interactables[2] = new_interactable(STEADY, 1);
+	
+	//questa dovrebbe raccogliere l'item
+	players[0]->interact(players[0], interactables[0]);
+	//questa dovrebbe fare danno al player
+	players[1]->interact(players[1], interactables[1]);
+	//questa dovrebbe lanciare il player in alto
+	players[0]->interact(players[2], interactables[2]);
+
 }
