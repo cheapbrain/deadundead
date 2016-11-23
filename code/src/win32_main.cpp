@@ -12,9 +12,28 @@
 #include "renderer.h"
 #include "utils.h"
 
+App app;
+
 FILE *logger_stream;
 #define LOGGER_INIT logger_stream = fopen("log.txt", "w");
 #define LOGGER_CLOSE fclose(logger_stream);
+#define MIN_FPS 30
+#define MAX_DELTA (1.0/MIN_FPS)
+
+const short keyboard_layout[B_COUNT] = {
+	GLFW_KEY_A, GLFW_KEY_D, GLFW_KEY_W, GLFW_KEY_S, GLFW_KEY_SPACE,
+	GLFW_KEY_J, GLFW_KEY_K, GLFW_KEY_L,
+	GLFW_KEY_ESCAPE, GLFW_KEY_1, GLFW_KEY_2, GLFW_KEY_3, GLFW_KEY_4
+};
+
+const short gamepad_layout[B_COUNT] = {
+	300, 200, 301, 201, 2,
+	3, 1, 0,
+	8, 4, 5, 6, 7
+};
+
+const float null_axes[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+const unsigned char null_buttons[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 static void error_callback(int error, const char* description) {
 	fprintf(LOGGER_STREAM, "%d %s\n", error, description);
@@ -22,12 +41,9 @@ static void error_callback(int error, const char* description) {
 
 int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow) {
 	LOGGER_INIT
-	Screen screen;
-	init(&screen);
-	Input input;
-	init(&input, &screen);
+	app_init();
 	Color color = {.1f, .1f, .1f, 1.f};
-	set_clear_color(&screen, &color);
+	app_clear_color(&color);
 
 	Shader *shader = load_shader("../data/shaders/default.vert", "../data/shaders/default.frag", SHADER_SPRITE);
 
@@ -35,7 +51,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 
 	Font *font = load_font("../data/fonts/font.fnt");
 	font->drawh = .4f;
-	font->smoothing = .05f * 1080.f / screen.height;
+	font->smoothing = .05f * 1080.f / app.height;
 	font->thickness = .5;
 
 	Mat3 transform;
@@ -45,23 +61,24 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	init(&renderer, texture, shader);
 	set_matrix(&renderer, &transform);
 
-	double last_log_time = get_time();
-	double last_frame_time = get_time();
+	double time_passed = 0;
 	int frames = 0;
 	char fps_text[128];
 	sprintf(fps_text, "FPS: %d", 0);
 
-	while(!should_close(&screen)) {
+	while(!app_should_close()) {
+		app_update();
+		if (button_state(B_PAUSE, 0)) app_close();
+		
+
 		glDisable(GL_SCISSOR_TEST);
-		clear(&screen);
+		app_clear();
 		glEnable(GL_SCISSOR_TEST);
 
-		double time = get_time();
-		double delta = time - last_frame_time;
-		last_frame_time = time;
-		if (time - last_log_time >= 1.0) {
+		time_passed += app.delta;
+		if (time_passed >= 1.0) {
 			sprintf(fps_text, "FPS: %d", frames);
-			last_log_time += 1;
+			time_passed -= 1.0;
 			frames = 0;
 		}
 
@@ -71,29 +88,26 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 		draw(&renderer, texture, 1.f, 1.f, 6.f, 6.f);
 		set_color(&renderer, &Color{1, 1, 1, 1});
 		draw(&renderer, font, fps_text, .1f, 8.9f);
-		for (int j = 0; j < input.count; j++) {
+		for (int j = 0; j < app.input.count; j++) {
 			char jtext[128];
 			jtext[0] = '\0';
 			for (int k = 0; k < B_COUNT; k++) {
 				char jbuff[20];
-				sprintf(jbuff, " %d", input.player[j].state[k]);
+				sprintf(jbuff, " %d", app.input.player[j].state[k]);
 				strcat(jtext, jbuff);
 			}
 			draw(&renderer, font, (char *)jtext, .1f, 8.4f - 0.5f * j);
 		}
 		flush(&renderer);
 
-		update(&screen);
-		update(&input, &screen);
-		if (state_anyone(&input, B_PAUSE)) glfwSetWindowShouldClose((GLFWwindow *)screen.window, GL_TRUE);
 		frames++;
 	}
-	dispose(&screen);
+	app_dispose();
 	LOGGER_CLOSE
 	return 0;
 }
 
-void init(Screen *screen) {
+void app_init() {
 	char *title = "title";
 	int vsync = 1;
 	int width, height;
@@ -163,59 +177,13 @@ void init(Screen *screen) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	fprintf(LOGGER_STREAM, "%s %s\n", gl_version, glsl_version);
-	screen->width = width;
-	screen->height = height;
-	screen->window = (void *)window;
-}
+	app.width = width;
+	app.height = height;
+	app.time = glfwGetTime();
+	app.delta = 0;
+	app.window = (void *)window;
 
-void dispose(Screen *screen) {
-	glfwDestroyWindow((GLFWwindow *)screen->window);
-	glfwTerminate();
-}
-
-void update(Screen *screen) {
-	glfwSwapBuffers((GLFWwindow *)screen->window);
-	glfwPollEvents();
-}
-
-int should_close(Screen *screen) {
-	return glfwWindowShouldClose((GLFWwindow *)screen->window);
-}
-
-void clear(Screen *screen) {
-	glClear(GL_COLOR_BUFFER_BIT);
-}
-
-void set_clear_color(Screen *screen, Color *color) {
-	glClearColor(color->r, color->g, color->b, color->a);
-}
-
-void log_error(char *msg) {
-	fprintf(LOGGER_STREAM, "Error: %s\n", msg);
-	LOGGER_CLOSE
-	exit(EXIT_FAILURE);
-}
-
-double get_time() {
-	return glfwGetTime();
-}
-
-const short keyboard_layout[B_COUNT] = {
-	GLFW_KEY_A, GLFW_KEY_D, GLFW_KEY_W, GLFW_KEY_S, GLFW_KEY_SPACE,
-	GLFW_KEY_J, GLFW_KEY_K, GLFW_KEY_L,
-	GLFW_KEY_ESCAPE, GLFW_KEY_1, GLFW_KEY_2, GLFW_KEY_3, GLFW_KEY_4
-};
-
-const short gamepad_layout[B_COUNT] = {
-	300, 200, 301, 201, 2,
-	3, 1, 0,
-	8, 4, 5, 6, 7
-};
-
-const float null_axes[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-const unsigned char null_buttons[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-
-void init(Input *in, Screen *screen) {
+	Input *in = &(app.input);
 	*in = {};
 
 	int id = 0;
@@ -236,13 +204,21 @@ void init(Input *in, Screen *screen) {
 	}
 }
 
-void update(Input *input, Screen *screen) {
-	for (int i = 0; i < input->count; i++) {
-		PlayerInput *player = &(input->player[i]);
+void app_dispose() {
+	glfwDestroyWindow((GLFWwindow *)app.window);
+	glfwTerminate();
+}
+
+void app_update() {
+	glfwSwapBuffers((GLFWwindow *)app.window);
+	glfwPollEvents();
+
+	for (int i = 0; i < app.input.count; i++) {
+		PlayerInput *player = &(app.input.player[i]);
 		if (player->id < 0) {
 			for (int j = 0; j < B_COUNT; j++) {
 				char last = player->state[j];
-				char state = glfwGetKey((GLFWwindow *)screen->window, player->code[j]);
+				char state = glfwGetKey((GLFWwindow *)app.window, player->code[j]);
 				char diff = last ^ state;
 				player->pressed[j] = diff & state;
 				player->released[j] = diff & last;
@@ -274,14 +250,47 @@ void update(Input *input, Screen *screen) {
 			}
 		}
 	}
+
+	double time = glfwGetTime();
+	double delta = time - app.time;
+	app.delta = delta < MAX_DELTA ? delta : MAX_DELTA;
+	app.time = time;
 }
 
-int state_anyone(Input *input, char button) {
-	for (int i = 0; i < input->count; i++)
-		if (input->player[i].state[button]) return 1;
-	return 0;
+void app_close() {
+	glfwSetWindowShouldClose((GLFWwindow *)app.window, 1);
 }
 
-int state(Input *input, char button, char player) {
-	return input->player[player].state[button];
+int app_should_close() {
+	return glfwWindowShouldClose((GLFWwindow *)app.window);
+}
+
+void app_clear() {
+	glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void app_clear_color(Color *color) {
+	glClearColor(color->r, color->g, color->b, color->a);
+}
+
+void app_clear_color(float r, float g, float b, float a) {
+	glClearColor(r, g, b, a);
+}
+
+int button_state(char button, char player) {
+	return app.input.player[player].state[button];
+}
+
+int button_pressed(char button, char player) {
+	return app.input.player[player].pressed[button];
+}
+
+int button_released(char button, char player) {
+	return app.input.player[player].released[button];
+}
+
+void log_error(char *msg) {
+	fprintf(LOGGER_STREAM, "Error: %s\n", msg);
+	LOGGER_CLOSE
+	exit(EXIT_FAILURE);
 }

@@ -3,12 +3,6 @@
 #include "utils.h"
 #include "renderer.h"
 
-struct Screen {
-	int width;
-	int height;
-	void *window;
-};
-
 #define B_LEFT 0
 #define B_RIGHT 1
 #define B_UP 2
@@ -24,10 +18,15 @@ struct Screen {
 #define B_EMOTE4 12
 #define B_COUNT 13
 
+#define INPUT_PLAYER0 0
+#define INPUT_PLAYER1 1
+#define INPUT_PLAYER2 2
+#define INPUT_PLAYER3 3
+
 //code for keyboard refer to glfw documentation
 //code for joystick <100 for buttons < 200 for +axis < 300 for -axis
 struct PlayerInput {
-	int id;
+	char id;
 	short code[B_COUNT];
 	char state[B_COUNT];
 	char pressed[B_COUNT];
@@ -39,24 +38,35 @@ struct Input {
 	PlayerInput player[4];
 };
 
-void init(Screen *screen);
+struct App {
+	int width;
+	int height;
+	double time;
+	double delta;
+	void *window;
+	Input input;
+};
 
-void dispose(Screen *screen);
+extern App app;
 
-void update(Screen *screen);
+void app_init();
 
-int should_close(Screen *screen);
+void app_dispose();
 
-void clear(Screen *screen);
+void app_update();
 
-void set_clear_color(Screen *screen, Color *color);
+void app_close();
 
-double get_time();
+void app_clear_color(Color * color);
 
-void init(Input *input, Screen *screen);
+void app_clear_color(float r, float g, float b, float a);
 
-void update(Input *input, Screen *screen);
+void app_clear();
 
-int state_anyone(Input *input, char button);
+int app_should_close();
 
-int state(Input *input, char button, char player);
+int button_state(char button, char player);
+
+int button_pressed(char button, char player);
+
+int button_released(char button, char player);
