@@ -20,15 +20,12 @@ static void error_callback(int error, const char* description) {
 	fprintf(LOGGER_STREAM, "%d %s\n", error, description);
 }
 
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, GL_TRUE);
-}
-
 int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow) {
 	LOGGER_INIT
 	Screen screen;
 	init(&screen);
+	Input input;
+	init(&input, &screen);
 	Color color = {.1f, .1f, .1f, 1.f};
 	set_clear_color(&screen, &color);
 
@@ -37,7 +34,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	Texture * texture = load_texture("../images/test.png");	
 
 	Font *font = load_font("../data/fonts/font.fnt");
-	font->drawh = .5f;
+	font->drawh = .4f;
 	font->smoothing = .05f * 1080.f / screen.height;
 	font->thickness = .5;
 
@@ -74,10 +71,21 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 		draw(&renderer, texture, 1.f, 1.f, 6.f, 6.f);
 		set_color(&renderer, &Color{1, 1, 1, 1});
 		draw(&renderer, font, fps_text, .1f, 8.9f);
-
+		for (int j = 0; j < input.count; j++) {
+			char jtext[128];
+			jtext[0] = '\0';
+			for (int k = 0; k < B_COUNT; k++) {
+				char jbuff[20];
+				sprintf(jbuff, " %d", input.player[j].state[k]);
+				strcat(jtext, jbuff);
+			}
+			draw(&renderer, font, (char *)jtext, .1f, 8.4f - 0.5f * j);
+		}
 		flush(&renderer);
 
 		update(&screen);
+		update(&input, &screen);
+		if (state_anyone(&input, B_PAUSE)) glfwSetWindowShouldClose((GLFWwindow *)screen.window, GL_TRUE);
 		frames++;
 	}
 	dispose(&screen);
@@ -115,7 +123,6 @@ void init(Screen *screen) {
 		glfwTerminate();
 		log_error("Failed to open GLFW window");
 	}
-	glfwSetKeyCallback(window, key_callback);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(vsync);
@@ -191,4 +198,90 @@ void log_error(char *msg) {
 
 double get_time() {
 	return glfwGetTime();
+}
+
+const short keyboard_layout[B_COUNT] = {
+	GLFW_KEY_A, GLFW_KEY_D, GLFW_KEY_W, GLFW_KEY_S, GLFW_KEY_SPACE,
+	GLFW_KEY_J, GLFW_KEY_K, GLFW_KEY_L,
+	GLFW_KEY_ESCAPE, GLFW_KEY_1, GLFW_KEY_2, GLFW_KEY_3, GLFW_KEY_4
+};
+
+const short gamepad_layout[B_COUNT] = {
+	300, 200, 301, 201, 2,
+	3, 1, 0,
+	8, 4, 5, 6, 7
+};
+
+const float null_axes[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+const unsigned char null_buttons[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
+void init(Input *in, Screen *screen) {
+	*in = {};
+
+	int id = 0;
+	in->count = 0;
+	while (id < 16 && in->count < 4) {
+		if (glfwJoystickPresent(id)) {
+			in->player[in->count].id = id;
+			memcpy(in->player[in->count].code, gamepad_layout, sizeof(short) * B_COUNT);
+			in->count++;
+		}
+		id++;
+	}
+
+	if (in->count < 4) {
+		in->player[in->count].id = -1;
+		memcpy(in->player[in->count].code, keyboard_layout, sizeof(short) * B_COUNT);
+		in->count++;
+	}
+}
+
+void update(Input *input, Screen *screen) {
+	for (int i = 0; i < input->count; i++) {
+		PlayerInput *player = &(input->player[i]);
+		if (player->id < 0) {
+			for (int j = 0; j < B_COUNT; j++) {
+				char last = player->state[j];
+				char state = glfwGetKey((GLFWwindow *)screen->window, player->code[j]);
+				char diff = last ^ state;
+				player->pressed[j] = diff & state;
+				player->released[j] = diff & last;
+				player->state[j] = state;
+			}
+		} else {
+			int acount, bcount;
+			const float *axes = glfwGetJoystickAxes(player->id, &acount);
+			const unsigned char *buttons = glfwGetJoystickButtons(player->id, &bcount);
+
+			if (axes == NULL) axes = null_axes;
+			if (buttons == NULL) buttons = null_buttons;
+
+			for (int j = 0; j < B_COUNT; j++) {
+				char state;
+				short code = player->code[j];
+				short id = code % 100;
+				if (code < 100) {
+					state = buttons[id];
+				} else {
+					float sign = code < 300 ? 1.f : -1.f;
+					state = sign * axes[id] > .5f;
+				}
+				char last = player->state[j];
+				char diff = last ^ state;
+				player->pressed[j] = diff & state;
+				player->released[j] = diff & last;
+				player->state[j] = state;
+			}
+		}
+	}
+}
+
+int state_anyone(Input *input, char button) {
+	for (int i = 0; i < input->count; i++)
+		if (input->player[i].state[button]) return 1;
+	return 0;
+}
+
+int state(Input *input, char button, char player) {
+	return input->player[player].state[button];
 }
