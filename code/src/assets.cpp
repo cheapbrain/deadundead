@@ -79,7 +79,6 @@ GLuint link_shader(GLuint vertshader, GLuint fragshader) {
 	GLuint shaderprogram = glCreateProgram();
 	glAttachShader(shaderprogram, vertshader);
 	glAttachShader(shaderprogram, fragshader);
-
 	glBindAttribLocation(shaderprogram, 0, "i_pos_tex");
 	glBindAttribLocation(shaderprogram, 1, "i_color");
 	glBindFragDataLocation(shaderprogram, 0, "gl_FragColor");
