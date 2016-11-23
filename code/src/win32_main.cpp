@@ -85,6 +85,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 
 		update(&screen);
 		update(&input, &screen);
+		if (state_anyone(&input, B_PAUSE)) glfwSetWindowShouldClose((GLFWwindow *)screen.window, GL_TRUE);
 		frames++;
 	}
 	dispose(&screen);
