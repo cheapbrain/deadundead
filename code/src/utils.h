@@ -10,6 +10,11 @@ struct Vec2 {
 	float y;
 };
 
+struct Rectangle {
+	struct Rectangle pos;//angolo in basso a sx
+	struct Rectangle size;
+};
+
 struct Mat3 {
 	float m[9];
 };

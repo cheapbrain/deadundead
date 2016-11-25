@@ -6,7 +6,5 @@
 *.pdb
 build/release.exe
 build/debug.exe
-build/glewinfo.txt
-build/log.txt
 gitdesk.exe
 config.txt

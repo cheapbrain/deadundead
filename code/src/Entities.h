@@ -1,25 +1,16 @@
 #pragma once
 
-#define TYPES_NUMBER 5
-
-//matrice per decidere le collisioni, basata sui tipi di entità
-const int collisions[TYPES_NUMBER*TYPES_NUMBER] = {
-	0,1,0,0,1,
-	1,0,0,1,1,
-	0,0,0,0,0,
-	0,1,0,0,1,
-	1,1,0,1,0
-};
-
 //lista delle interazioni delle entità non raccoglibili
 vvv steady_interactions[2] = {damage, boost};
 
-enum Type {
-	PLATFORM,
-	PLAYER,
-	PICKUP,
-	STEADY,
-	PROJECTILE
+enum Interactable_type {
+	TRAP,
+	BOUNCING
+};
+
+enum Pickup_type {
+	NOTHING,
+	WEAPON
 };
 
 //
@@ -36,9 +27,12 @@ typedef void(*vvv) (const void*, const void*);
 //
 //STRUTTURE ENTITA'
 //
+struct Entity {
+	float x, y, width, height;
+};
+
 struct Platform_struct {
-	Type type;
-	float x, y;
+	float x, y, width, height;
 	vvf update;
 };
 typedef Platform_struct* Platform;
@@ -46,8 +40,7 @@ Platform new_platform();
 void update_platform(const void*, float);
 
 struct Projectile_struct {
-	Type type;
-	float x, y;
+	float x, y, width, height;
 	vvf update;
 	float speed_x, speed_y;
 	vv move;
@@ -58,28 +51,33 @@ Projectile new_projectile();
 void update_projectile(const void*, float);
 
 struct Interactable_struct {
-	Type type;
-	float x, y;
+	float x, y, width, height;
 	vvf update;
-	int id;
+	Interactable_type type;
 	vvv interact;
 };
 typedef Interactable_struct* Interactable;
-Interactable new_interactable(Type,int);
+Interactable new_interactable(Interactable_type);
+
+struct Pickup_struct {
+	float x, y, width, height;
+	vvf update;
+	Pickup_type type;
+	vvv pickupped;
+};
+typedef Pickup_struct* Pickup;
+Pickup new_pickup(Pickup_type);
 
 struct Player_struct {
-	Type type;
-	float x, y;
+	float x, y, width, height;
 	vvf update;
 	float speed_x, speed_y;
 	vv move;
 	ivv colliding;
 	char *name;
-	int held;
+	Pickup_type held;
 	float health;
-	vvv interact;
 };
 typedef Player_struct* Player;
 Player new_player(char*);
 void update_player(const void*, float);
-void interact_player(const void*, const void*);
