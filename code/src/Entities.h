@@ -1,18 +1,5 @@
 #pragma once
 
-//lista delle interazioni delle entità non raccoglibili
-vvv steady_interactions[2] = {damage, boost};
-
-enum Interactable_type {
-	TRAP,
-	BOUNCING
-};
-
-enum Pickup_type {
-	NOTHING,
-	WEAPON
-};
-
 //
 //TIPI FUNZIONI: 1a LETTERA TIPO RITORNO, POI TIPI INGRESSO
 // v void, i int, c char, f float, d double 
@@ -23,6 +10,20 @@ typedef void(*vvf)(const void*, float);
 typedef int(*ivv)(const void*, const void*);
 typedef void(*vvv) (const void*, const void*);
 
+//lista delle interazioni delle entità non raccoglibili
+void damage(const void*, const void*);
+void boost(const void*, const void*);
+const vvv steady_interactions[2] = {&damage, &boost};
+
+enum Interactable_type {
+	TRAP,
+	BOUNCING
+};
+
+enum Pickup_type {
+	NOTHING,
+	WEAPON
+};
 
 //
 //STRUTTURE ENTITA'

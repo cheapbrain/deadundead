@@ -17,6 +17,26 @@ int colliding(const void* entity_1, const void* entity_2) {
 	return 0;
 }
 
+//INTERAZIONI
+void pickupped(const void* entity_1, const void* entity_2) {
+	Pickup item = (Pickup)entity_1;
+	Player player = (Player)entity_2;
+	Pickup_type held = player->held;
+	player->held = item->type;
+	free(item);
+	item = new_pickup(held);
+}
+void boost(const void* entity_1, const void* entity_2) {
+	Interactable item = (Interactable)entity_1;
+	Player player = (Player)entity_2;
+	player->speed_y = -10.f;
+}
+void damage(const void* entity_1, const void* entity_2) {
+	Interactable item = (Interactable)entity_1;
+	Player player = (Player)entity_2;
+	player->health -= 10.f;
+}
+
 //
 //PLATFORM
 //
@@ -100,25 +120,6 @@ void update_player(const void* self, float delta) {
 	Player ego = (Player)self;
 }
 
-//INTERAZIONI
-void pickupped(const void* entity_1, const void* entity_2) {
-	Pickup item = (Pickup)entity_1;
-	Player player = (Player)entity_2;
-	Pickup_type held = player->held;
-	player->held = item->type;
-	free(item);
-	item = new_pickup(held);
-}
-void boost(const void* entity_1, const void* entity_2) {
-	Interactable item = (Interactable)entity_1;
-	Player player = (Player)entity_2;
-	player->speed_y = -10.f;
-}
-void damage(const void* entity_1, const void* entity_2) {
-	Interactable item = (Interactable)entity_1;
-	Player player = (Player)entity_2;
-	player->health -= 10.f;
-}
 
 
 void prova() {
