@@ -11,8 +11,8 @@ struct Vec2 {
 };
 
 struct Rectangle {
-	struct Rectangle pos;//angolo in basso a sx
-	struct Rectangle size;
+	struct Vec2 pos;//angolo in basso a sx
+	struct Vec2 size;
 };
 
 struct Mat3 {
