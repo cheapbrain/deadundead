@@ -23,6 +23,7 @@ void pickupped(const void* entity_1, const void* entity_2) {
 	Player player = (Player)entity_2;
 	Pickup_type held = player->held;
 	player->held = item->type;
+	player->action = actions[held];
 	free(item);
 	item = new_pickup(held);
 }
@@ -36,6 +37,15 @@ void damage(const void* entity_1, const void* entity_2) {
 	Player player = (Player)entity_2;
 	player->health -= 10.f;
 }
+
+//AZIONI
+void hit(const void* entity_1) {
+	Player player = (Player)entity_1;
+}
+void slash(const void* entity_1) {
+	Player player = (Player)entity_1;
+}
+
 
 //
 //PLATFORM
@@ -109,6 +119,7 @@ Player new_player(char* name) {
 	p->speed_x = 0;
 	p->speed_y = 0;
 	p->held = NOTHING;
+	p->action = &hit; // = actions[NOTHING];
 	p->health = 100.f;
 	p->name = name;
 	p->update = &update_player;

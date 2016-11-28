@@ -15,6 +15,11 @@ void damage(const void*, const void*);
 void boost(const void*, const void*);
 const vvv steady_interactions[2] = {&damage, &boost};
 
+//lista usi e azioni player/strumenti
+void hit(const void*);
+void slash(const void*);
+const vv actions[2] = {&hit, &slash};
+
 enum Interactable_type {
 	TRAP,
 	BOUNCING
@@ -65,6 +70,7 @@ struct Pickup_struct {
 	vvf update;
 	Pickup_type type;
 	vvv pickupped;
+	vvv use;
 };
 typedef Pickup_struct* Pickup;
 Pickup new_pickup(Pickup_type);
@@ -77,6 +83,7 @@ struct Player_struct {
 	ivv colliding;
 	char *name;
 	Pickup_type held;
+	vv action;
 	float health;
 };
 typedef Player_struct* Player;
