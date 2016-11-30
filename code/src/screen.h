@@ -2,6 +2,7 @@
 
 #include "utils.h"
 #include "renderer.h"
+#include "stage.h"
 
 #define B_LEFT 0
 #define B_RIGHT 1
@@ -45,6 +46,8 @@ struct App {
 	double delta;
 	void *window;
 	Input input;
+	SpriteRenderer renderer;
+	StageManager stage_manager;
 };
 
 extern App app;

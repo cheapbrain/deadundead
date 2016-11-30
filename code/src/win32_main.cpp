@@ -32,6 +32,12 @@ const short gamepad_layout[B_COUNT] = {
 	8, 4, 5, 6, 7
 };
 
+const short xbox_layout[B_COUNT] = {
+	300, 200, 201, 301, 0,
+	2, 1, 3,
+	6, 4, 5, 204, 205
+};
+
 const float null_axes[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 const unsigned char null_buttons[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
@@ -190,8 +196,12 @@ void app_init() {
 	in->count = 0;
 	while (id < 16 && in->count < 4) {
 		if (glfwJoystickPresent(id)) {
+			const char *joystick_name = glfwGetJoystickName(id);
+			const short *layout;
+			if (!strcmp(joystick_name, "Xbox 360 Controller")) layout = xbox_layout;
+			else layout = gamepad_layout;
 			in->player[in->count].id = id;
-			memcpy(in->player[in->count].code, gamepad_layout, sizeof(short) * B_COUNT);
+			memcpy(in->player[in->count].code, layout, sizeof(short) * B_COUNT);
 			in->count++;
 		}
 		id++;

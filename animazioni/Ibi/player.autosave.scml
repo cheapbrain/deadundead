@@ -7,6 +7,8 @@
     <folder id="1" name="head">
         <file id="0" name="head/p_head_idle.png" width="212" height="214" pivot_x="0.740566" pivot_y="0.415888"/>
         <file id="1" name="head/head.png" width="671" height="819" pivot_x="0" pivot_y="1"/>
+        <file id="2" name="head/hat_r.png" width="476" height="819" pivot_x="0" pivot_y="1"/>
+        <file id="3" name="head/hat_l.png" width="443" height="642" pivot_x="0" pivot_y="1"/>
     </folder>
     <folder id="2" name="arms">
         <file id="0" name="arms/p_arm_idle_a.png" width="52" height="37" pivot_x="0.388889" pivot_y="0.487179"/>
@@ -1743,6 +1745,9 @@
                 </key>
                 <key id="7" time="3791" spin="0">
                     <object folder="4" file="4" x="1.275457" y="-1.015641" angle="9.624663"/>
+                </key>
+                <key id="6" time="2000">
+                    <bone x="49.234604" y="22.316709" angle="274.106338" scale_x="0.785335"/>
                 </key>
             </timeline>
             <timeline id="4" name="p_pelvis_walk">
