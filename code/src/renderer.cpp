@@ -46,7 +46,7 @@ void bind(SpriteRenderer *renderer) {
 
 void flush(SpriteRenderer *renderer) {
 	if (renderer->size > 0) {
-		glBufferData(GL_ARRAY_BUFFER, renderer->capacity * sizeof(float), NULL, GL_STREAM_DRAW);
+		//glBufferData(GL_ARRAY_BUFFER, renderer->capacity * sizeof(float), NULL, GL_STREAM_DRAW);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, renderer->size * sizeof(float), renderer->buffer);
 		glDrawArrays(GL_TRIANGLES, 0, renderer->size >> 3);
 		renderer->size = 0;
@@ -75,6 +75,8 @@ void draw(SpriteRenderer *renderer, Texture *texture, float x, float y, float w,
 	VERTEX(w, h, tw, ty)
 	renderer->size = size;
 }
+#undef BB
+#undef VERTEX
 
 void draw(SpriteRenderer *renderer, Texture *texture, float x, float y, float w, float h) {
 	draw(renderer, texture, x, y, w, h, 0, 0, 1, 1);

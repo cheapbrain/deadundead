@@ -16,14 +16,6 @@ struct SpriteRenderer {
 	int size;
 };
 
-struct ParticleRenderer {
-	
-};
-
-struct FontRenderer {
-
-};
-
 void init(SpriteRenderer *renderer, Texture *default_texture, Shader *default_shader);
 
 void dispose(SpriteRenderer *renderer);
