@@ -37,45 +37,41 @@ struct Entity {
 	float x, y, width, height;
 };
 
-struct Platform_struct {
+struct Platform {
 	float x, y, width, height;
 	vvf update;
 };
-typedef Platform_struct* Platform;
-Platform new_platform();
+Platform* new_platform();
 void update_platform(const void*, float);
 
-struct Projectile_struct {
+struct Projectile {
 	float x, y, width, height;
 	vvf update;
 	float speed_x, speed_y;
 	vv move;
 	ivv colliding;
 };
-typedef Projectile_struct* Projectile;
-Projectile new_projectile();
+Projectile* new_projectile();
 void update_projectile(const void*, float);
 
-struct Interactable_struct {
+struct Interactable {
 	float x, y, width, height;
 	vvf update;
 	Interactable_type type;
 	vvv interact;
 };
-typedef Interactable_struct* Interactable;
-Interactable new_interactable(Interactable_type);
+Interactable* new_interactable(Interactable_type);
 
-struct Pickup_struct {
+struct Pickup {
 	float x, y, width, height;
 	vvf update;
 	Pickup_type type;
 	vvv pickupped;
 	vvv use;
 };
-typedef Pickup_struct* Pickup;
-Pickup new_pickup(Pickup_type);
+Pickup* new_pickup(Pickup_type);
 
-struct Player_struct {
+struct Player {
 	float x, y, width, height;
 	vvf update;
 	float speed_x, speed_y;
@@ -86,6 +82,5 @@ struct Player_struct {
 	vv action;
 	float health;
 };
-typedef Player_struct* Player;
-Player new_player(char*);
+Player* new_player(char*);
 void update_player(const void*, float);
