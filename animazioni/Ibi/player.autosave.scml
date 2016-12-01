@@ -7,8 +7,6 @@
     <folder id="1" name="head">
         <file id="0" name="head/p_head_idle.png" width="212" height="214" pivot_x="0.740566" pivot_y="0.415888"/>
         <file id="1" name="head/head.png" width="671" height="819" pivot_x="0" pivot_y="1"/>
-        <file id="2" name="head/hat_r.png" width="476" height="819" pivot_x="0" pivot_y="1"/>
-        <file id="3" name="head/hat_l.png" width="443" height="642" pivot_x="0" pivot_y="1"/>
     </folder>
     <folder id="2" name="arms">
         <file id="0" name="arms/p_arm_idle_a.png" width="52" height="37" pivot_x="0.388889" pivot_y="0.487179"/>
@@ -20,7 +18,7 @@
     </folder>
     <folder id="3" name="hands">
         <file id="0" name="hands/p_hand_idle_0.png" width="79" height="77" pivot_x="0.185185" pivot_y="0.506329"/>
-        <file id="1" name="hands/p_hand_a.png" width="79" height="78" pivot_x="0.345679" pivot_y="0.45"/>
+        <file id="1" name="hands/p_hand_a.png" width="96" height="96" pivot_x="0.345679" pivot_y="0.45"/>
         <file id="2" name="hands/p_hand_push_0.png" width="79" height="77" pivot_x="0.185185" pivot_y="0.506329"/>
         <file id="3" name="hands/p_hand_push_a.png" width="79" height="78" pivot_x="0.345679" pivot_y="0.45"/>
         <file id="4" name="hands/p_punch_blur.png" width="191" height="56" pivot_x="0" pivot_y="1"/>
@@ -1745,9 +1743,6 @@
                 </key>
                 <key id="7" time="3791" spin="0">
                     <object folder="4" file="4" x="1.275457" y="-1.015641" angle="9.624663"/>
-                </key>
-                <key id="6" time="2000">
-                    <bone x="49.234604" y="22.316709" angle="274.106338" scale_x="0.785335"/>
                 </key>
             </timeline>
             <timeline id="4" name="p_pelvis_walk">
@@ -7825,6 +7820,13 @@
                     <object folder="6" file="0" x="38.029412" y="67.852941" angle="0" scale_x="5" scale_y="5" a="0"/>
                 </key>
             </timeline>
+        </animation>
+    </entity>
+    <entity id="1" name="Ibi_color">
+        <animation id="0" name="NewAnimation" length="1000" interval="100">
+            <mainline>
+                <key id="0"/>
+            </mainline>
         </animation>
     </entity>
 </spriter_data>
