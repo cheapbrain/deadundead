@@ -11,8 +11,9 @@
 #include "screen.h"
 #include "renderer.h"
 #include "utils.h"
+#include "stage.h"
 
-App app;
+Game game;
 
 FILE *logger_stream;
 #define LOGGER_INIT logger_stream = fopen("log.txt", "w");
@@ -45,75 +46,98 @@ static void error_callback(int error, const char* description) {
 	fprintf(LOGGER_STREAM, "%d %s\n", error, description);
 }
 
+struct StageTest {
+	Stage super;
+	SpriteRenderer *renderer;
+	Texture *texture;
+	Shader *shader;
+	Mat3 *transform;
+};
+
+void stage_init_test(Stage *stage) {
+	StageTest *test = (StageTest *)stage;
+	test->renderer = &game.renderer;
+	test->texture = load_texture("../images/test.png");
+	test->shader = load_shader("../data/shaders/default.vert", "../data/shaders/default.frag", SHADER_SPRITE);
+	test->transform = (Mat3 *)malloc(sizeof(Mat3));
+	orthographic(test->transform, 9, 0, 0);
+}
+
+void stage_enter_test(Stage *stage, int previous_stage_id) {
+
+}
+
+void stage_leave_test(Stage *stage, int next_stage_id) {
+
+}
+
+void stage_update_test(Stage *stage, double delta) {
+	if (button_state(B_PAUSE, 0)) game_close();
+
+}
+
+void stage_render_test(Stage *stage, double delta) {
+	StageTest *test = (StageTest *)stage;
+	
+	set_matrix(test->renderer, test->transform);
+	set_shader(test->renderer, test->shader);
+	set_color(test->renderer, &white);
+	draw(test->renderer, test->texture, 1.f, 1.f, 6.f, 6.f);
+}
+
 int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow) {
 	LOGGER_INIT
-	app_init();
-	Color color = {.1f, .1f, .1f, 1.f};
-	app_clear_color(&color);
 
-	Shader *shader = load_shader("../data/shaders/default.vert", "../data/shaders/default.frag", SHADER_SPRITE);
+	game_init();
+	game_clear_color(&black);
 
-	Texture * texture = load_texture("../images/test.png");	
+	Shader *default_shader = load_shader("../data/shaders/default.vert", "../data/shaders/default.frag", SHADER_SPRITE);
+	Texture * default_texture = load_texture("../images/test.png");	
+	init(&game.renderer, default_texture, default_shader);
 
 	Font *font = load_font("../data/fonts/font.fnt");
 	font->drawh = .4f;
-	font->smoothing = .05f * 1080.f / app.height;
+	font->smoothing = .05f * 1080.f / game.height;
 	font->thickness = .5;
 
-	Mat3 transform;
-	orthographic(&transform, 9, 0, 0);
-
-	SpriteRenderer renderer;
-	init(&renderer, texture, shader);
-	set_matrix(&renderer, &transform);
-
-	double time_passed = 0;
-	int frames = 0;
+	double time_passed = 1.0;
 	char fps_text[128];
-	sprintf(fps_text, "FPS: %d", 0);
+	int frames = 0;
 
-	while(!app_should_close()) {
-		app_update();
-		if (button_state(B_PAUSE, 0)) app_close();
+	stage_manager_add(sizeof(StageTest), STAGE_GAMEPLAY, stage_init_test, stage_enter_test, stage_leave_test, stage_update_test, stage_render_test);
+	stage_manager_enter(STAGE_GAMEPLAY, TRANSITION_NONE, 0);
+
+	while(!game_should_close()) {
+		game_update();
 		
-
 		glDisable(GL_SCISSOR_TEST);
-		app_clear();
+		game_clear();
 		glEnable(GL_SCISSOR_TEST);
 
-		time_passed += app.delta;
+		time_passed += game.delta;
 		if (time_passed >= 1.0) {
 			sprintf(fps_text, "FPS: %d", frames);
 			time_passed -= 1.0;
 			frames = 0;
 		}
 
-		set_shader(&renderer, shader);
-		
-		set_color(&renderer, &white);
-		draw(&renderer, texture, 1.f, 1.f, 6.f, 6.f);
-		set_color(&renderer, &Color{1, 1, 1, 1});
-		draw(&renderer, font, fps_text, .1f, 8.9f);
-		for (int j = 0; j < app.input.count; j++) {
-			char jtext[128];
-			jtext[0] = '\0';
-			for (int k = 0; k < B_COUNT; k++) {
-				char jbuff[20];
-				sprintf(jbuff, " %d", app.input.player[j].state[k]);
-				strcat(jtext, jbuff);
-			}
-			draw(&renderer, font, (char *)jtext, .1f, 8.4f - 0.5f * j);
-		}
-		flush(&renderer);
+		Stage *active_stage = game.stage_manager.active_stage;
+		active_stage->update(active_stage, game.delta);
+		active_stage->render(active_stage, game.delta);
+
+		font->drawh = .4f;
+		set_color(&game.renderer, &white);
+		draw(&game.renderer, font, fps_text, .1f, 8.9f);
+		flush(&game.renderer);
 
 		frames++;
 	}
-	app_dispose();
+	game_dispose();
 	LOGGER_CLOSE
 	return 0;
 }
 
-void app_init() {
+void game_init() {
 	char *title = "title";
 	int vsync = 1;
 	int width, height;
@@ -183,13 +207,13 @@ void app_init() {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	fprintf(LOGGER_STREAM, "%s %s\n", gl_version, glsl_version);
-	app.width = width;
-	app.height = height;
-	app.time = glfwGetTime();
-	app.delta = 0;
-	app.window = (void *)window;
+	game.width = width;
+	game.height = height;
+	game.time = glfwGetTime();
+	game.delta = 0;
+	game.window = (void *)window;
 
-	Input *in = &(app.input);
+	Input *in = &(game.input);
 	*in = {};
 
 	int id = 0;
@@ -212,23 +236,30 @@ void app_init() {
 		memcpy(in->player[in->count].code, keyboard_layout, sizeof(short) * B_COUNT);
 		in->count++;
 	}
+
+	StageManager *stage_manager = &(game.stage_manager);
+	*stage_manager = {};
+
+	stage_manager->stages = (Stage **)calloc(_STAGE_COUNT, sizeof(Stage *));
+	stage_manager->max_stage_id = _STAGE_COUNT - 1;
+	stage_manager->active_stage = NULL;
 }
 
-void app_dispose() {
-	glfwDestroyWindow((GLFWwindow *)app.window);
+void game_dispose() {
+	glfwDestroyWindow((GLFWwindow *)game.window);
 	glfwTerminate();
 }
 
-void app_update() {
-	glfwSwapBuffers((GLFWwindow *)app.window);
+void game_update() {
+	glfwSwapBuffers((GLFWwindow *)game.window);
 	glfwPollEvents();
 
-	for (int i = 0; i < app.input.count; i++) {
-		PlayerInput *player = &(app.input.player[i]);
+	for (int i = 0; i < game.input.count; i++) {
+		PlayerInput *player = &(game.input.player[i]);
 		if (player->id < 0) {
 			for (int j = 0; j < B_COUNT; j++) {
 				char last = player->state[j];
-				char state = glfwGetKey((GLFWwindow *)app.window, player->code[j]);
+				char state = glfwGetKey((GLFWwindow *)game.window, player->code[j]);
 				char diff = last ^ state;
 				player->pressed[j] = diff & state;
 				player->released[j] = diff & last;
@@ -262,41 +293,41 @@ void app_update() {
 	}
 
 	double time = glfwGetTime();
-	double delta = time - app.time;
-	app.delta = delta < MAX_DELTA ? delta : MAX_DELTA;
-	app.time = time;
+	double delta = time - game.time;
+	game.delta = delta < MAX_DELTA ? delta : MAX_DELTA;
+	game.time = time;
 }
 
-void app_close() {
-	glfwSetWindowShouldClose((GLFWwindow *)app.window, 1);
+void game_close() {
+	glfwSetWindowShouldClose((GLFWwindow *)game.window, 1);
 }
 
-int app_should_close() {
-	return glfwWindowShouldClose((GLFWwindow *)app.window);
+int game_should_close() {
+	return glfwWindowShouldClose((GLFWwindow *)game.window);
 }
 
-void app_clear() {
+void game_clear() {
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void app_clear_color(Color *color) {
+void game_clear_color(Color *color) {
 	glClearColor(color->r, color->g, color->b, color->a);
 }
 
-void app_clear_color(float r, float g, float b, float a) {
+void game_clear_color(float r, float g, float b, float a) {
 	glClearColor(r, g, b, a);
 }
 
 int button_state(char button, char player) {
-	return app.input.player[player].state[button];
+	return game.input.player[player].state[button];
 }
 
 int button_pressed(char button, char player) {
-	return app.input.player[player].pressed[button];
+	return game.input.player[player].pressed[button];
 }
 
 int button_released(char button, char player) {
-	return app.input.player[player].released[button];
+	return game.input.player[player].released[button];
 }
 
 void log_error(char *msg) {
