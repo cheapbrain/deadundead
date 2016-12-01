@@ -3444,10 +3444,10 @@
                 </key>
             </timeline>
             <timeline id="33" obj="18" name="Spirit001Dx" object_type="bone">
-                <key id="0" spin="0">
-                    <bone x="50.013639" y="-9.994228" angle="18.771074" scale_x="1.016584" scale_y="0.290609"/>
+                <key id="0">
+                    <bone x="50.013639" y="-9.994228" angle="18.379003" scale_x="1.016584" scale_y="0.290609"/>
                 </key>
-                <key id="1" time="300" spin="0">
+                <key id="1" time="300" spin="-1">
                     <bone x="50.013639" y="-9.994228" angle="18.771074" scale_x="1.016584" scale_y="0.290609"/>
                 </key>
             </timeline>

@@ -18,7 +18,7 @@
     </folder>
     <folder id="3" name="hands">
         <file id="0" name="hands/p_hand_idle_0.png" width="79" height="77" pivot_x="0.185185" pivot_y="0.506329"/>
-        <file id="1" name="hands/p_hand_a.png" width="79" height="78" pivot_x="0.345679" pivot_y="0.45"/>
+        <file id="1" name="hands/p_hand_a.png" width="96" height="96" pivot_x="0.345679" pivot_y="0.45"/>
         <file id="2" name="hands/p_hand_push_0.png" width="79" height="77" pivot_x="0.185185" pivot_y="0.506329"/>
         <file id="3" name="hands/p_hand_push_a.png" width="79" height="78" pivot_x="0.345679" pivot_y="0.45"/>
         <file id="4" name="hands/p_punch_blur.png" width="191" height="56" pivot_x="0" pivot_y="1"/>
@@ -3444,10 +3444,10 @@
                 </key>
             </timeline>
             <timeline id="33" obj="18" name="Spirit001Dx" object_type="bone">
-                <key id="0" spin="0">
-                    <bone x="50.013639" y="-9.994228" angle="18.771074" scale_x="1.016584" scale_y="0.290609"/>
+                <key id="0">
+                    <bone x="50.013639" y="-9.994228" angle="18.379003" scale_x="1.016584" scale_y="0.290609"/>
                 </key>
-                <key id="1" time="300" spin="0">
+                <key id="1" time="300" spin="-1">
                     <bone x="50.013639" y="-9.994228" angle="18.771074" scale_x="1.016584" scale_y="0.290609"/>
                 </key>
             </timeline>
@@ -7820,6 +7820,13 @@
                     <object folder="6" file="0" x="38.029412" y="67.852941" angle="0" scale_x="5" scale_y="5" a="0"/>
                 </key>
             </timeline>
+        </animation>
+    </entity>
+    <entity id="1" name="Ibi_color">
+        <animation id="0" name="NewAnimation" length="1000" interval="100">
+            <mainline>
+                <key id="0"/>
+            </mainline>
         </animation>
     </entity>
 </spriter_data>
