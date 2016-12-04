@@ -3275,10 +3275,10 @@
                     <object folder="4" file="8" x="94" y="3.376344" angle="270"/>
                 </key>
                 <key id="1" time="237" spin="0">
-                    <object folder="4" file="8" x="94" y="3.376344" angle="279.146363" scale_x="1" scale_y="1"/>
+                    <object folder="4" file="8" x="94" y="3.376344" angle="279.146363"/>
                 </key>
                 <key id="2" time="339" spin="-1">
-                    <object folder="4" file="8" x="94" y="3.376344" angle="279.146363" scale_x="1" scale_y="1"/>
+                    <object folder="4" file="8" x="94" y="3.376344" angle="279.146363"/>
                 </key>
             </timeline>
             <timeline id="6" name="thigh_r">
@@ -3624,19 +3624,19 @@
             </timeline>
             <timeline id="37" name="Yellow-bubble">
                 <key id="0" time="237" spin="0">
-                    <object folder="6" file="0" x="28" y="127" scale_x="0.191304" scale_y="0.191304" a="0"/>
+                    <object folder="6" file="0" x="28" y="127" angle="0" scale_x="0.191304" scale_y="0.191304" a="0"/>
                 </key>
                 <key id="1" time="247" spin="0">
-                    <object folder="6" file="0" x="28" y="127"/>
+                    <object folder="6" file="0" x="28" y="127" angle="0"/>
                 </key>
                 <key id="2" time="339" spin="0">
-                    <object folder="6" file="0" x="28" y="127" scale_x="2.5" scale_y="2.5"/>
+                    <object folder="6" file="0" x="28" y="127" angle="0" scale_x="2.5" scale_y="2.5"/>
                 </key>
                 <key id="3" time="378" spin="0">
-                    <object folder="6" file="0" x="28" y="127" scale_x="2.5" scale_y="2.5"/>
+                    <object folder="6" file="0" x="28" y="127" angle="0" scale_x="2.5" scale_y="2.5"/>
                 </key>
                 <key id="4" time="513" spin="0">
-                    <object folder="6" file="0" x="28" y="127" scale_x="2.5" scale_y="2.5" a="0"/>
+                    <object folder="6" file="0" x="28" y="127" angle="0" scale_x="2.5" scale_y="2.5" a="0"/>
                 </key>
             </timeline>
         </animation>
@@ -3942,10 +3942,10 @@
                     <object folder="4" file="8" x="94" y="3.376344" angle="270"/>
                 </key>
                 <key id="1" time="237" spin="0">
-                    <object folder="4" file="8" x="94" y="3.376344" angle="279.146363" scale_x="1" scale_y="1"/>
+                    <object folder="4" file="8" x="94" y="3.376344" angle="279.146363"/>
                 </key>
                 <key id="2" time="339" spin="-1">
-                    <object folder="4" file="8" x="94" y="3.376344" angle="279.146363" scale_x="1" scale_y="1"/>
+                    <object folder="4" file="8" x="94" y="3.376344" angle="279.146363"/>
                 </key>
             </timeline>
             <timeline id="6" name="thigh_r">
@@ -4291,23 +4291,23 @@
             </timeline>
             <timeline id="37" name="Yellow-bubble">
                 <key id="0" time="237" spin="0">
-                    <object folder="6" file="0" x="28" y="127" scale_x="0.191304" scale_y="0.191304" a="0"/>
+                    <object folder="6" file="0" x="28" y="127" angle="0" scale_x="0.191304" scale_y="0.191304" a="0"/>
                 </key>
                 <key id="1" time="247" spin="0">
-                    <object folder="6" file="0" x="28" y="127"/>
+                    <object folder="6" file="0" x="28" y="127" angle="0"/>
                 </key>
                 <key id="2" time="339" spin="0">
-                    <object folder="6" file="0" x="28" y="127" scale_x="5" scale_y="5"/>
+                    <object folder="6" file="0" x="28" y="127" angle="0" scale_x="5" scale_y="5"/>
                 </key>
                 <key id="3" time="378" spin="0">
-                    <object folder="6" file="0" x="28" y="127" scale_x="5" scale_y="5"/>
+                    <object folder="6" file="0" x="28" y="127" angle="0" scale_x="5" scale_y="5"/>
                 </key>
                 <key id="4" time="513" spin="0">
-                    <object folder="6" file="0" x="28" y="127" scale_x="2.5" scale_y="2.5" a="0"/>
+                    <object folder="6" file="0" x="28" y="127" angle="0" scale_x="2.5" scale_y="2.5" a="0"/>
                 </key>
             </timeline>
         </animation>
-        <animation id="9" name="Consumabile" length="1600" interval="100" looping="false">
+        <animation id="9" name="Consumabile" length="1600" interval="100">
             <mainline>
                 <key id="0">
                     <bone_ref id="0" timeline="20" key="0"/>
@@ -4426,14 +4426,14 @@
                     <object_ref id="18" parent="6" timeline="13" key="1" z_index="18"/>
                     <object_ref id="19" parent="2" timeline="2" key="1" z_index="19"/>
                 </key>
-                <key id="3" time="967">
+                <key id="3" time="1035">
                     <bone_ref id="0" timeline="20" key="1"/>
                     <bone_ref id="1" parent="0" timeline="21" key="1"/>
-                    <bone_ref id="2" parent="1" timeline="22" key="2"/>
+                    <bone_ref id="2" parent="1" timeline="22" key="1"/>
                     <bone_ref id="3" parent="2" timeline="27" key="2"/>
-                    <bone_ref id="4" parent="1" timeline="24" key="2"/>
+                    <bone_ref id="4" parent="1" timeline="24" key="3"/>
                     <bone_ref id="5" parent="4" timeline="25" key="1"/>
-                    <bone_ref id="6" parent="5" timeline="26" key="1"/>
+                    <bone_ref id="6" parent="5" timeline="26" key="2"/>
                     <bone_ref id="7" parent="1" timeline="23" key="1"/>
                     <bone_ref id="8" parent="1" timeline="28" key="2"/>
                     <bone_ref id="9" parent="8" timeline="29" key="2"/>
@@ -4646,11 +4646,8 @@
                 <key id="0">
                     <bone x="118.34259" y="0.177242" angle="345.973498" scale_x="0.763508" scale_y="5.223342"/>
                 </key>
-                <key id="1" time="899">
+                <key id="1" time="899" spin="-1">
                     <bone x="118.34259" y="0.177242" angle="1.623621" scale_x="0.763508" scale_y="5.223342"/>
-                </key>
-                <key id="2" time="967" spin="-1">
-                    <bone x="118.34259" y="0.177242" angle="10.081264" scale_x="0.763508" scale_y="5.223342"/>
                 </key>
             </timeline>
             <timeline id="23" obj="3" name="Amuleto" object_type="bone">
@@ -4668,8 +4665,11 @@
                 <key id="1" time="598">
                     <bone x="101.504554" y="49.018624" angle="141.466494"/>
                 </key>
-                <key id="2" time="899" spin="-1">
+                <key id="2" time="899">
                     <bone x="97.749229" y="45.717483" angle="258.834896"/>
+                </key>
+                <key id="3" time="1035" spin="-1">
+                    <bone x="97.749229" y="45.717483" angle="264.710265"/>
                 </key>
             </timeline>
             <timeline id="25" obj="5" name="AvambraccioDx" object_type="bone">
@@ -4684,8 +4684,11 @@
                 <key id="0" spin="0">
                     <bone x="48.948671" y="0.904634" angle="12.917813" scale_y="2.107861"/>
                 </key>
-                <key id="1" time="899" spin="0">
+                <key id="1" time="899">
                     <bone x="48.948671" y="0.904634" angle="12.917813" scale_y="2.107861"/>
+                </key>
+                <key id="2" time="1035" spin="-1">
+                    <bone x="48.948671" y="0.904634" angle="34.049677" scale_y="2.107861"/>
                 </key>
             </timeline>
             <timeline id="27" obj="7" name="Ciuffo" object_type="bone">
