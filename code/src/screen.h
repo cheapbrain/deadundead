@@ -39,34 +39,34 @@ struct Input {
 	PlayerInput player[4];
 };
 
-struct App {
+struct Game {
 	int width;
 	int height;
 	double time;
 	double delta;
 	void *window;
 	Input input;
-	SpriteRenderer renderer;
 	StageManager stage_manager;
+	SpriteRenderer renderer;
 };
 
-extern App app;
+extern Game game;
 
-void app_init();
+void game_init();
 
-void app_dispose();
+void game_dispose();
 
-void app_update();
+void game_update();
 
-void app_close();
+void game_close();
 
-void app_clear_color(Color * color);
+void game_clear_color(Color * color);
 
-void app_clear_color(float r, float g, float b, float a);
+void game_clear_color(float r, float g, float b, float a);
 
-void app_clear();
+void game_clear();
 
-int app_should_close();
+int game_should_close();
 
 int button_state(char button, char player);
 
