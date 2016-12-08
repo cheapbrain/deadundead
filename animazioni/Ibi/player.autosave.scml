@@ -7510,7 +7510,7 @@
                     <bone x="89.516667" y="0.966667" angle="358.22513"/>
                 </key>
                 <key id="2" time="300" spin="-1">
-                    <bone x="90" y="-0" angle="0.725224"/>
+                    <bone x="90" angle="0.725224"/>
                 </key>
             </timeline>
             <timeline id="2" obj="2" name="Testa" object_type="bone">
@@ -8890,7 +8890,7 @@
             </timeline>
             <timeline id="1" obj="1" name="Busto" object_type="bone">
                 <key id="0" spin="0">
-                    <bone x="90" y="-0" angle="0.725224"/>
+                    <bone x="90" angle="0.725224"/>
                 </key>
             </timeline>
             <timeline id="2" obj="2" name="Testa" object_type="bone">
@@ -10957,7 +10957,7 @@
             </timeline>
             <timeline id="1" obj="1" name="Busto" object_type="bone">
                 <key id="0" spin="-1">
-                    <bone x="90" y="-0" angle="0.725224"/>
+                    <bone x="90" angle="0.725224"/>
                 </key>
                 <key id="1" time="251">
                     <bone x="89.433333" y="1.133333" angle="350.954873"/>
