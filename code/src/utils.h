@@ -89,7 +89,7 @@ struct Font {
 
 void identity(Mat3 *mat);
 
-void orthographic(Mat3 *mat, float height, float left, float bottom); // width / height = 1920 / 1080, 
+void orthographic(Mat3 *mat, float height, float left, float bottom); // width / height = 16 / 9, 
 
 void log_error(char *msg);
 

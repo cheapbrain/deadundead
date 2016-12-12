@@ -14,7 +14,7 @@ void identity(Mat3 *mat) {
 
 void orthographic(Mat3 *mat, float height, float left, float bottom) {
 	height = 2.f / height;
-	float width = height * (1080.f / 1920.f);
+	float width = height * (10.f / 17.f);
 	mat->m[0] = width;
 	mat->m[1] = 0;
 	mat->m[2] = width * left - 1.f;

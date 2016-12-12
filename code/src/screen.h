@@ -48,6 +48,7 @@ struct Game {
 	Input input;
 	StageManager stage_manager;
 	SpriteRenderer renderer;
+	Font *debug_font;
 };
 
 extern Game game;
