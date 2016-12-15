@@ -4,7 +4,10 @@
 *.xcf
 *.obj
 *.pdb
+*.autosave.scml
 build/release.exe
 build/debug.exe
+build/log.txt
+build/glewinfo.txt
 gitdesk.exe
 config.txt

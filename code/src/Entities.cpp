@@ -60,27 +60,33 @@ void world_update(World *world, double delta) {
 		for (int j = 0; j < dynamic_list->count; j++) {
 			Entity *dn = world_get_entity(world, dynamic_list->entity_id[j]);
 			Rectangle rect_dyn = {{dn->x, dn->old_y},{dn->width, dn->height}};
-			if (dn->x - dn->old_x != 0 && collides(&rect_static, &rect_dyn)) {
+			if (dn->x != dn->old_x && collides(&rect_static, &rect_dyn)) {
 				float overlap;
-				if (dn->x > dn->old_x) overlap = dn->x + dn->width - st->x + .001f;
-				else overlap = dn->x - st->x - st->width - .001f;
-				rect_dyn.pos.x -= overlap;
+				if (dn->x > dn->old_x) overlap = dn->x + dn->width - st->x + .0001f;
+				else overlap = dn->x - st->x - st->width - .0001f;
 				dn->x -= overlap;
 				dn->speed_x = 0;
 			}
-			rect_dyn.pos.y = dn->y;
-			rect_dyn.pos.x = dn->old_x;
-			if (dn->y - dn->old_y != 0) {
+		}
+	}
+
+	for (int i = 0; i < static_list->count; i++) {
+		Entity *st = world_get_entity(world, static_list->entity_id[i]);
+		Rectangle rect_static = {{st->x, st->y},{st->width, st->height}};
+		for (int j = 0; j < dynamic_list->count; j++) {
+			Entity *dn = world_get_entity(world, dynamic_list->entity_id[j]);
+			Rectangle rect_dyn = {{dn->x, dn->y},{dn->width, dn->height}};
+			if (dn->y != dn->old_y) {
 				if (collides(&rect_static, &rect_dyn)) {
 					float overlap;
-					if (dn->y > dn->old_y) overlap = dn->y + dn->height - st->y + .001f;
+					if (dn->y > dn->old_y) overlap = dn->y + dn->height - st->y + .0001f;
 					else {
-						overlap = dn->y - st->y - st->height - .001f;
+						overlap = dn->y - st->y - st->height - .0001f;
 						dn->is_on_floor = 1;
 					}
 					dn->y -= overlap;
-					dn->speed_y = 0;
-				} else dn->is_on_floor = 0;
+					dn->speed_y = -dn->speed_y * st->bounce_coeff;
+				}
 			}
 		}
 	}

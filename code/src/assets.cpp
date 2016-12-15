@@ -1,4 +1,6 @@
 
+#include <string.h>
+#include <stdlib.h>
 #include <GL/glew.h>
 #define STB_IMAGE_IMPLEMENTATION
 #define STBI_ONLY_PNG
@@ -6,9 +8,108 @@
 #include "stb_image.h"
 
 #include "utils.h"
+#include "screen.h"
+
+#define TABLE_SIZE 0x10000
+#define TABLE_MASK 0x0FFFF
 
 Color white = {1.f, 1.f, 1.f, 1.f};
 Color black = {0.f, 0.f, 0.f, 1.f};
+
+void init_asset_manager() {
+	game.asset_manager.assets = (Asset **)calloc(TABLE_SIZE, sizeof (Asset *));
+}
+
+int _hash(const unsigned char *key, int len) {
+  const unsigned int m = 0x5bd1e995;
+  const int r = 24;
+  unsigned int h = 19991 ^ len;
+  while(len >= 4) {
+    unsigned int k = *(unsigned int*)key;
+    k *= m;
+    k ^= k >> r;
+    k *= m;
+    h *= m;
+    h ^= k;
+    key += 4;
+    len -= 4;
+  }
+  switch(len) {
+  case 3: h ^= key[2] << 16;
+  case 2: h ^= key[1] << 8;
+  case 1: h ^= key[0]; h *= m;
+  };
+  h ^= h >> 13;
+  h *= m;
+  h ^= h >> 15;
+  return h;
+} 
+
+Asset *_asset_location(char *name) {
+	int hash = _hash((const unsigned char *)name, strlen(name)) & TABLE_MASK;
+	Asset **asset = &game.asset_manager.assets[hash];
+	for(;;) {
+		if (*asset == NULL) {
+			*asset = (Asset *)malloc(sizeof(Asset));
+			(*asset)->name = NULL;
+			break;
+		} else if (!strcmp(name, (*asset)->name)) {
+			break;
+		} else {
+			asset = &((*asset)->next);
+		}
+	}
+	return *asset;
+}
+
+void *_get_asset(AssetType type, char *name) {
+	Asset *asset = _asset_location(name);
+
+	if (asset->name == 	NULL) {
+		int size;
+		switch(type) {
+			case TEXTURE:
+				size = sizeof Texture;
+				break;
+			case SHADER:
+				size = sizeof Shader;
+				break;
+			case FONT:
+				size = sizeof Font;
+				break;
+		}
+		int name_size = strlen(name) + 1;
+		char *name_copy = (char *)malloc(name_size);
+		memcpy(name_copy, name, name_size);
+		void *data = malloc(size);
+		((Texture *)data)->name = name_copy;
+		asset->name = name_copy;
+		asset->type = type;
+		asset->data = data;
+		asset->next = NULL;
+		game.asset_manager.count++;
+	}
+	return asset->data;
+}
+
+void _remove_asset(char *name) {
+	int hash = _hash((const unsigned char *)name, strlen(name)) & TABLE_MASK;
+	Asset **asset = &game.asset_manager.assets[hash];
+	for(;;) {
+		if (*asset == NULL) {
+			return;
+		} else if (!strcmp(name, (*asset)->name)) {
+			Asset *next = (*asset)->next;
+			free((*asset)->data);
+			free(*asset);
+			*asset = next;
+			game.asset_manager.count--;
+			return;
+		} else {
+			asset = &((*asset)->next);
+		}
+	}
+}
 
 char* read_text_file(char *file) {
 	FILE *fptr;
@@ -49,7 +150,7 @@ Texture *load_texture(char *path) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	stbi_image_free(data);
 
-	Texture *texture = (Texture *)malloc(sizeof(Texture));
+	Texture *texture = (Texture *)_get_asset(TEXTURE, path);
 	texture->width = width;
 	texture->height = height;
 	texture->id = id;
@@ -110,7 +211,7 @@ Shader *load_shader(char *vpath, char *fpath, int shader_type) {
 	GLint u_texture = glGetUniformLocation(program, "u_texture");
 	glUniform1i(u_texture, 0);
 
-	Shader *shader = (Shader *)malloc(sizeof(Shader));
+	Shader *shader = (Shader *)_get_asset(SHADER, vpath);
 	shader->id = program;
 	shader->u_transform = glGetUniformLocation(program, "u_transform");
 	return shader;
@@ -256,6 +357,7 @@ Font *load_font(char *path) {
 		}
 	}
 	fclose(fp);
+	free(buffer);
 
 	Shader *shader = load_shader("../data/shaders/font.vert", "../data/shaders/font.frag", SHADER_SPRITE);
 	Texture *texture = load_texture("../data/fonts/font.png");
@@ -263,7 +365,7 @@ Font *load_font(char *path) {
 	GLint u_smoothing = glGetUniformLocation(shader->id, "u_smoothing");
 	GLint u_thickness = glGetUniformLocation(shader->id, "u_thickness");
 
-	Font * font = (Font *)malloc(sizeof(Font));
+	Font *font = (Font *)_get_asset(FONT, path);
 	font->size = cfg_size;
 	font->lpad = cfg_lpad;
 	font->rpad = cfg_rpad;
@@ -285,4 +387,43 @@ Font *load_font(char *path) {
 	font->chars = chars;
 	font->kerns = kers;
 	return font;
+}
+
+void dispose_texture(Texture *texture) {
+	glDeleteTextures(1, &texture->id);
+	_remove_asset(texture->name);
+}
+
+void dispose_shader(Shader *shader) {
+	glDeleteProgram(shader->id);
+	_remove_asset(shader->name);
+}
+
+void dispose_font(Font *font) {
+	dispose_texture(font->texture);
+	dispose_shader(font->shader);
+	free(font->chars);
+	free(font->kerns);
+	_remove_asset(font->name);
+}
+
+void dispose_all() {
+	for(int i = 0; i < TABLE_SIZE; i++) {
+		Asset *asset = game.asset_manager.assets[i];
+		while(asset != 	NULL)	{
+			Asset *next = asset->next;
+			switch(asset->type) {
+				case TEXTURE:
+					dispose_texture((Texture *)asset->data);
+					break;
+				case SHADER:
+					dispose_shader((Shader *)asset->data);
+					break;
+				case FONT:
+					dispose_font((Font *)asset->data);
+					break;
+			}
+			asset = next;
+		}
+	}
 }
