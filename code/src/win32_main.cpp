@@ -98,6 +98,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	game_init();
 	game_clear_color(&black);
 
+	init_asset_manager();
+
 	Shader *default_shader = load_shader("../data/shaders/default.vert", "../data/shaders/default.frag", SHADER_SPRITE);
 	Texture * default_texture = load_texture("../images/test.png");	
 	init(&game.renderer, default_texture, default_shader);

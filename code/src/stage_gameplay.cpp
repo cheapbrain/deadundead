@@ -37,12 +37,12 @@ void player_update(Entity *e, World *world, double delta) {
 	e->speed_y -= (float)(17.f * delta);
 
 	if (e->is_on_floor && button_state(B_JUMP, e->player_id)) {
-		e->is_on_floor = 0;
-		e->speed_y = 9.f;
+		e->speed_y += 9.f;
 	}
 
 	e->x += (float)(e->speed_x * delta);
 	e->y += (float)(e->speed_y * delta);
+	e->is_on_floor = 0;
 }
 
 void player_render(Entity *e) {
@@ -108,9 +108,8 @@ void stage_gameplay_init(Stage *stage) {
 			int floorx = x & 3;
 			int floory = y & 3;
 			if (x > 0 && x < 16 && y > 0 && y < 9)
-				if (!floorx || floorx != floory || y == 1) 
+				if (floorx > 1 || floorx != floory || y == 1) 
 					continue;
-			//if (y > 2 || x > 2) continue;
 			Entity *wall = world_new_entity(world, RENDER_BACK | STATIC_COLLIDE);
 			wall->x = (float)x;
 			wall->y = (float)y;
@@ -118,6 +117,7 @@ void stage_gameplay_init(Stage *stage) {
 			wall->height = 1;
 			wall->texture = load_texture("../images/wall.png");
 			wall->render = wall_render;
+			wall->bounce_coeff = 0;
 		}
 	}
 
@@ -128,6 +128,10 @@ void stage_gameplay_init(Stage *stage) {
 	wall->height = .2f;
 	wall->texture = load_texture("../images/wall.png");
 	wall->render = wall_render;
+	wall->bounce_coeff = .25f;
+
+
+	log(game.asset_manager.count);
 }
 
 void stage_gameplay_enter(Stage *stage, int previous_stage_id) {

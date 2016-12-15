@@ -61,6 +61,7 @@ struct Entity {
 	Texture *texture;
 	int is_on_floor;
 	int player_id;
+	float bounce_coeff;
 
 	void (*update)(Entity *e, World *world, double delta);
 	void (*render)(Entity *e);
