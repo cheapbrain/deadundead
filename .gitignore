@@ -1,0 +1,10 @@
+.pgit/
+.git/
+*.psd
+*.xcf
+*.obj
+*.pdb
+build/release.exe
+build/debug.exe
+gitdesk.exe
+config.txt
