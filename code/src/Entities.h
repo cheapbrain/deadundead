@@ -75,7 +75,6 @@ struct Entity {
 };
 
 struct World {
-	Mat3 *transform;
 	Vec2 size;
 	Entity *entities;
 	int entity_count;
