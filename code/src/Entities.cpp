@@ -28,8 +28,6 @@ void _list_remove(EntityList *list, World *world, int index) {
 void world_init(World *world, int capacity) {
 	world->size.x = 17;
 	world->size.y = 10;
-	world->transform = (Mat3 *)malloc(sizeof(Mat3));
-	orthographic(world->transform, 10, 0, 0);
 	world->entity_count = 0;
 	world->entity_capacity = capacity;
 	world->entities = (Entity *)malloc(world->entity_capacity * sizeof Entity);
@@ -93,7 +91,6 @@ void world_update(World *world, double delta) {
 }
 
 void world_render(World *world, double delta) {
-	set_matrix(&game.renderer, world->transform);
 
 	EntityList *back_layer = &world->lists[RENDER_BACK_LIST];
 	EntityList *middle_layer = &world->lists[RENDER_LIST];

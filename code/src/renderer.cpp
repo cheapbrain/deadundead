@@ -158,7 +158,13 @@ void draw(SpriteRenderer *renderer, Font *font, char *text, float x, float y) {
 
 void set_color(SpriteRenderer *renderer, Color *color) {
 	renderer->active_color = *color;
+}
 
+void set_color(SpriteRenderer *renderer, float r, float g, float b, float a) {
+	renderer->active_color.r = r;
+	renderer->active_color.g = g;
+	renderer->active_color.b = b;
+	renderer->active_color.a = a;
 }
 
 void set_shader(SpriteRenderer *renderer, Shader *shader) {
