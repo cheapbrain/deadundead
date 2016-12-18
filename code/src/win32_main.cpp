@@ -13,6 +13,7 @@
 #include "utils.h"
 #include "stage.h"
 #include "stage_gameplay.h"
+#include "stage_editor.h"
 
 Game game;
 
@@ -101,7 +102,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	init_asset_manager();
 
 	Shader *default_shader = load_shader("../data/shaders/default.vert", "../data/shaders/default.frag", SHADER_SPRITE);
-	Texture * default_texture = load_texture("../images/test.png");	
+	Texture * default_texture = load_texture("../images/white.png");	
 	init(&game.renderer, default_texture, default_shader);
 
 	Font *font = load_font("../data/fonts/font.fnt");
@@ -116,12 +117,15 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	int frames = 0;
 
 	stage_manager_add(sizeof(StageGameplay), STAGE_GAMEPLAY, stage_gameplay_init, stage_gameplay_enter, stage_gameplay_leave, stage_gameplay_update, stage_gameplay_render);
+	stage_manager_add(sizeof(StageEditor), STAGE_EDITOR, stage_editor_init, stage_editor_enter, stage_editor_leave, stage_editor_update, stage_editor_render);
 	
-	stage_manager_enter(STAGE_GAMEPLAY, TRANSITION_NONE, 0);
+	stage_manager_enter(STAGE_EDITOR, TRANSITION_NONE, 0);
+
+	Mat3 *transform = (Mat3 *)malloc(sizeof(Mat3));
+	orthographic(transform, 10, 0, 0);
 
 	while(!game_should_close()) {
 		game_update();
-		if (game.delta == 0) continue;
 		
 		glDisable(GL_SCISSOR_TEST);
 		game_clear();
@@ -133,6 +137,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 			time_passed -= 1.0;
 			frames = 0;
 		}
+
+		set_matrix(&game.renderer, transform);
 
 		Stage *active_stage = game.stage_manager.active_stage;
 		active_stage->update(active_stage, game.delta);
@@ -174,13 +180,15 @@ void game_init() {
 	glfwWindowHint(GLFW_GREEN_BITS, active_mode->greenBits);
 	glfwWindowHint(GLFW_BLUE_BITS, active_mode->blueBits);
 	glfwWindowHint(GLFW_REFRESH_RATE, active_mode->refreshRate);
-	window = glfwCreateWindow(width, height, title, active_monitor, NULL);
-	//window = glfwCreateWindow(1366, 768, title, NULL, NULL);
+	window = glfwCreateWindow(width, height, title,  glfwGetPrimaryMonitor(), NULL);
+	//window = glfwCreateWindow(800, 600, title, NULL, NULL);
 	if (!window) {
 		glfwTerminate();
 		log_error("Failed to open GLFW window");
 	}
+	#ifndef DEBUG 
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	#endif
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(vsync);
 	GLenum err = glewInit();
@@ -266,11 +274,6 @@ void game_dispose() {
 void game_update() {
 	glfwSwapBuffers((GLFWwindow *)game.window);
 	glfwPollEvents();
-
-	if (glfwGetWindowAttrib((GLFWwindow *)game.window, GLFW_ICONIFIED)) {
-		game.delta = 0;
-		return;
-	}
 
 	for (int i = 0; i < game.input.count; i++) {
 		PlayerInput *player = &(game.input.player[i]);
