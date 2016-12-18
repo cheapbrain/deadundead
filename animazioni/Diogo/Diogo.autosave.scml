@@ -3373,7 +3373,7 @@
                 </key>
             </timeline>
         </animation>
-        <animation id="9" name="Idle_000" length="300" interval="100" looping="false">
+        <animation id="9" name="Raccogli" length="300" interval="100" looping="false">
             <mainline>
                 <key id="0">
                     <bone_ref id="0" timeline="33" key="0"/>
