@@ -180,8 +180,8 @@ void game_init() {
 	glfwWindowHint(GLFW_GREEN_BITS, active_mode->greenBits);
 	glfwWindowHint(GLFW_BLUE_BITS, active_mode->blueBits);
 	glfwWindowHint(GLFW_REFRESH_RATE, active_mode->refreshRate);
-	//window = glfwCreateWindow(width, height, title,  glfwGetPrimaryMonitor(), NULL);
-	window = glfwCreateWindow(1366, 768, title, NULL, NULL);
+	window = glfwCreateWindow(width, height, title,  glfwGetPrimaryMonitor(), NULL);
+	//window = glfwCreateWindow(1366, 768, title, NULL, NULL);
 	if (!window) {
 		glfwTerminate();
 		log_error("Failed to open GLFW window");
