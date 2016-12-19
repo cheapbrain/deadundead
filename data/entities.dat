@@ -1,5 +1,39 @@
-name = player
+# FILE-START #
+
+name = player1
+texture = ../images/player.png
+x = 0.25
+y = 0
+w = 0.5
+h = 0.82
+player_id = 0
+update = UPDATE_PLAYER
+render = RENDER_PLAYER
+
+name = player2
+texture = ../images/player2.png
+flags = RENDER,UPDATE,DYNAMIC_COLLIDE
+x = 0.25
+y = 0
+w = 0.4
+h = 0.8
+update = UPDATE_PLAYER
+render = RENDER_PLAYER
+
+name = bricks
 x = 0
 y = 0
-w = 0.1
-h = 0.9
+w = 1
+h = 1
+bounce = 0
+
+name = jumppad
+texture = ../images/wall.png
+x = -0.5
+y = 0
+w = 2
+h = 0.2
+bounce = 0.25
+render = RENDER_WALL
+
+# FILE-END #

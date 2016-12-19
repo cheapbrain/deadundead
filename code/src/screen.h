@@ -58,6 +58,10 @@ struct AssetManager {
 };
 
 struct Game {
+	int window_width;
+	int window_height;
+	int x_offset;
+	int y_offset;
 	int width;
 	int height;
 	double time;
