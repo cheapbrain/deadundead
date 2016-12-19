@@ -399,6 +399,7 @@ void stage_editor_init(Stage *stage) {
 	map.capacity = 10;
 	map.count = 0;
 	bg = load_texture("../images/bg.png");
+	load_palette(&palette);
 }
 
 void stage_editor_enter(Stage *stage, int previous_stage_id) {
@@ -407,8 +408,6 @@ void stage_editor_enter(Stage *stage, int previous_stage_id) {
 	mouse_middle = 0;
 	show_menu = 1;
 	selected = 0;
-
-	load_palette(&palette);
 }
 
 void stage_editor_leave(Stage *stage, int next_stage_id) {
