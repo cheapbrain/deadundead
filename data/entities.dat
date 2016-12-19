@@ -4,7 +4,7 @@ name = player1
 texture = ../images/player.png
 flags = RENDER,UPDATE,DYNAMIC_COLLIDE
 x = 0.25
-y = 0
+y = 0.2
 w = 0.5
 h = 0.82
 player_id = 0
@@ -15,7 +15,7 @@ name = player2
 texture = ../images/player2.png
 flags = RENDER,UPDATE,DYNAMIC_COLLIDE
 x = 0.25
-y = 0
+y = 0.2
 w = 0.4
 h = 0.8
 player_id = 1
@@ -40,6 +40,116 @@ y = 0
 w = 2
 h = 0.2
 bounce = 0.5
+render = RENDER_WALL
+
+name = furniture
+texture = ../images/wall.png
+flags = RENDER_BACK,STATIC_COLLIDE 
+x = -0.3
+y = 0.2
+w = 1
+h = 2
+bounce = 0
+render = RENDER_WALL
+
+name = plantedfurniture
+texture = ../images/wall.png
+flags = RENDER_BACK,STATIC_COLLIDE 
+x = 0.3
+y = 0.2
+w = 1
+h = 2
+bounce = 0
+render = RENDER_WALL
+
+name = shelf
+texture = ../images/wall.png
+flags = RENDER_BACK,STATIC_COLLIDE 
+x = 0.1
+y = 0.2
+w = 2.8
+h = 0.2
+bounce = 0
+render = RENDER_WALL
+
+name = lamp
+texture = ../images/wall.png
+flags = RENDER_BACK,STATIC_COLLIDE 
+x = 0.25
+y = -0.5
+w = 2.5
+h = 0.2
+bounce = 0
+render = RENDER_WALL
+
+name = balcony
+texture = ../images/wall.png
+flags = RENDER_BACK,STATIC_COLLIDE 
+x = 0
+y = -0.5
+w = 5
+h = 0.3
+bounce = 0
+render = RENDER_WALL
+
+name = mushroom
+texture = ../images/wall.png
+flags = RENDER_BACK,STATIC_COLLIDE 
+x = 0
+y = 0.2
+w = 1
+h = 0.5
+bounce = 0.5
+render = RENDER_WALL
+
+name = sofa
+texture = ../images/wall.png
+flags = RENDER_BACK,STATIC_COLLIDE 
+x = 0
+y = 0.2
+w = 1
+h = 0.5
+bounce = 0.5
+render = RENDER_WALL
+
+name = test1
+texture = ../images/wall.png
+flags = RENDER_BACK,STATIC_COLLIDE 
+x = 0
+y = 0
+w = 17
+h = 0.2
+bounce = 0
+render = RENDER_WALL
+
+name = test2
+texture = ../images/wall.png
+flags = RENDER_BACK,STATIC_COLLIDE 
+x = 0.7
+y = 0.2
+w = 0.3
+h = 9.5
+bounce = 0
+render = RENDER_WALL
+
+name = test3
+texture = ../images/wall.png
+flags = RENDER_BACK,STATIC_COLLIDE 
+x = 0
+y = 0.7
+w = 17
+h = 0.3
+bounce = 0
+render = RENDER_WALL
+
+name = test4
+texture = ../images/wall.png
+flags = RENDER_BACK,STATIC_COLLIDE 
+x = 0
+y = 0.2
+w = 0.3
+h = 9.5
+bounce = 0
 render = RENDER_WALL
 
 # FILE-END #
