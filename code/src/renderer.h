@@ -36,6 +36,8 @@ void draw(SpriteRenderer *renderer, Font *font, char *text, float x, float y);
 
 void set_color(SpriteRenderer *renderer, Color *color);
 
+void set_color(SpriteRenderer *renderer, float r, float g, float b, float a);
+
 void set_shader(SpriteRenderer *renderer, Shader *shader);
 
 void set_texture(SpriteRenderer *renderer, Texture *texture);
