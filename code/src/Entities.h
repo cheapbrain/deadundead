@@ -1,86 +1,103 @@
 #pragma once
 
-//
-//TIPI FUNZIONI: 1a LETTERA TIPO RITORNO, POI TIPI INGRESSO
-// v void, i int, c char, f float, d double 
-//(puntatori omessi, v come argomento è sempre puntatore)
-//
-typedef void(*vv)(const void*);
-typedef void(*vvf)(const void*, float);
-typedef int(*ivv)(const void*, const void*);
-typedef void(*vvv) (const void*, const void*);
+#include "utils.h"
 
-//lista delle interazioni delle entità non raccoglibili
-void damage(const void*, const void*);
-void boost(const void*, const void*);
-const vvv steady_interactions[2] = {&damage, &boost};
+typedef struct World World;
+typedef struct Entity Entity;
 
-//lista usi e azioni player/strumenti
-void hit(const void*);
-void slash(const void*);
-const vv actions[2] = {&hit, &slash};
-
-enum Interactable_type {
-	TRAP,
-	BOUNCING
+enum EntityTag
+{
+	UPDATE = 1<<0,
+	RENDER = 1<<1,
+	RENDER_BACK = 1<<2,
+	RENDER_FRONT = 1<<3,
+	DYNAMIC_COLLIDE = 1<<4,
+	STATIC_COLLIDE = 1<<5,
+	HITTABLE = 1<<6,
+	ACTIVE_EVENT = 1<<7,
+	PASSIVE_EVENT = 1<<8
 };
 
-enum Pickup_type {
-	NOTHING,
-	WEAPON
+enum EntityListType
+{
+	UPDATE_LIST = 0,
+	RENDER_LIST,
+	RENDER_BACK_LIST,
+	RENDER_FRONT_LIST,
+	DYNAMIC_COLLIDE_LIST,
+	STATIC_COLLIDE_LIST,
+	HITTABLE_LIST,
+	ACTIVE_EVENT_LIST,
+	PASSIVE_EVENT_LIST,
+	_LIST_COUNT
 };
 
-//
-//STRUTTURE ENTITA'
-//
+const EntityTag list_tags[_LIST_COUNT] = {
+	UPDATE,
+	RENDER,
+	RENDER_BACK,
+	RENDER_FRONT,
+	DYNAMIC_COLLIDE,
+	STATIC_COLLIDE,
+	HITTABLE,
+	ACTIVE_EVENT,
+	PASSIVE_EVENT
+};
+
+struct EntityList {
+	int id;
+	int count;
+	int capacity;
+	int *entity_id;
+};
+
 struct Entity {
+	int id;
+	int tag;
 	float x, y, width, height;
-};
-
-struct Platform {
-	float x, y, width, height;
-	vvf update;
-};
-Platform* new_platform();
-void update_platform(const void*, float);
-
-struct Projectile {
-	float x, y, width, height;
-	vvf update;
+	float old_x, old_y;
 	float speed_x, speed_y;
-	vv move;
-	ivv colliding;
-};
-Projectile* new_projectile();
-void update_projectile(const void*, float);
-
-struct Interactable {
-	float x, y, width, height;
-	vvf update;
-	Interactable_type type;
-	vvv interact;
-};
-Interactable* new_interactable(Interactable_type);
-
-struct Pickup {
-	float x, y, width, height;
-	vvf update;
-	Pickup_type type;
-	vvv pickupped;
-	vvv use;
-};
-Pickup* new_pickup(Pickup_type);
-
-struct Player {
-	float x, y, width, height;
-	vvf update;
-	float speed_x, speed_y;
-	vv move;
-	ivv colliding;
-	char *name;
-	Pickup_type held;
-	vv action;
 	float health;
+	Texture *texture;
+	int is_on_floor;
+	int player_id;
+	float bounce_coeff;
+
+	void (*update)(Entity *e, World *world, double delta);
+	void (*render)(Entity *e);
+	int (*colliding)(const void*, const void*);
+	void (*on_collide)();
+	void (*on_hit)();
+	void (*on_enter)();
+	void (*on_interact)();
+
+	int indexes[_LIST_COUNT];
 };
-Player* new_player(char*);
-void update_player(const void*, float);
+
+struct World {
+	Mat3 *transform;
+	Vec2 size;
+	Entity *entities;
+	int entity_count;
+	int entity_capacity;
+	
+	EntityList lists[_LIST_COUNT];
+};
+
+void world_init(World *world, int capacity);
+
+void world_render(World *world, double delta);
+
+void world_update(World *world, double delta);
+
+Entity *world_new_entity(World *world, int tag);
+
+void world_remove_entity(World *world, int id);
+
+Entity *world_get_entity(World *world, int id);
+
+void world_resize_entity_list(World *world, int new_capacity);
+
+void entity_remove_list(World *world, Entity *entity, EntityListType list_id);
+
+void entity_add_list(World *world, Entity *entity, EntityListType list_id);

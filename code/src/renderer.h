@@ -9,6 +9,8 @@ struct SpriteRenderer {
 	unsigned int vbo;
 	Texture *active_texture;
 	Shader *active_shader;
+	Texture *default_texture;
+	Shader *default_shader;
 	Mat3 active_matrix;
 	Color active_color;
 	float *buffer;
@@ -27,6 +29,8 @@ void flush(SpriteRenderer *renderer);
 void draw(SpriteRenderer *renderer, Texture *texture, float x, float y, float w, float h);
 
 void draw(SpriteRenderer *renderer, Texture *texture, float x, float y, float w, float h, float tx, float ty, float tw, float th);
+
+void draw(SpriteRenderer *renderer, Texture *texture, float x, float y, float w, float h, float ox, float oy, float angle, float tx, float ty, float tw, float th);
 
 void draw(SpriteRenderer *renderer, Font *font, char *text, float x, float y);
 
