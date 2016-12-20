@@ -65,6 +65,7 @@ struct Kerning {
 
 struct Font {
 	char *name;
+	unsigned int id;
 	//info
 	char size;
 	char lpad, rpad, tpad, bpad;
@@ -96,6 +97,8 @@ void orthographic(Mat3 *mat, float height, float left, float bottom); // width /
 
 void log_error(char *msg);
 
+void log_string(char *msg);
+
 void init_asset_manager();
 
 Texture *load_texture(char *path);
@@ -114,3 +117,16 @@ void dispose_shader(Shader *shader);
 void dispose_font(Font *font);
 
 void dispose_all();
+
+extern char log_buff[10000];
+extern char log_wbuff[100];
+
+void log(int a);
+
+void log(char a);
+
+void log(float a);
+
+void log(void *a);
+
+void log(char *a);
