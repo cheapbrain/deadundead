@@ -42,19 +42,19 @@ name = lamp
 x = 7.000000
 y = 5.000000
 
-name = mushroom
-x = 6.000000
-y = 0.000000
-
-name = sofa
-x = 10.000000
-y = 0.000000
-
 name = plantedfurniture
 x = 0.000000
 y = 0.000000
 
 name = furniture
 x = 16.000000
+y = 0.000000
+
+name = mushroom
+x = 6.000000
+y = 0.000000
+
+name = sofa
+x = 10.000000
 y = 0.000000
 
