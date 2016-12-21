@@ -207,7 +207,7 @@ void player_update(Entity *e, World *world, double delta) {
 	e->speed_y -= (float)(17.f * delta);
 
 	if (e->is_on_floor && button_state(B_JUMP, e->player_id)) {
-		e->speed_y += 9.f;
+		e->speed_y += 8.5f;
 	}
 
 	e->x += (float)(e->speed_x * delta);
