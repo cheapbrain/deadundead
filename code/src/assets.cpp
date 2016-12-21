@@ -397,6 +397,8 @@ Font *load_font(char *path) {
 	return font;
 }
 
+
+
 void dispose_texture(Texture *texture) {
 	glDeleteTextures(1, &texture->id);
 	_remove_asset(texture->name);
@@ -434,4 +436,24 @@ void dispose_all() {
 			asset = next;
 		}
 	}
+}
+
+void list_init(ArrayList *list, int element_size) {
+	list->array = malloc(element_size * 10);
+	list->count = 10;
+	list->element_size = element_size;
+}
+
+void list_set(ArrayList *list, void *value, int index) {
+	if (index >= list->count) {
+		int new_count = list->count * 2;
+		if (new_count <= index) new_count = index + 1;
+		list->array = realloc(list->array, list->element_size * new_count);
+		list->count = new_count;
+	}
+	memcpy((char *)list->array + list->element_size * index, value, list->element_size);
+}
+
+void *list_get(ArrayList *list, int index) {
+	return (void *)((char *)list->array + list->element_size * index);
 }

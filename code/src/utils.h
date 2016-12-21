@@ -29,6 +29,12 @@ struct Color {
 extern Color white;
 extern Color black;
 
+struct ArrayList {
+	void *array;
+	int element_size;
+	int count;
+};
+
 struct Texture {
 	char *name;
 	unsigned int id;
@@ -91,6 +97,96 @@ struct Font {
 	Kerning* kerns;
 };
 
+struct SpriterFile {
+	int id;
+	char *name;
+	int width;
+	int height;
+	float pivot_x;
+	float pivot_y;
+};
+
+struct SpriterFolder {
+	int id;
+	ArrayList files;
+};
+
+struct SpriterObjInfo {
+	char *name;
+	int type;
+	int width;
+	int height;
+};
+
+
+struct SpriterBoneRef {
+	int id;
+	int parent;
+	int timeline;
+	int key;
+};
+
+struct SpriterSpriteRef {
+	int id;
+	int parent;
+	int timeline;
+	int key;
+	int z_index;
+};
+
+struct SpriterMainlineKey {
+	int id;
+	int time;
+	ArrayList bones;
+	ArrayList sprites;
+};
+
+struct SpriterMainline {
+	ArrayList keys;
+};
+
+struct SpriterTimelineKeys {
+	int id;
+	int time;
+	int spin;
+	int folder;
+	int file;
+	float x;
+	float y;
+	float angle;
+	float scale_x;
+	float scale_y;
+	float alpha;
+};
+
+struct SpriterTimeline {
+	int id;
+	char *name;
+	ArrayList keys;
+};
+
+struct SpriterAnimation {
+	int id;
+	char *name;
+	int length;
+	int interval;
+	int looping;
+	SpriteMainline mainline;
+	ArrayList timelines;
+};
+
+struct SpriterEntity {
+	int id;
+	char *name;
+	ArrayList obj_infos;
+	ArrayList animations;
+};
+
+struct SpriterObject {
+	ArrayList folders;
+	ArrayList entities;
+};
+
 void identity(Mat3 *mat);
 
 void orthographic(Mat3 *mat, float height, float left, float bottom); // width / height = 17 / 10, 
@@ -130,3 +226,9 @@ void log(float a);
 void log(void *a);
 
 void log(char *a);
+
+void list_init(ArrayList *list, int element_size);
+
+void list_set(ArrayList *list, void *value, int index);
+
+void *list_get(ArrayList *list, int index);
