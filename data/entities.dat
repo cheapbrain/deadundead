@@ -152,4 +152,13 @@ h = 9.5
 bounce = 0
 render = RENDER_WALL
 
+name = bg
+texture = ../images/wall.png
+flags = RENDER_BACK
+x = 0
+y = 0
+w = 17
+h = 10
+bounce = 0
+render = RENDER_WALL
 # FILE-END #
