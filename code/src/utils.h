@@ -30,13 +30,15 @@ extern Color white;
 extern Color black;
 
 struct Texture {
-	int id;
+	char *name;
+	unsigned int id;
 	int width;
 	int height;
 };
 
 struct Shader {
-	int id;
+	char *name;
+	unsigned int id;
 	int u_transform;
 };
 
@@ -62,6 +64,7 @@ struct Kerning {
 };
 
 struct Font {
+	char *name;
 	//info
 	char size;
 	char lpad, rpad, tpad, bpad;
@@ -89,9 +92,11 @@ struct Font {
 
 void identity(Mat3 *mat);
 
-void orthographic(Mat3 *mat, float height, float left, float bottom); // width / height = 1920 / 1080, 
+void orthographic(Mat3 *mat, float height, float left, float bottom); // width / height = 17 / 10, 
 
 void log_error(char *msg);
+
+void init_asset_manager();
 
 Texture *load_texture(char *path);
 
@@ -101,3 +106,11 @@ Texture *load_texture(char *path);
 Shader *load_shader(char *vpath, char *fpath, int shader_type);
 
 Font *load_font(char *path);
+
+void dispose_texture(Texture *texture);
+
+void dispose_shader(Shader *shader);
+
+void dispose_font(Font *font);
+
+void dispose_all();

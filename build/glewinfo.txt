@@ -4,8 +4,8 @@
 
 GLEW version 2.0.0
 Reporting capabilities of pixelformat 1
-Running on a GeForce GTX 650 Ti BOOST/PCIe/SSE2 from NVIDIA Corporation
-OpenGL version 4.5.0 NVIDIA 372.70 is supported
+Running on a GeForce GTX 1060 3GB/PCIe/SSE2 from NVIDIA Corporation
+OpenGL version 4.5.0 NVIDIA 376.19 is supported
 
 GL_VERSION_1_1:                                                OK 
 ---------------
@@ -466,7 +466,7 @@ GL_AMD_transform_feedback3_lines_triangles:                    MISSING
 GL_AMD_transform_feedback4:                                    MISSING 
 ---------------------------
 
-GL_AMD_vertex_shader_layer:                                    MISSING 
+GL_AMD_vertex_shader_layer:                                    OK 
 ---------------------------
 
 GL_AMD_vertex_shader_tessellator:                              MISSING 
@@ -474,7 +474,7 @@ GL_AMD_vertex_shader_tessellator:                              MISSING
   glTessellationFactorAMD:                                     MISSING
   glTessellationModeAMD:                                       MISSING
 
-GL_AMD_vertex_shader_viewport_index:                           MISSING 
+GL_AMD_vertex_shader_viewport_index:                           OK 
 ------------------------------------
 
 GL_ANGLE_depth_texture:                                        MISSING 
@@ -897,7 +897,7 @@ GL_ARB_fragment_program_shadow:                                OK
 GL_ARB_fragment_shader:                                        OK 
 -----------------------
 
-GL_ARB_fragment_shader_interlock:                              MISSING 
+GL_ARB_fragment_shader_interlock:                              OK 
 ---------------------------------
 
 GL_ARB_framebuffer_no_attachments:                             OK 
@@ -1191,7 +1191,7 @@ GL_ARB_point_parameters:                                       OK
 GL_ARB_point_sprite:                                           OK 
 --------------------
 
-GL_ARB_post_depth_coverage:                                    MISSING 
+GL_ARB_post_depth_coverage:                                    OK 
 ---------------------------
 
 GL_ARB_program_interface_query:                                OK 
@@ -1242,10 +1242,10 @@ GL_ARB_robustness_application_isolation:                       MISSING
 GL_ARB_robustness_share_group_isolation:                       MISSING 
 ----------------------------------------
 
-GL_ARB_sample_locations:                                       MISSING 
+GL_ARB_sample_locations:                                       OK 
 ------------------------
-  glFramebufferSampleLocationsfvARB:                           MISSING
-  glNamedFramebufferSampleLocationsfvARB:                      MISSING
+  glFramebufferSampleLocationsfvARB:                           OK
+  glNamedFramebufferSampleLocationsfvARB:                      OK
 
 GL_ARB_sample_shading:                                         OK 
 ----------------------
@@ -1436,7 +1436,7 @@ GL_ARB_shader_texture_image_samples:                           OK
 GL_ARB_shader_texture_lod:                                     OK 
 --------------------------
 
-GL_ARB_shader_viewport_layer_array:                            MISSING 
+GL_ARB_shader_viewport_layer_array:                            OK 
 -----------------------------------
 
 GL_ARB_shading_language_100:                                   OK 
@@ -1472,10 +1472,10 @@ GL_ARB_sparse_texture:                                         OK
   glTexPageCommitmentARB:                                      OK
   glTexturePageCommitmentEXT:                                  OK
 
-GL_ARB_sparse_texture2:                                        MISSING 
+GL_ARB_sparse_texture2:                                        OK 
 -----------------------
 
-GL_ARB_sparse_texture_clamp:                                   MISSING 
+GL_ARB_sparse_texture_clamp:                                   OK 
 ----------------------------
 
 GL_ARB_stencil_texturing:                                      OK 
@@ -1549,7 +1549,7 @@ GL_ARB_texture_env_crossbar:                                   OK
 GL_ARB_texture_env_dot3:                                       OK 
 ------------------------
 
-GL_ARB_texture_filter_minmax:                                  MISSING 
+GL_ARB_texture_filter_minmax:                                  OK 
 -----------------------------
 
 GL_ARB_texture_float:                                          OK 
@@ -2573,19 +2573,19 @@ GL_EXT_polygon_offset_clamp:                                   OK
 ----------------------------
   glPolygonOffsetClampEXT:                                     OK
 
-GL_EXT_post_depth_coverage:                                    MISSING 
+GL_EXT_post_depth_coverage:                                    OK 
 ---------------------------
 
 GL_EXT_provoking_vertex:                                       OK 
 ------------------------
   glProvokingVertexEXT:                                        OK
 
-GL_EXT_raster_multisample:                                     MISSING 
+GL_EXT_raster_multisample:                                     OK 
 --------------------------
-  glCoverageModulationNV:                                      MISSING
-  glCoverageModulationTableNV:                                 MISSING
-  glGetCoverageModulationTableNV:                              MISSING
-  glRasterSamplesEXT:                                          MISSING
+  glCoverageModulationNV:                                      OK
+  glCoverageModulationTableNV:                                 OK
+  glGetCoverageModulationTableNV:                              OK
+  glRasterSamplesEXT:                                          OK
 
 GL_EXT_rescale_normal:                                         OK 
 ----------------------
@@ -2624,7 +2624,7 @@ GL_EXT_separate_shader_objects:                                OK
 GL_EXT_separate_specular_color:                                OK 
 -------------------------------
 
-GL_EXT_shader_image_load_formatted:                            MISSING 
+GL_EXT_shader_image_load_formatted:                            OK 
 -----------------------------------
 
 GL_EXT_shader_image_load_store:                                OK 
@@ -2641,7 +2641,7 @@ GL_EXT_shadow_funcs:                                           OK
 GL_EXT_shared_texture_palette:                                 MISSING 
 ------------------------------
 
-GL_EXT_sparse_texture2:                                        MISSING 
+GL_EXT_sparse_texture2:                                        OK 
 -----------------------
 
 GL_EXT_stencil_clear_tag:                                      MISSING 
@@ -2708,7 +2708,7 @@ GL_EXT_texture_env_dot3:                                       OK
 GL_EXT_texture_filter_anisotropic:                             OK 
 ----------------------------------
 
-GL_EXT_texture_filter_minmax:                                  MISSING 
+GL_EXT_texture_filter_minmax:                                  OK 
 -----------------------------
 
 GL_EXT_texture_integer:                                        OK 
@@ -2963,7 +2963,7 @@ GL_KHR_blend_equation_advanced:                                OK
 -------------------------------
   glBlendBarrierKHR:                                           OK
 
-GL_KHR_blend_equation_advanced_coherent:                       MISSING 
+GL_KHR_blend_equation_advanced_coherent:                       OK 
 ----------------------------------------
 
 GL_KHR_context_flush_control:                                  OK 
@@ -3055,7 +3055,7 @@ GL_MESA_window_pos:                                            MISSING
 GL_MESA_ycbcr_texture:                                         MISSING 
 ----------------------
 
-GL_NVX_blend_equation_advanced_multi_draw_buffers:             MISSING 
+GL_NVX_blend_equation_advanced_multi_draw_buffers:             OK 
 --------------------------------------------------
 
 GL_NVX_conditional_render:                                     OK 
@@ -3103,15 +3103,15 @@ GL_NV_blend_equation_advanced:                                 OK
   glBlendBarrierNV:                                            OK
   glBlendParameteriNV:                                         OK
 
-GL_NV_blend_equation_advanced_coherent:                        MISSING 
+GL_NV_blend_equation_advanced_coherent:                        OK 
 ---------------------------------------
 
 GL_NV_blend_square:                                            OK 
 -------------------
 
-GL_NV_clip_space_w_scaling:                                    MISSING 
+GL_NV_clip_space_w_scaling:                                    OK 
 ---------------------------
-  glViewportPositionWScaleNV:                                  MISSING
+  glViewportPositionWScaleNV:                                  OK
 
 GL_NV_command_list:                                            OK 
 -------------------
@@ -3141,17 +3141,17 @@ GL_NV_conditional_render:                                      OK
   glBeginConditionalRenderNV:                                  OK
   glEndConditionalRenderNV:                                    OK
 
-GL_NV_conservative_raster:                                     MISSING 
+GL_NV_conservative_raster:                                     OK 
 --------------------------
-  glSubpixelPrecisionBiasNV:                                   MISSING
+  glSubpixelPrecisionBiasNV:                                   OK
 
-GL_NV_conservative_raster_dilate:                              MISSING 
+GL_NV_conservative_raster_dilate:                              OK 
 ---------------------------------
-  glConservativeRasterParameterfNV:                            MISSING
+  glConservativeRasterParameterfNV:                            OK
 
-GL_NV_conservative_raster_pre_snap_triangles:                  MISSING 
+GL_NV_conservative_raster_pre_snap_triangles:                  OK 
 ---------------------------------------------
-  glConservativeRasterParameteriNV:                            MISSING
+  glConservativeRasterParameteriNV:                            OK
 
 GL_NV_copy_depth_to_color:                                     OK 
 --------------------------
@@ -3215,7 +3215,7 @@ GL_NV_fence:                                                   OK
   glSetFenceNV:                                                OK
   glTestFenceNV:                                               OK
 
-GL_NV_fill_rectangle:                                          MISSING 
+GL_NV_fill_rectangle:                                          OK 
 ---------------------
 
 GL_NV_float_buffer:                                            OK 
@@ -3224,9 +3224,9 @@ GL_NV_float_buffer:                                            OK
 GL_NV_fog_distance:                                            OK 
 -------------------
 
-GL_NV_fragment_coverage_to_color:                              MISSING 
+GL_NV_fragment_coverage_to_color:                              OK 
 ---------------------------------
-  glFragmentCoverageColorNV:                                   MISSING
+  glFragmentCoverageColorNV:                                   OK
 
 GL_NV_fragment_program:                                        OK 
 -----------------------
@@ -3246,10 +3246,10 @@ GL_NV_fragment_program4:                                       OK
 GL_NV_fragment_program_option:                                 OK 
 ------------------------------
 
-GL_NV_fragment_shader_interlock:                               MISSING 
+GL_NV_fragment_shader_interlock:                               OK 
 --------------------------------
 
-GL_NV_framebuffer_mixed_samples:                               MISSING 
+GL_NV_framebuffer_mixed_samples:                               OK 
 --------------------------------
 
 GL_NV_framebuffer_multisample_coverage:                        OK 
@@ -3263,23 +3263,23 @@ GL_NV_geometry_program4:                                       OK
 GL_NV_geometry_shader4:                                        OK 
 -----------------------
 
-GL_NV_geometry_shader_passthrough:                             MISSING 
+GL_NV_geometry_shader_passthrough:                             OK 
 ----------------------------------
 
-GL_NV_gpu_multicast:                                           OK [MISSING]
+GL_NV_gpu_multicast:                                           MISSING 
 --------------------
-  glMulticastBarrierNV:                                        OK
-  glMulticastBlitFramebufferNV:                                OK
-  glMulticastBufferSubDataNV:                                  OK
-  glMulticastCopyBufferSubDataNV:                              OK
-  glMulticastCopyImageSubDataNV:                               OK
-  glMulticastFramebufferSampleLocationsfvNV:                   OK
-  glMulticastGetQueryObjecti64vNV:                             OK
-  glMulticastGetQueryObjectivNV:                               OK
-  glMulticastGetQueryObjectui64vNV:                            OK
-  glMulticastGetQueryObjectuivNV:                              OK
-  glMulticastWaitSyncNV:                                       OK
-  glRenderGpuMaskNV:                                           OK
+  glMulticastBarrierNV:                                        MISSING
+  glMulticastBlitFramebufferNV:                                MISSING
+  glMulticastBufferSubDataNV:                                  MISSING
+  glMulticastCopyBufferSubDataNV:                              MISSING
+  glMulticastCopyImageSubDataNV:                               MISSING
+  glMulticastFramebufferSampleLocationsfvNV:                   MISSING
+  glMulticastGetQueryObjecti64vNV:                             MISSING
+  glMulticastGetQueryObjectivNV:                               MISSING
+  glMulticastGetQueryObjectui64vNV:                            MISSING
+  glMulticastGetQueryObjectuivNV:                              MISSING
+  glMulticastWaitSyncNV:                                       MISSING
+  glRenderGpuMaskNV:                                           MISSING
 
 GL_NV_gpu_program4:                                            OK 
 -------------------
@@ -3493,7 +3493,7 @@ GL_NV_path_rendering:                                          OK
   glTransformPathNV:                                           OK
   glWeightPathsNV:                                             OK
 
-GL_NV_path_rendering_shared_edge:                              MISSING 
+GL_NV_path_rendering_shared_edge:                              OK 
 ---------------------------------
 
 GL_NV_pixel_data_range:                                        OK 
@@ -3544,12 +3544,12 @@ GL_NV_register_combiners2:                                     OK
 GL_NV_robustness_video_memory_purge:                           MISSING 
 ------------------------------------
 
-GL_NV_sample_locations:                                        MISSING 
+GL_NV_sample_locations:                                        OK 
 -----------------------
-  glFramebufferSampleLocationsfvNV:                            MISSING
-  glNamedFramebufferSampleLocationsfvNV:                       MISSING
+  glFramebufferSampleLocationsfvNV:                            OK
+  glNamedFramebufferSampleLocationsfvNV:                       OK
 
-GL_NV_sample_mask_override_coverage:                           MISSING 
+GL_NV_sample_mask_override_coverage:                           OK 
 ------------------------------------
 
 GL_NV_shader_atomic_counters:                                  OK 
@@ -3558,13 +3558,13 @@ GL_NV_shader_atomic_counters:                                  OK
 GL_NV_shader_atomic_float:                                     OK 
 --------------------------
 
-GL_NV_shader_atomic_float64:                                   MISSING 
+GL_NV_shader_atomic_float64:                                   OK 
 ----------------------------
 
-GL_NV_shader_atomic_fp16_vector:                               MISSING 
+GL_NV_shader_atomic_fp16_vector:                               OK 
 --------------------------------
 
-GL_NV_shader_atomic_int64:                                     MISSING 
+GL_NV_shader_atomic_int64:                                     OK 
 --------------------------
 
 GL_NV_shader_buffer_load:                                      OK 
@@ -3592,7 +3592,7 @@ GL_NV_shader_thread_group:                                     OK
 GL_NV_shader_thread_shuffle:                                   OK 
 ----------------------------
 
-GL_NV_stereo_view_rendering:                                   MISSING 
+GL_NV_stereo_view_rendering:                                   OK 
 ----------------------------
 
 GL_NV_tessellation_program5:                                   OK 
@@ -3820,12 +3820,12 @@ GL_NV_video_capture:                                           OK [MISSING]
   glVideoCaptureStreamParameterfvNV:                           OK
   glVideoCaptureStreamParameterivNV:                           OK
 
-GL_NV_viewport_array2:                                         MISSING 
+GL_NV_viewport_array2:                                         OK 
 ----------------------
 
-GL_NV_viewport_swizzle:                                        MISSING 
+GL_NV_viewport_swizzle:                                        OK 
 -----------------------
-  glViewportSwizzleNV:                                         MISSING
+  glViewportSwizzleNV:                                         OK
 
 GL_OES_byte_coordinates:                                       MISSING 
 ------------------------

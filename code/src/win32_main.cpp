@@ -12,6 +12,8 @@
 #include "renderer.h"
 #include "utils.h"
 #include "stage.h"
+#include "stage_gameplay.h"
+#include "stage_editor.h"
 
 Game game;
 
@@ -19,7 +21,7 @@ FILE *logger_stream;
 #define LOGGER_INIT logger_stream = fopen("log.txt", "w");
 #define LOGGER_CLOSE fclose(logger_stream);
 #define MIN_FPS 30
-#define MAX_DELTA (1.0/MIN_FPS)
+#define MAX_DELTA (1.0/(double)MIN_FPS)
 
 const short keyboard_layout[B_COUNT] = {
 	GLFW_KEY_A, GLFW_KEY_D, GLFW_KEY_W, GLFW_KEY_S, GLFW_KEY_SPACE,
@@ -52,15 +54,19 @@ struct StageTest {
 	Texture *texture;
 	Shader *shader;
 	Mat3 *transform;
+	float angle;
+	float angle_speed;
 };
 
 void stage_init_test(Stage *stage) {
 	StageTest *test = (StageTest *)stage;
 	test->renderer = &game.renderer;
-	test->texture = load_texture("../images/test.png");
+	test->texture = load_texture("D:/Download/GreyGuy/head/p_head_hurt.png");
 	test->shader = load_shader("../data/shaders/default.vert", "../data/shaders/default.frag", SHADER_SPRITE);
 	test->transform = (Mat3 *)malloc(sizeof(Mat3));
 	orthographic(test->transform, 9, 0, 0);
+	test->angle = 0.f;
+	test->angle_speed = 1.f;
 }
 
 void stage_enter_test(Stage *stage, int previous_stage_id) {
@@ -72,8 +78,10 @@ void stage_leave_test(Stage *stage, int next_stage_id) {
 }
 
 void stage_update_test(Stage *stage, double delta) {
-	if (button_state(B_PAUSE, 0)) game_close();
+	StageTest *test = (StageTest *)stage;
 
+	if (button_state(B_PAUSE, 0)) game_close();
+	test->angle += (float)(test->angle_speed * delta);
 }
 
 void stage_render_test(Stage *stage, double delta) {
@@ -82,7 +90,7 @@ void stage_render_test(Stage *stage, double delta) {
 	set_matrix(test->renderer, test->transform);
 	set_shader(test->renderer, test->shader);
 	set_color(test->renderer, &white);
-	draw(test->renderer, test->texture, 1.f, 1.f, 6.f, 6.f);
+	draw(test->renderer, test->texture, 1.f, 1.f, 4.f, 4.f, 3.f, 3.f, test->angle, 0, 0, 1.f, 1.f);
 }
 
 int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow) {
@@ -91,8 +99,10 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	game_init();
 	game_clear_color(&black);
 
+	init_asset_manager();
+
 	Shader *default_shader = load_shader("../data/shaders/default.vert", "../data/shaders/default.frag", SHADER_SPRITE);
-	Texture * default_texture = load_texture("../images/test.png");	
+	Texture * default_texture = load_texture("../images/white.png");	
 	init(&game.renderer, default_texture, default_shader);
 
 	Font *font = load_font("../data/fonts/font.fnt");
@@ -100,12 +110,19 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	font->smoothing = .05f * 1080.f / game.height;
 	font->thickness = .5;
 
+	game.debug_font = font;
+
 	double time_passed = 1.0;
 	char fps_text[128];
 	int frames = 0;
 
-	stage_manager_add(sizeof(StageTest), STAGE_GAMEPLAY, stage_init_test, stage_enter_test, stage_leave_test, stage_update_test, stage_render_test);
-	stage_manager_enter(STAGE_GAMEPLAY, TRANSITION_NONE, 0);
+	stage_manager_add(sizeof(StageGameplay), STAGE_GAMEPLAY, stage_gameplay_init, stage_gameplay_enter, stage_gameplay_leave, stage_gameplay_update, stage_gameplay_render);
+	stage_manager_add(sizeof(StageEditor), STAGE_EDITOR, stage_editor_init, stage_editor_enter, stage_editor_leave, stage_editor_update, stage_editor_render);
+	
+	stage_manager_enter(STAGE_EDITOR, TRANSITION_NONE, 0);
+
+	Mat3 *transform = (Mat3 *)malloc(sizeof(Mat3));
+	orthographic(transform, 10, 0, 0);
 
 	while(!game_should_close()) {
 		game_update();
@@ -121,13 +138,15 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 			frames = 0;
 		}
 
+		set_matrix(&game.renderer, transform);
+
 		Stage *active_stage = game.stage_manager.active_stage;
 		active_stage->update(active_stage, game.delta);
 		active_stage->render(active_stage, game.delta);
 
 		font->drawh = .4f;
 		set_color(&game.renderer, &white);
-		draw(&game.renderer, font, fps_text, .1f, 8.9f);
+		draw(&game.renderer, font, fps_text, .1f, 9.9f);
 		flush(&game.renderer);
 
 		frames++;
@@ -161,13 +180,15 @@ void game_init() {
 	glfwWindowHint(GLFW_GREEN_BITS, active_mode->greenBits);
 	glfwWindowHint(GLFW_BLUE_BITS, active_mode->blueBits);
 	glfwWindowHint(GLFW_REFRESH_RATE, active_mode->refreshRate);
-	window = glfwCreateWindow(width, height, title, active_monitor, NULL);
-	//window = glfwCreateWindow(1366, 768, title, NULL, NULL);
+	window = glfwCreateWindow(width, height, title,  glfwGetPrimaryMonitor(), NULL);
+	//window = glfwCreateWindow(800, 600, title, NULL, NULL);
 	if (!window) {
 		glfwTerminate();
 		log_error("Failed to open GLFW window");
 	}
+	#ifndef DEBUG 
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	#endif
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(vsync);
 	GLenum err = glewInit();
@@ -183,7 +204,7 @@ void game_init() {
 	}
 
 	glfwGetFramebufferSize(window, &width, &height);
-	float pref_ratio = 1920.f / 1080.f;
+	float pref_ratio = 17.f / 10.f;
 	float ratio = (float) width / height;
 	int x_offset, y_offset;
 	if (ratio > pref_ratio) {

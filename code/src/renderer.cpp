@@ -1,5 +1,6 @@
 #include <GL/glew.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "utils.h"
 #include "renderer.h"
@@ -27,6 +28,8 @@ void init(SpriteRenderer *renderer, Texture *default_texture, Shader *default_sh
 	renderer->active_color = Color{1.f, 1.f, 1.f, 1.f};
 	renderer->active_texture = default_texture;
 	renderer->active_shader = default_shader;
+	renderer->default_texture = default_texture;
+	renderer->default_shader = default_shader;
 	renderer->vao = vao;
 	renderer->vbo = vbo;
 	renderer->size = 0;
@@ -75,6 +78,40 @@ void draw(SpriteRenderer *renderer, Texture *texture, float x, float y, float w,
 	VERTEX(w, h, tw, ty)
 	renderer->size = size;
 }
+
+void draw(SpriteRenderer *renderer, Texture *texture, float x, float y, float w, float h, float ox, float oy, float angle, float tx, float ty, float tw, float th) {
+	set_texture(renderer, texture);
+	if (renderer->size + 8 * 6 > renderer->capacity) {
+		flush(renderer);
+	}
+
+  float s = sinf(angle);
+  float c = cosf(angle);
+
+  x -= ox;
+  y -= oy;
+	w += x;
+	h += y;
+	tw += tx;
+	th += ty;
+
+	Vec2 lb = {x * c - y * s + ox, x * s + y * c + oy};
+	Vec2 lt = {x * c - h * s + ox, x * s + h * c + oy};
+	Vec2 rb = {w * c - y * s + ox, w * s + y * c + oy};
+	Vec2 rt = {w * c - h * s + ox, w * s + h * c + oy};
+
+	Color *color = &renderer->active_color;
+	float *buffer = renderer->buffer;
+	int size = renderer->size;
+	VERTEX(lt.x, lt.y, tx, ty)
+	VERTEX(lb.x, lb.y, tx, th)
+	VERTEX(rb.x, rb.y, tw, th)
+	VERTEX(lt.x, lt.y, tx, ty)
+	VERTEX(rb.x, rb.y, tw, th)
+	VERTEX(rt.x, rt.y, tw, ty)
+	renderer->size = size;
+}
+
 #undef BB
 #undef VERTEX
 
@@ -121,7 +158,13 @@ void draw(SpriteRenderer *renderer, Font *font, char *text, float x, float y) {
 
 void set_color(SpriteRenderer *renderer, Color *color) {
 	renderer->active_color = *color;
+}
 
+void set_color(SpriteRenderer *renderer, float r, float g, float b, float a) {
+	renderer->active_color.r = r;
+	renderer->active_color.g = g;
+	renderer->active_color.b = b;
+	renderer->active_color.a = a;
 }
 
 void set_shader(SpriteRenderer *renderer, Shader *shader) {
