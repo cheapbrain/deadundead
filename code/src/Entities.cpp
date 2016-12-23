@@ -129,6 +129,27 @@ Entity *world_new_entity(World *world, int tag) {
 	return new_entity;
 }
 
+Entity *world_new_entity(World *world, Entity *entity) {
+	int tag = entity->tag;
+	if (world->entity_count == world->entity_capacity) {
+		world->entity_capacity *= 2;
+		world->entities = (Entity *)realloc(world->entities, sizeof Entity * world->entity_capacity);
+	}
+	Entity *new_entity = world->entities + world->entity_count;
+	*new_entity = *entity;
+	new_entity->id = world->entity_count++;
+	new_entity->tag = tag;
+
+	for (int i = 0; i < _LIST_COUNT; i++) {
+		if (list_tags[i] & tag) {
+			new_entity->indexes[i] = _list_add(&world->lists[i], world, new_entity);
+		} else {
+			new_entity->indexes[i] = -1;
+		}
+	}
+	return new_entity;
+}
+
 void world_remove_entity(World *world, int id) {
 	Entity *entity = &world->entities[id];
 	for (int i = 0; i < _LIST_COUNT; i++) {
@@ -173,3 +194,54 @@ void entity_add_list(World *world, Entity *entity, EntityListType list_id) {
 		entity->tag = entity->tag | list_tags[list_id];
 	}
 }
+
+void player_update(Entity *e, World *world, double delta) {
+	e->old_x = e->x;
+	e->old_y = e->y;
+
+	//e->speed_x = 0;
+	e->speed_x -= 10 * e->speed_x * (float)delta;
+	if (button_state(B_RIGHT, e->player_id)) e->speed_x += 40.f * (float)delta;
+	if (button_state(B_LEFT, e->player_id)) e->speed_x -= 40.f * (float)delta;
+
+	e->speed_y -= (float)(17.f * delta);
+
+	if (e->is_on_floor && button_state(B_JUMP, e->player_id)) {
+		e->speed_y += 8.5f;
+	}
+
+	e->x += (float)(e->speed_x * delta);
+	e->y += (float)(e->speed_y * delta);
+	e->is_on_floor = 0;
+}
+
+void player_render(Entity *e) {
+	if (e->speed_x > 0)
+		draw(&game.renderer, e->texture, e->x, e->y, e->width, e->height, 0, 0, 1, 1);
+	else
+		draw(&game.renderer, e->texture, e->x, e->y, e->width, e->height, 1, 0, -1, 1);
+}
+
+void wall_render(Entity *e) {
+	draw(&game.renderer, e->texture, e->x, e->y, e->width, e->height, 0, 0, 1, 1);
+}
+
+
+
+const render_func render_functions[_RENDER_FUNCTION_COUNT] = {
+	player_render, 
+	wall_render
+};
+
+const char *render_func_names[_RENDER_FUNCTION_COUNT] = {
+	"RENDER_PLAYER",
+	"RENDER_WALL"
+};
+
+const update_func update_functions[_UPDATE_FUNCTION_COUNT] = {
+	player_update
+};
+
+const char *update_func_names[_UPDATE_FUNCTION_COUNT] = {
+	"UPDATE_PLAYER"
+};

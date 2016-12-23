@@ -181,7 +181,7 @@ void game_init() {
 	glfwWindowHint(GLFW_BLUE_BITS, active_mode->blueBits);
 	glfwWindowHint(GLFW_REFRESH_RATE, active_mode->refreshRate);
 	window = glfwCreateWindow(width, height, title,  glfwGetPrimaryMonitor(), NULL);
-	//window = glfwCreateWindow(800, 600, title, NULL, NULL);
+	//window = glfwCreateWindow(1366, 768, title, NULL, NULL);
 	if (!window) {
 		glfwTerminate();
 		log_error("Failed to open GLFW window");
@@ -204,6 +204,8 @@ void game_init() {
 	}
 
 	glfwGetFramebufferSize(window, &width, &height);
+	game.window_width = width;
+	game.window_height = height;
 	float pref_ratio = 17.f / 10.f;
 	float ratio = (float) width / height;
 	int x_offset, y_offset;
@@ -230,6 +232,8 @@ void game_init() {
 	fprintf(LOGGER_STREAM, "%s %s\n", gl_version, glsl_version);
 	game.width = width;
 	game.height = height;
+	game.x_offset = x_offset;
+	game.y_offset = y_offset;
 	game.time = glfwGetTime();
 	game.delta = 0;
 	game.window = (void *)window;
@@ -355,4 +359,36 @@ void log_error(char *msg) {
 	fprintf(LOGGER_STREAM, "Error: %s\n", msg);
 	LOGGER_CLOSE
 	exit(EXIT_FAILURE);
+}
+
+void log_string(char *msg) {
+	fprintf(LOGGER_STREAM, "%s\n", msg);
+}
+
+char log_buff[10000];
+char log_wbuff[100];
+
+void log(int a) {
+	sprintf(log_wbuff, "%d\n", a);
+	strcat(log_buff, log_wbuff);
+}
+
+void log(char a) {
+	sprintf(log_wbuff, "%c\n", a);
+	strcat(log_buff, log_wbuff);
+}
+
+void log(float a) {
+	sprintf(log_wbuff, "%.2e\n", a);
+	strcat(log_buff, log_wbuff);
+}
+
+void log(void *a) {
+	sprintf(log_wbuff, "%p\n", a);
+	strcat(log_buff, log_wbuff);
+}
+
+void log(char *a) {
+	sprintf(log_wbuff, "%s\n", a);
+	strcat(log_buff, log_wbuff);
 }
