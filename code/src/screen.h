@@ -39,7 +39,29 @@ struct Input {
 	PlayerInput player[4];
 };
 
+enum AssetType {
+	TEXTURE = 0,
+	SHADER,
+	FONT
+};
+
+struct Asset {
+	AssetType type;
+	char *name;
+	void *data;
+	Asset *next;
+};
+
+struct AssetManager {
+	Asset **assets;
+	int count;
+};
+
 struct Game {
+	int window_width;
+	int window_height;
+	int x_offset;
+	int y_offset;
 	int width;
 	int height;
 	double time;
@@ -48,6 +70,7 @@ struct Game {
 	Input input;
 	StageManager stage_manager;
 	SpriteRenderer renderer;
+	AssetManager asset_manager;
 	Font *debug_font;
 };
 

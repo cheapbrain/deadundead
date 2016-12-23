@@ -6,58 +6,8 @@
 #include "renderer.h"
 #include "utils.h"
 
-
-char buff[10000];
-char wbuff[100];
-
-void log(int a) {
-	sprintf(wbuff, "%d\n", a);
-	strcat(buff, wbuff);
-}
-
-void log(float a) {
-	sprintf(wbuff, "%.2e\n", a);
-	strcat(buff, wbuff);
-}
-
-void log(void *a) {
-	sprintf(wbuff, "%p\n", a);
-	strcat(buff, wbuff);
-}
-
-void player_update(Entity *e, World *world, double delta) {
-	e->old_x = e->x;
-	e->old_y = e->y;
-
-	//e->speed_x = 0;
-	e->speed_x -= 10 * e->speed_x * (float)delta;
-	if (button_state(B_RIGHT, e->player_id)) e->speed_x += 40.f * (float)delta;
-	if (button_state(B_LEFT, e->player_id)) e->speed_x -= 40.f * (float)delta;
-
-	e->speed_y -= (float)(17.f * delta);
-
-	if (e->is_on_floor && button_state(B_JUMP, e->player_id)) {
-		e->is_on_floor = 0;
-		e->speed_y = 9.f;
-	}
-
-	e->x += (float)(e->speed_x * delta);
-	e->y += (float)(e->speed_y * delta);
-}
-
-void player_render(Entity *e) {
-	if (e->speed_x > 0)
-		draw(&game.renderer, e->texture, e->x, e->y, e->width, e->height, 0, 0, e->width, e->height);
-	else
-		draw(&game.renderer, e->texture, e->x, e->y, e->width, e->height, e->width, 0, -e->width, e->height);
-}
-
-void wall_render(Entity *e) {
-	draw(&game.renderer, e->texture, e->x, e->y, e->width, e->height, 0, 0, 1, 1);
-}
-
 void stage_gameplay_init(Stage *stage) {
-	buff[0] = 0;
+	log_buff[0] = 0;
 	StageGameplay *gameplay = (StageGameplay *)stage;
 	//test->texture = load_texture("D:/Download/GreyGuy/head/p_head_hurt.png");
 	gameplay->shader = load_shader("../data/shaders/default.vert", "../data/shaders/default.frag", SHADER_SPRITE);
@@ -108,9 +58,8 @@ void stage_gameplay_init(Stage *stage) {
 			int floorx = x & 3;
 			int floory = y & 3;
 			if (x > 0 && x < 16 && y > 0 && y < 9)
-				if (!floorx || floorx != floory || y == 1) 
+				if (floorx > 1 || floorx != floory || y == 1) 
 					continue;
-			//if (y > 2 || x > 2) continue;
 			Entity *wall = world_new_entity(world, RENDER_BACK | STATIC_COLLIDE);
 			wall->x = (float)x;
 			wall->y = (float)y;
@@ -118,6 +67,7 @@ void stage_gameplay_init(Stage *stage) {
 			wall->height = 1;
 			wall->texture = load_texture("../images/wall.png");
 			wall->render = wall_render;
+			wall->bounce_coeff = 0;
 		}
 	}
 
@@ -128,6 +78,7 @@ void stage_gameplay_init(Stage *stage) {
 	wall->height = .2f;
 	wall->texture = load_texture("../images/wall.png");
 	wall->render = wall_render;
+	wall->bounce_coeff = .25f;
 }
 
 void stage_gameplay_enter(Stage *stage, int previous_stage_id) {
@@ -142,7 +93,7 @@ void stage_gameplay_update(Stage *stage, double delta) {
 	StageGameplay *gameplay = (StageGameplay *)stage;
 
 	for (int i = 0; i < game.input.count; i++)
-		if (button_state(B_PAUSE, i)) game_close();
+		if (button_state(B_PAUSE, i)) stage_manager_enter(STAGE_EDITOR, TRANSITION_NONE, 0);
 	//->angle += (float)(gameplay->angle_speed * delta);
 	world_update(&gameplay->world, delta);
 }
@@ -157,7 +108,7 @@ void stage_gameplay_render(Stage *stage, double delta) {
 
 	game.debug_font->drawh = .2f;
 	set_color(&game.renderer, &white);
-	draw(&game.renderer, game.debug_font, buff, 0.1f, 9.f);
+	draw(&game.renderer, game.debug_font, log_buff, 0.1f, 9.f);
 
 	flush(&game.renderer);
 }
