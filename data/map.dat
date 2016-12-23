@@ -1,0 +1,52 @@
+name = footer
+x = 0.000000
+y = 0.000000
+
+name = footerNC
+x = 0.000000
+y = 0.000000
+
+name = player1
+x = 5.000000
+y = 1.000000
+
+name = armadio
+x = 0.000000
+y = 0.000000
+
+name = armadioNC
+x = 0.000000
+y = 0.000000
+
+name = montacarico
+x = 2.000000
+y = 1.000000
+
+name = montacarico
+x = 14.000000
+y = 1.000000
+
+name = libreriaNC
+x = 16.000000
+y = 0.000000
+
+name = libreria
+x = 16.000000
+y = 0.000000
+
+name = scaffalesx
+x = 2.000000
+y = 3.000000
+
+name = scaffalesxNC
+x = 2.000000
+y = 3.000000
+
+name = scaffaledxNC
+x = 12.000000
+y = 3.000000
+
+name = scaffaledx
+x = 12.000000
+y = 3.000000
+
