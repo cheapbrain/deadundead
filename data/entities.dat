@@ -22,73 +22,43 @@ player_id = 1
 update = UPDATE_PLAYER
 render = RENDER_PLAYER
 
-name = bricks
-texture = ../images/wall.png
-flags = RENDER_BACK,STATIC_COLLIDE 
-x = 0
-y = 0
-w = 1
-h = 1
-bounce = 0
-render = RENDER_WALL
-
-name = jumppad
-texture = ../images/wall.png
-flags = RENDER_BACK,STATIC_COLLIDE
-x = -0.5
-y = 0
-w = 2
-h = 0.2
-bounce = 0.5
-render = RENDER_WALL
-
-name = lamp
-texture = ../images/wall.png
-flags = RENDER_BACK,STATIC_COLLIDE 
-x = 0.25
-y = -0.5
-w = 2.5
-h = 0.2
-bounce = 0
-render = RENDER_WALL
-
-name = balcony
-texture = ../images/wall.png
-flags = RENDER_BACK,STATIC_COLLIDE 
-x = 0
-y = -0.5
-w = 5
-h = 0.3
-bounce = 0
-render = RENDER_WALL
-
-name = mushroom
-texture = ../images/wall.png
-flags = RENDER_BACK,STATIC_COLLIDE 
-x = 0
-y = 0.2
-w = 1
-h = 0.5
-bounce = 0.5
-render = RENDER_WALL
-
-name = sofa
-texture = ../images/wall.png
-flags = RENDER_BACK,STATIC_COLLIDE 
-x = 0
-y = 0.2
-w = 1
-h = 0.5
-bounce = 0.5
-render = RENDER_WALL
-
 name = bg
-texture = ../images/wall.png
+texture = ../images/bg.png
 flags = RENDER_BACK
 x = 0
 y = 0
 w = 17
 h = 10
+bounce = 0
+render = RENDER_WALL
+
+name = leftcollider
+texture = ../images/blank.png
+flags = RENDER_BACK,STATIC_COLLIDE
+x = 0
+y = 0
+w = 0.17
+h = 10
+bounce = 0
+render = RENDER_WALL
+
+name = rightcollider
+texture = ../images/blank.png
+flags = RENDER_BACK,STATIC_COLLIDE
+x = 0.6
+y = 0
+w = 0.4
+h = 10
+bounce = 0
+render = RENDER_WALL
+
+name = topcollider
+texture = ../images/blank.png
+flags = RENDER_BACK,STATIC_COLLIDE
+x = 0
+y = 0.95
+w = 17
+h = 0.01
 bounce = 0
 render = RENDER_WALL
 
@@ -117,8 +87,8 @@ texture = ../images/armadio.png
 flags = RENDER_BACK 
 x = 0
 y = 0
-w = 1
-h = 2
+w = 1.6
+h = 3
 bounce = 0
 render = RENDER_WALL
 
@@ -127,98 +97,280 @@ texture = ../images/blank.png
 flags = RENDER_BACK,STATIC_COLLIDE
 x = 0
 y = 0
-w = 0.8
-h = 1.6
+w = 1.2
+h = 2.5
 bounce = 0
 render = RENDER_WALL
 
 name = libreriaNC
 texture = ../images/libreria.png
 flags = RENDER_BACK 
-x = 0
-y = 0
-w = 1
-h = 2
+x = -0.9
+y = -0.15
+w = 2
+h = 3
 bounce = 0
 render = RENDER_WALL
 
 name = libreria
 texture = ../images/blank.png
 flags = RENDER_BACK,STATIC_COLLIDE
-x = 0.2
+x = -0.3
 y = 0
-w = 0.8
-h = 1.6
+w = 2.2
+h = 2.35
 bounce = 0
 render = RENDER_WALL
 
-name = montacarico
-texture = ../images/montacarico.png
-flags = RENDER_BACK
+
+name = tappetosx
+texture = ../images/tappetosx.png
+flags = RENDER_BACK 
 x = 0
 y = 0
-w = 1
+w = 3.4
 h = 1
+bounce = 0
+render = RENDER_WALL
+
+
+name = tappetodx
+texture = ../images/tappetodx.png
+flags = RENDER_BACK 
+x = 0
+y = 0
+w = 3.1
+h = 1
+bounce = 0
+render = RENDER_WALL
+
+
+name = tappetocenter
+texture = ../images/tappetocenter.png
+flags = RENDER_BACK 
+x = 0
+y = 0
+w = 6.2
+h = 1
+bounce = 0
+render = RENDER_WALL
+
+name = montacaricosx
+texture = ../images/montacaricosx.png
+flags = RENDER_BACK
+x = -0.3
+y = 0
+w = 1.5
+h = 1.3
+bounce = 0
+render = RENDER_WALL
+
+name = montacaricodx
+texture = ../images/montacaricodx.png
+flags = RENDER_BACK
+x = -0.1
+y = 0.15
+w = 1.5
+h = 1.2
 bounce = 0
 render = RENDER_WALL
 
 name = scaffalesxNC
 texture = ../images/scaffalesx.png
-flags = RENDER_BACK
-x = 0.25
-y = 0.4
-w = 3
-h = 0.7
+flags = RENDER_FRONT
+x = 0.5
+y = 0.02
+w = 3.7
+h = 1.1
 bounce = 0
 render = RENDER_WALL
 
 name = scaffalesx
 texture = ../images/blank.png
 flags = RENDER_BACK,STATIC_COLLIDE
-x = 0.6 
-y = 0.6
-w = 2.15
-h = 0.1
+x = 1
+y = 0.52
+w = 2.7
+h = 0.01
 bounce = 0
 render = RENDER_WALL
 
 name = scaffaledxNC
 texture = ../images/scaffaledx.png
-flags = RENDER_BACK
-x = 0
-y = 0.4
-w = 3
-h = 0.7
+flags = RENDER_FRONT
+x = 0.6
+y = -0.3
+w = 3.7
+h = 1.4
 bounce = 0
 render = RENDER_WALL
 
 name = scaffaledx
 texture = ../images/blank.png
 flags = RENDER_BACK,STATIC_COLLIDE
-x = 0.6 
-y = 0.6
-w = 2.15
-h = 0.1
+x = 1
+y = 0.5
+w = 2.9
+h = 0.01
 bounce = 0
 render = RENDER_WALL
 
 name = lampadaNC
 texture = ../images/lampada.png
-flags = RENDER_BACK
-x = 0
-y = 0
+flags = RENDER_FRONT
+y = -0.6
 w = 3
-h = 5.5
+h = 6.6
 bounce = 0
 render = RENDER_WALL
 
 name = lampada
 texture = ../images/blank.png
 flags = RENDER_BACK,STATIC_COLLIDE
+x = 0.5
+y = 0.95
+w = 2
+h = 0.01
+bounce = 0
+render = RENDER_WALL
+
+name = balconesxNC
+texture = ../images/balconesx.png
+flags = RENDER_FRONT
 x = 0
-y = 0
-w = 2.5
-h = 0.1
+y = 0.15
+w = 5.5
+h = 0.9
+bounce = 0
+render = RENDER_WALL
+
+name = balconesx
+texture = ../images/blank.png
+flags = RENDER_BACK,STATIC_COLLIDE
+x = 0.4
+y = 0.65
+w = 4.6
+h = 0.01
+bounce = 0
+render = RENDER_WALL
+
+name = balconedxNC
+texture = ../images/balconedx.png
+flags = RENDER_FRONT
+x = 0.1
+y = 0.2
+w = 5.5
+h = 1.2
+bounce = 0
+render = RENDER_WALL
+
+name = balconedx
+texture = ../images/blank.png
+flags = RENDER_BACK,STATIC_COLLIDE
+x = 0.55
+y = 0.65
+w = 4.8
+h = 0.01
+bounce = 0
+render = RENDER_WALL
+
+name = poltronaNC
+texture = ../images/poltrona.png
+flags = RENDER_BACK
+x = 0.3
+y = 0.4
+w = 1.6
+h = 2
+bounce = 0
+render = RENDER_WALL
+
+name = poltronajump
+texture = ../images/blank.png
+flags = RENDER_BACK,STATIC_COLLIDE
+x = 0.4
+y = 0.3
+w = 1.3
+h = 1
+bounce = 0.5
+render = RENDER_WALL
+
+name = poltronacollisionsx
+texture = ../images/blank.png
+flags = RENDER_BACK,STATIC_COLLIDE
+x = 0.4
+y = 0.3
+w = 0.05
+h = 1.2
+bounce = 0
+render = RENDER_WALL
+
+name = poltronacollisiondx
+texture = ../images/blank.png
+flags = RENDER_BACK,STATIC_COLLIDE
+x = 1.65
+y = 0.3
+w = 0.05
+h = 1.2
+bounce = 0
+render = RENDER_WALL
+
+name = portafooter
+texture = ../images/portafooter.png
+flags = RENDER_BACK
+x = 0
+y = 0.32
+w = 2.6
+h = 2.9
+bounce = 0
+render = RENDER_WALL
+
+name = portonupdx
+texture = ../images/portaupdx.png
+flags = RENDER_BACK
+x = 0
+y = -0.75
+w = 2.8
+h = 2.9
+bounce = 0
+render = RENDER_WALL
+
+name = portonaupsx
+texture = ../images/portaupsx.png
+flags = RENDER_BACK
+x = 0
+y = -0.55
+w = 2.6
+h = 2.7
+bounce = 0
+render = RENDER_WALL
+
+name = camino
+texture = ../images/camino.png
+flags = RENDER_BACK
+x = 0.3
+y = 0.42
+w = 2.7
+h = 2
+bounce = 0
+render = RENDER_WALL
+
+name = ringhierasx
+texture = ../images/ringhierasx.png
+flags = RENDER_FRONT
+x = 0
+y = -0.28
+w = 5.6
+h = 1.7
+bounce = 0
+render = RENDER_WALL
+
+name = ringhieradx
+texture = ../images/ringhieradx.png
+flags = RENDER_FRONT
+x = 0.4
+y = 0.4
+w = 5.2
+h = 1
 bounce = 0
 render = RENDER_WALL
 # FILE-END #
