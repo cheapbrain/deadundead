@@ -8,6 +8,7 @@
 
 #include "utils.h"
 #include "screen.h"
+#include "jsmn.h"
 
 #define TABLE_SIZE 0x10000
 #define TABLE_MASK 0x0FFFF
@@ -75,6 +76,9 @@ void *_get_asset(AssetType type, char *name) {
 				break;
 			case FONT:
 				size = sizeof Font;
+				break;
+			case SPRITER_CHARACTER:
+				size = sizeof SpriterCharacter;
 				break;
 		}
 		int name_size = strlen(name) + 1;
@@ -397,7 +401,163 @@ Font *load_font(char *path) {
 	return font;
 }
 
+static int dump(const char *js, jsmntok_t *t, size_t count, int indent) {
+	int i, j, k;
+	if (count == 0) {
+		return 0;
+	}
+	if (t->type == JSMN_PRIMITIVE) {
+		fprintf(LOGGER_STREAM,"%.*s", t->end - t->start, js+t->start);
+		return 1;
+	} else if (t->type == JSMN_STRING) {
+		fprintf(LOGGER_STREAM,"'%.*s'", t->end - t->start, js+t->start);
+		return 1;
+	} else if (t->type == JSMN_OBJECT) {
+		fprintf(LOGGER_STREAM,"\n");
+		j = 0;
+		for (i = 0; i < t->size; i++) {
+			for (k = 0; k < indent; k++) fprintf(LOGGER_STREAM,"  ");
+			j += dump(js, t+1+j, count-j, indent+1);
+			fprintf(LOGGER_STREAM,": ");
+			j += dump(js, t+1+j, count-j, indent+1);
+			fprintf(LOGGER_STREAM,"\n");
+		}
+		return j+1;
+	} else if (t->type == JSMN_ARRAY) {
+		j = 0;
+		fprintf(LOGGER_STREAM,"\n");
+		for (i = 0; i < t->size; i++) {
+			for (k = 0; k < indent-1; k++) fprintf(LOGGER_STREAM,"  ");
+			fprintf(LOGGER_STREAM,"   - ");
+			j += dump(js, t+1+j, count-j, indent+1);
+			fprintf(LOGGER_STREAM,"\n");
+		}
+		return j+1;
+	}
+	return 0;
+}
 
+jsmntok_t *_skip_tokens(jsmntok_t *tok) {
+	switch(tok->type) {
+		case JSMN_OBJECT:
+			tok = tok + 1;
+			for (int i = 0; i < tok->size; i++) {
+				tok = _skip_tokens(tok + 1);
+			}
+			return tok;
+		case JSMN_ARRAY:
+			tok = tok + 1;
+			for (int i = 0; i <tok->size; i++) {
+				tok = _skip_tokens(tok);
+			}
+			return tok;
+		default:
+			return tok + 1;
+	}
+}
+
+jsmntok_t *_load_spriter_animation(SpriterCharacter *sc, jsmntok_t *tok, char *json) {
+	SpriterAnimation animation;
+	animation->name = NULL;
+	return tok;
+}
+
+jsmntok_t *_load_spriter_entity(SpriterCharacter *sc, jsmntok_t *tok, char *json) {
+	int size = tok->size;
+	tok = tok + 1;
+	for (int i = 0; i < size; i++) {
+		json[tok->end] = 0;
+		char *name = json + tok->start;
+		if (!strcmp(name, "animation")) {
+			tok = tok + 1;
+			int animation_count = tok->size;
+			list_init(&sc->animations, sizeof SpriterAnimation, animation_count);
+			tok = tok + 1;
+			for (int j = 0; j < animation_count; j++) {
+				tok = _load_spriter_animation(sc, tok, json);
+			}
+		} else {
+			tok = _skip_tokens(tok + 1);
+		}
+	}
+	return tok;
+}
+
+jsmntok_t *_load_spriter_folder(Spriter)
+
+jsmntok_t *_load_spriter_scon(SpriterCharacter *sc, jsmntok_t *tok, char *json) {
+	int size = tok->size;
+	tok = tok + 1;
+	for(int i = 0; i < size; i++) {
+		json[tok->end] = 0;
+		char *name = json + tok->start;
+		if(!strcmp(name, "entity")) {
+			tok = _load_spriter_entity(sc, tok + 2, json);
+		} else if(!strcmp(name, "folder")) {
+
+		} else {
+			tok = _skip_tokens(tok + 1);
+		}
+	}
+	return tok;
+}
+
+SpriterCharacter *load_spriter_character(char *path) {
+	SpriterCharacter *sc = (SpriterCharacter *)_get_asset(SPRITER_CHARACTER, path);
+
+	if (sc->id == -1) {
+		jsmn_parser p;
+		jsmntok_t *tok;
+		int tok_count = 2;
+		char *string= NULL;
+		int string_len = 0;
+		{
+			FILE *fptr;
+			fptr = fopen(path, "rb");
+			if (!fptr) {
+				fprintf(LOGGER_STREAM, "%s ", path);
+				log_error("File not found.");
+			}
+			fseek(fptr, 0, SEEK_END);
+			string_len = ftell(fptr);
+			string = (char*)malloc(string_len + 1);
+			fseek(fptr, 0, SEEK_SET);
+			fread(string, string_len, 1, fptr);
+			fclose(fptr);
+			string[string_len] = '\0';
+		}
+		jsmn_init(&p);
+		tok = (jsmntok_t *)malloc(sizeof(*tok) * tok_count);
+		for (;;) {
+			int error = jsmn_parse(&p, string, string_len, tok, tok_count);
+			switch(error) {
+				case JSMN_ERROR_NOMEM:
+				tok_count = tok_count * 2;
+				tok = (jsmntok_t *)realloc(tok, sizeof(*tok) * tok_count);
+				break;
+				case JSMN_ERROR_INVAL:
+				case JSMN_ERROR_PART:
+				fprintf(LOGGER_STREAM, "%s: ", path);
+				log_error("File corrupted.");
+				break;
+				default:
+				tok_count = error;
+				jsmntok_t *t = tok;
+				fprintf(LOGGER_STREAM, "%d\n", tok_count);
+				for (int i = 0; i < tok_count; i++) {
+					t = tok + i;
+					fprintf(LOGGER_STREAM,"\n%d %d ", t->size, t->type);
+					if(t->type == JSMN_STRING)
+						fprintf(LOGGER_STREAM,"%c %c", string[t->start], string[t->end]);
+					
+				}
+				log_error("File loaded.");
+				return sc;
+			}
+		}
+	}
+	return sc;
+}
 
 void dispose_texture(Texture *texture) {
 	glDeleteTextures(1, &texture->id);
@@ -417,6 +577,11 @@ void dispose_font(Font *font) {
 	_remove_asset(font->name);
 }
 
+void dispose_spriter_character(SpriterCharacter *sc) {
+
+	_remove_asset(sc->name);
+}
+
 void dispose_all() {
 	for(int i = 0; i < TABLE_SIZE; i++) {
 		Asset *asset = game.asset_manager.assets[i];
@@ -432,19 +597,22 @@ void dispose_all() {
 				case FONT:
 					dispose_font((Font *)asset->data);
 					break;
+				case SPRITER_CHARACTER:
+					dispose_spriter_character((SpriterCharacter *)asset->data);
+					break;
 			}
 			asset = next;
 		}
 	}
 }
 
-void list_init(ArrayList *list, int element_size) {
-	list->array = malloc(element_size * 10);
-	list->count = 10;
+void list_init(ArrayList *list, int element_size, int count) {
+	list->array = malloc(element_size * count);
+	list->count = count;
 	list->element_size = element_size;
 }
 
-void list_set(ArrayList *list, void *value, int index) {
+void list_set(ArrayList *list, int index, void *value) {
 	if (index >= list->count) {
 		int new_count = list->count * 2;
 		if (new_count <= index) new_count = index + 1;
