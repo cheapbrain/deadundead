@@ -1,0 +1,144 @@
+name = bg
+x = 0.000000
+y = 0.000000
+
+name = footer
+x = 0.000000
+y = 0.000000
+
+name = footerNC
+x = 0.000000
+y = 0.000000
+
+name = tappetosx
+x = 0.000000
+y = 0.000000
+
+name = tappetodx
+x = 14.000000
+y = 0.000000
+
+name = tappetocenter
+x = 6.000000
+y = 0.000000
+
+name = leftcollider
+x = 0.000000
+y = 0.000000
+
+name = rightcollider
+x = 16.000000
+y = 0.000000
+
+name = topcollider
+x = 0.000000
+y = 9.000000
+
+name = armadioNC
+x = 0.000000
+y = 0.000000
+
+name = armadio
+x = 0.000000
+y = 0.000000
+
+name = libreriaNC
+x = 16.000000
+y = 0.000000
+
+name = libreria
+x = 16.000000
+y = 0.000000
+
+name = player1
+x = 5.000000
+y = 1.000000
+
+name = montacaricosx
+x = 3.000000
+y = 1.000000
+
+name = montacaricodx
+x = 13.000000
+y = 1.000000
+
+name = scaffalesxNC
+x = 2.000000
+y = 3.000000
+
+name = scaffalesx
+x = 2.000000
+y = 3.000000
+
+name = scaffaledxNC
+x = 10.000000
+y = 3.000000
+
+name = scaffaledx
+x = 10.000000
+y = 3.000000
+
+name = lampadaNC
+x = 7.000000
+y = 4.000000
+
+name = lampada
+x = 7.000000
+y = 4.000000
+
+name = poltronaNC
+x = 9.000000
+y = 0.000000
+
+name = poltronacollisiondx
+x = 9.000000
+y = 0.000000
+
+name = poltronacollisionsx
+x = 9.000000
+y = 0.000000
+
+name = poltronajump
+x = 9.000000
+y = 0.000000
+
+name = portafooter
+x = 4.000000
+y = 0.000000
+
+name = camino
+x = 6.000000
+y = 0.000000
+
+name = balconesxNC
+x = 1.000000
+y = 6.000000
+
+name = balconedxNC
+x = 10.000000
+y = 6.000000
+
+name = balconesx
+x = 1.000000
+y = 6.000000
+
+name = balconedx
+x = 10.000000
+y = 6.000000
+
+name = portonupdx
+x = 11.000000
+y = 7.000000
+
+name = portonaupsx
+x = 3.000000
+y = 7.000000
+
+name = ringhierasx
+x = 1.000000
+y = 6.000000
+
+name = ringhieradx
+x = 10.000000
+y = 6.000000
+
