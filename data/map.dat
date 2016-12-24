@@ -146,3 +146,19 @@ name = scaffalesxcollision
 x = 2.000000
 y = 3.000000
 
+name = scaffaledxcollision
+x = 10.000000
+y = 3.000000
+
+name = lampadacollision
+x = 7.000000
+y = 4.000000
+
+name = balconesxcollision
+x = 1.000000
+y = 6.000000
+
+name = balconedxcollider
+x = 10.000000
+y = 6.000000
+
