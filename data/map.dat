@@ -142,3 +142,7 @@ name = ringhieradx
 x = 10.000000
 y = 6.000000
 
+name = scaffalesxcollision
+x = 2.000000
+y = 3.000000
+

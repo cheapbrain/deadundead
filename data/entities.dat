@@ -178,8 +178,8 @@ render = RENDER_WALL
 name = scaffalesxNC
 texture = ../images/scaffalesxrf.png
 flags = RENDER_FRONT
-x = 0
-y = 0
+x = 0.5
+y = 0.02
 w = 3.7
 h = 1.1
 bounce = 0
@@ -187,11 +187,21 @@ render = RENDER_WALL
 
 name = scaffalesx
 texture = ../images/scaffalesxrb.png
-flags = RENDER_BACK,STATIC_COLLIDE
-x = 0
-y = 0
+flags = RENDER_BACK
+x = 0.5
+y = 0.02
 w = 3.7
 h = 1.1
+bounce = 0
+render = RENDER_WALL
+
+name = scaffalesxcollision
+texture = ../images/blank.png
+flags = RENDER_BACK,STATIC_COLLIDE
+x = 1
+y = 0.52
+w = 2.7
+h = 0.01
 bounce = 0
 render = RENDER_WALL
 
