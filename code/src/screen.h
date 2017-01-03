@@ -42,7 +42,8 @@ struct Input {
 enum AssetType {
 	TEXTURE = 0,
 	SHADER,
-	FONT
+	FONT,
+	SPRITER_CHARACTER
 };
 
 struct Asset {

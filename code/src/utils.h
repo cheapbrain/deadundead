@@ -97,94 +97,76 @@ struct Font {
 	Kerning* kerns;
 };
 
-struct SpriterFile {
-	int id;
+struct SpriterTexture {
 	char *name;
-	int width;
-	int height;
+	Texture *texture;
+	float width;
+	float height;
 	float pivot_x;
 	float pivot_y;
+	float t_x;
+	float t_y;
+	float t_w;
+	float t_h;
 };
 
-struct SpriterFolder {
+struct SpriterObjectRef {
 	int id;
-	ArrayList files;
-};
-
-struct SpriterObjInfo {
-	char *name;
-	int type;
-	int width;
-	int height;
-};
-
-
-struct SpriterBoneRef {
-	int id;
-	int parent;
 	int timeline;
+	int parent;
 	int key;
 };
 
-struct SpriterSpriteRef {
-	int id;
-	int parent;
-	int timeline;
-	int key;
-	int z_index;
-};
-
-struct SpriterMainlineKey {
-	int id;
+struct SpriterAnimationKey {
 	int time;
 	ArrayList bones;
-	ArrayList sprites;
+	ArrayList images;
 };
 
-struct SpriterMainline {
-	ArrayList keys;
-};
-
-struct SpriterTimelineKeys {
-	int id;
+struct SpriterTimelineKey {
 	int time;
 	int spin;
-	int folder;
-	int file;
 	float x;
 	float y;
-	float angle;
 	float scale_x;
 	float scale_y;
-	float alpha;
+	float angle;
+	float a;
+	int folder;
+	int file;
 };
 
 struct SpriterTimeline {
-	int id;
+	int type;
 	char *name;
 	ArrayList keys;
 };
 
 struct SpriterAnimation {
-	int id;
 	char *name;
-	int length;
-	int interval;
-	int looping;
-	SpriteMainline mainline;
+	ArrayList animationkeys;
 	ArrayList timelines;
 };
 
-struct SpriterEntity {
-	int id;
+struct SpriterFolder {
+	ArrayList files;
+};
+
+struct SpriterCharacter {
 	char *name;
-	ArrayList obj_infos;
+	unsigned int id;
+	ArrayList folders;
 	ArrayList animations;
 };
 
-struct SpriterObject {
-	ArrayList folders;
-	ArrayList entities;
+struct SpriterPlayer {
+	SpriterCharacter *character;
+	float x;
+	float y;
+	float scale_x;
+	float scale_y;
+	int active_animation;
+	float animation_speed;
 };
 
 void identity(Mat3 *mat);
@@ -205,6 +187,8 @@ Texture *load_texture(char *path);
 Shader *load_shader(char *vpath, char *fpath, int shader_type);
 
 Font *load_font(char *path);
+
+SpriterCharacter *load_spriter_character(char *path);
 
 void dispose_texture(Texture *texture);
 
@@ -227,8 +211,8 @@ void log(void *a);
 
 void log(char *a);
 
-void list_init(ArrayList *list, int element_size);
+void list_init(ArrayList *list, int element_size, int count);
 
-void list_set(ArrayList *list, void *value, int index);
+void list_set(ArrayList *list, int index, void *value);
 
 void *list_get(ArrayList *list, int index);
