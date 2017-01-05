@@ -160,6 +160,8 @@ Texture *load_texture(char *path) {
 		texture->width = width;
 		texture->height = height;
 		texture->id = id;
+
+		fprintf(LOGGER_STREAM, "Loaded texture: %s\n", path);
 	}
 	return texture;
 }
@@ -401,53 +403,21 @@ Font *load_font(char *path) {
 	return font;
 }
 
-static int dump(const char *js, jsmntok_t *t, size_t count, int indent) {
-	int i, j, k;
-	if (count == 0) {
-		return 0;
-	}
-	if (t->type == JSMN_PRIMITIVE) {
-		fprintf(LOGGER_STREAM,"%.*s", t->end - t->start, js+t->start);
-		return 1;
-	} else if (t->type == JSMN_STRING) {
-		fprintf(LOGGER_STREAM,"'%.*s'", t->end - t->start, js+t->start);
-		return 1;
-	} else if (t->type == JSMN_OBJECT) {
-		fprintf(LOGGER_STREAM,"\n");
-		j = 0;
-		for (i = 0; i < t->size; i++) {
-			for (k = 0; k < indent; k++) fprintf(LOGGER_STREAM,"  ");
-			j += dump(js, t+1+j, count-j, indent+1);
-			fprintf(LOGGER_STREAM,": ");
-			j += dump(js, t+1+j, count-j, indent+1);
-			fprintf(LOGGER_STREAM,"\n");
-		}
-		return j+1;
-	} else if (t->type == JSMN_ARRAY) {
-		j = 0;
-		fprintf(LOGGER_STREAM,"\n");
-		for (i = 0; i < t->size; i++) {
-			for (k = 0; k < indent-1; k++) fprintf(LOGGER_STREAM,"  ");
-			fprintf(LOGGER_STREAM,"   - ");
-			j += dump(js, t+1+j, count-j, indent+1);
-			fprintf(LOGGER_STREAM,"\n");
-		}
-		return j+1;
-	}
-	return 0;
-}
-
-jsmntok_t *_skip_tokens(jsmntok_t *tok) {
+static jsmntok_t *_skip_tokens(jsmntok_t *tok) {
+	int obj_size;
+	int array_size;
 	switch(tok->type) {
 		case JSMN_OBJECT:
+			obj_size = tok->size;
 			tok = tok + 1;
-			for (int i = 0; i < tok->size; i++) {
+			for (int i = 0; i < obj_size; i++) {
 				tok = _skip_tokens(tok + 1);
 			}
 			return tok;
 		case JSMN_ARRAY:
+			array_size = tok->size;
 			tok = tok + 1;
-			for (int i = 0; i <tok->size; i++) {
+			for (int i = 0; i < array_size; i++) {
 				tok = _skip_tokens(tok);
 			}
 			return tok;
@@ -456,9 +426,306 @@ jsmntok_t *_skip_tokens(jsmntok_t *tok) {
 	}
 }
 
+static jsmntok_t *_get_string(jsmntok_t *tok, char *json, char **string) {
+	json[tok->end] = 0;
+	int string_len = tok->end - tok->start + 1;
+	*string = (char *)malloc(string_len);
+	memcpy(*string, json + tok->start, string_len);
+	tok = tok + 1;
+	return tok;
+}
+
+static jsmntok_t *_get_int(jsmntok_t *tok, char *json, int *value) {
+	json[tok->end] = 0;
+	*value = atoi(json + tok->start);
+	tok = tok + 1;
+	return tok;
+}
+
+static jsmntok_t *_get_float(jsmntok_t *tok, char *json, float *value) {
+	json[tok->end] = 0;
+	*value = (float)atof(json + tok->start);
+	tok = tok + 1;
+	return tok;
+}
+
+jsmntok_t *_load_spriter_file(SpriterCharacter *sc, SpriterFolder *folder, jsmntok_t *tok, char *json) {
+	SpriterTexture file;
+	file.pivot_x = 0;
+	file.pivot_y = 0;
+	file.t_x = 0;
+	file.t_y = 0;
+	file.t_w = 1;
+	file.t_h = 1;
+	int id = 0;
+	int size = tok->size;
+	tok = tok + 1;
+	for (int i = 0; i < size; i++) {
+		json[tok->end] = 0;
+		char *name = json + tok->start;
+		tok = tok + 1;
+		if (!strcmp(name, "id")) {
+			tok = _get_int(tok, json, &id);
+		} else if (!strcmp(name, "width")) {
+			tok = _get_float(tok, json, &file.width);
+		} else if (!strcmp(name, "height")) {
+			tok = _get_float(tok, json, &file.height);
+		} else if (!strcmp(name, "pivot_x")) {
+			tok = _get_float(tok, json, &file.pivot_x);
+		} else if (!strcmp(name, "pivot_y")) {
+			tok = _get_float(tok, json, &file.pivot_y);
+		} else if (!strcmp(name, "name")) {
+			char *relative_path;
+			tok = _get_string(tok, json, &relative_path);
+			int file_name_len = strlen(relative_path);
+			int path_len = 0;
+			int j = 0;
+			for(;;) {
+				char c = sc->name[j++];
+				if (c == '/') path_len = j;
+				else if (c == '\0') break;
+			}
+			char *absolute_path = (char *)malloc(path_len + file_name_len + 1);
+			memcpy(absolute_path, sc->name, path_len);
+			memcpy(absolute_path + path_len, relative_path, file_name_len + 1);
+			file.name = absolute_path;
+			file.texture = load_texture(absolute_path);
+			free(relative_path);
+		} else {
+			tok = _skip_tokens(tok);
+		}
+	}
+	list_set(&folder->files, id, &file);
+	return tok;
+}
+
+jsmntok_t *_load_spriter_folder(SpriterCharacter *sc, jsmntok_t *tok, char *json) {
+	SpriterFolder folder;
+	int id = 0;
+	int size = tok->size;
+	tok = tok + 1;
+	for (int i = 0; i < size; i++) {
+		json[tok->end] = 0;
+		char *name = json + tok->start;
+		tok = tok + 1;
+		if (!strcmp(name, "id")) {
+			tok = _get_int(tok, json, &id);
+		} else if (!strcmp(name, "file")) {
+			int file_count = tok->size;
+			list_init(&folder.files, sizeof SpriterTexture, file_count);
+			tok = tok + 1;
+			for (int j = 0; j < file_count; j++) {
+				tok = _load_spriter_file(sc, &folder, tok, json);
+			}
+		} else {
+			tok = _skip_tokens(tok);
+		}
+	}
+	list_set(&sc->folders, id, &folder);
+	return tok;
+}
+
+jsmntok_t *_load_spriter_animation_key_object(ArrayList *list, jsmntok_t *tok, char *json) {
+	SpriterObjectRef object;
+	object.parent = -1;
+	object.timeline = 0;
+	object.key = 0;
+	int id = 0;
+	int size = tok->size;
+	tok = tok + 1;
+	for (int i = 0; i < size; i++) {
+		json[tok->end] = 0;
+		char *name = json + tok->start;
+		tok = tok + 1;
+		if (!strcmp(name, "id")) {
+			tok = _get_int(tok, json, &id);
+		} else if (!strcmp(name, "parent")) {
+			tok = _get_int(tok, json, &object.parent);
+		} else if (!strcmp(name, "timeline")) {
+			tok = _get_int(tok, json, &object.timeline);
+		} else if (!strcmp(name, "key")) {
+			tok = _get_int(tok, json, &object.key);
+		} else {
+			tok = _skip_tokens(tok);
+		}
+	}
+	list_set(list, id, &object);
+	return tok;
+}
+
+jsmntok_t *_load_spriter_animation_key(SpriterAnimation *animation, jsmntok_t *tok, char *json) {
+	SpriterAnimationKey key;
+	key.time = 0;
+	int id = 0;
+	int size = tok->size;
+	tok = tok + 1;
+	for (int i = 0; i < size; i++) {
+		json[tok->end] = 0;
+		char *name = json + tok->start;
+		tok = tok + 1;
+		if (!strcmp(name, "id")) {
+			tok = _get_int(tok, json, &id);
+		} else if (!strcmp(name, "time")) {
+			tok = _get_int(tok, json, &key.time);
+		} else if (!strcmp(name, "bone_ref")) {
+			int bone_count = tok->size;
+			list_init(&key.bones, sizeof SpriterObjectRef, bone_count);
+			tok = tok + 1;
+			for (int j = 0; j < bone_count; j++) {
+				tok = _load_spriter_animation_key_object(&key.bones, tok, json);
+			}
+		} else if (!strcmp(name, "object_ref")) {
+			int image_count = tok->size;
+			list_init(&key.images, sizeof SpriterObjectRef, image_count);
+			tok = tok + 1;
+			for (int j = 0; j < image_count; j++) {
+				tok = _load_spriter_animation_key_object(&key.images, tok, json);
+			}
+		} else {
+			tok = _skip_tokens(tok);
+		}
+	}
+	list_set(&animation->animation_keys, id, &key);
+	return tok;
+}
+
+jsmntok_t *_load_spriter_timeline_key_object(SpriterTimelineKey *key, jsmntok_t *tok, char *json) {
+	int size = tok->size;
+	tok = tok + 1;
+	for (int i = 0; i < size; i++) {
+		json[tok->end] = 0;
+		char *name = json + tok->start;
+		tok = tok + 1;
+		if (!strcmp(name, "x")) {
+			tok = _get_float(tok, json, &key->x);
+		} else if (!strcmp(name, "y")) {
+			tok = _get_float(tok, json, &key->y);
+		} else if (!strcmp(name, "scale_x")) {
+			tok = _get_float(tok, json, &key->scale_x);
+		} else if (!strcmp(name, "scale_y")) {
+			tok = _get_float(tok, json, &key->scale_y);
+		} else if (!strcmp(name, "angle")) {
+			tok = _get_float(tok, json, &key->angle);
+		} else if (!strcmp(name, "a")) {
+			tok = _get_float(tok, json, &key->a);
+		} else if (!strcmp(name, "folder")) {
+			tok = _get_int(tok, json, &key->folder);
+		} else if (!strcmp(name, "file")) {
+			tok = _get_int(tok, json, &key->file);
+		} else {
+			tok = _skip_tokens(tok);
+		}
+	}
+	return tok;
+}
+
+jsmntok_t *_load_spriter_timeline_key(SpriterTimeline *timeline, jsmntok_t *tok, char *json) {
+	SpriterTimelineKey key;
+	key.time = 0;
+	key.x = 0;
+	key.y = 0;
+	key.scale_x = 1;
+	key.scale_y = 1;
+	key.angle = 0;
+	key.a = 1;
+	key.folder = 0;
+	key.file = 0;
+	int id = 0;
+
+	int size = tok->size;
+	tok = tok + 1;
+	for (int i = 0; i < size; i++) {
+		json[tok->end] = 0;
+		char *name = json + tok->start;
+		tok = tok + 1;
+		if (!strcmp(name, "id")) {
+			tok = _get_int(tok, json, &id);
+		} else if (!strcmp(name, "time")) {
+			tok = _get_int(tok, json, &key.time);
+		} else if (!strcmp(name, "spin")) {
+			tok = _get_int(tok, json, &key.spin);
+		} else if (!strcmp(name, "object") || !strcmp(name, "bone")) {
+			tok = _load_spriter_timeline_key_object(&key, tok, json);
+		} else {
+			tok = _skip_tokens(tok);
+		}
+	}
+	list_set(&timeline->keys, id, &key);
+	return tok;
+}
+
+
+jsmntok_t *_load_spriter_timeline(SpriterAnimation *animation, jsmntok_t *tok, char *json) {
+	SpriterTimeline timeline;
+	timeline.type = SPRITER_IMAGE;
+	int id = 0;
+	int size = tok->size;
+	tok = tok + 1;
+	for (int i = 0; i < size; i++) {
+		json[tok->end] = 0;
+		char *name = json + tok->start;
+		tok = tok + 1;
+		if (!strcmp(name, "id")) {
+			tok = _get_int(tok, json, &id);
+		} else if (!strcmp(name, "name")) {
+			tok = _get_string(tok, json, &timeline.name);
+		} else if (!strcmp(name, "object_type")) {
+			json[tok->end] = 0;
+			if (!strcmp(json + tok->start, "bone"))
+				timeline.type = SPRITER_BONE;
+			tok = tok + 1;
+		} else if (!strcmp(name, "key")) {
+			int key_count = tok->size;
+			list_init(&timeline.keys, sizeof SpriterTimelineKey, key_count);
+			tok = tok + 1;
+			for (int j = 0; j < key_count; j++) {
+				tok = _load_spriter_timeline_key(&timeline, tok, json);
+			}
+		} else {
+			tok = _skip_tokens(tok);
+		}
+	}
+	list_set(&animation->timelines, id, &timeline);
+	return tok;
+}
+
 jsmntok_t *_load_spriter_animation(SpriterCharacter *sc, jsmntok_t *tok, char *json) {
 	SpriterAnimation animation;
-	animation->name = NULL;
+	int id = 0;
+	int size = tok->size;
+	tok = tok + 1;
+	for (int i = 0; i < size; i++) {
+		json[tok->end] = 0;
+		char *name = json + tok->start;
+		tok = tok + 1;
+		if (!strcmp(name, "id")) {
+			tok = _get_int(tok, json, &id);
+		} else if (!strcmp(name, "interval")) {
+			tok = _get_int(tok, json, &animation.interval);
+		} else if (!strcmp(name, "length")) {
+			tok = _get_int(tok, json, &animation.length);
+		} else if (!strcmp(name, "name")) {
+			tok = _get_string(tok, json, &animation.name);
+		} else if (!strcmp(name, "mainline")) {
+			tok = tok + 2;
+			int key_count = tok->size;
+			list_init(&animation.animation_keys, sizeof SpriterAnimationKey, key_count);
+			tok = tok + 1;
+			for (int j = 0; j < key_count; j++) {
+				tok = _load_spriter_animation_key(&animation, tok, json);
+			}
+		} else if (!strcmp(name, "timeline")) {
+			int timeline_count = tok->size;
+			list_init(&animation.timelines, sizeof SpriterTimeline, timeline_count);
+			tok = tok + 1;
+			for (int j = 0; j < timeline_count; j++) {
+				tok = _load_spriter_timeline(&animation, tok, json);
+			}
+		} else {
+			tok = _skip_tokens(tok);
+		}
+	}
+	list_set(&sc->animations, id, &animation);
 	return tok;
 }
 
@@ -468,8 +735,8 @@ jsmntok_t *_load_spriter_entity(SpriterCharacter *sc, jsmntok_t *tok, char *json
 	for (int i = 0; i < size; i++) {
 		json[tok->end] = 0;
 		char *name = json + tok->start;
+		tok = tok + 1;
 		if (!strcmp(name, "animation")) {
-			tok = tok + 1;
 			int animation_count = tok->size;
 			list_init(&sc->animations, sizeof SpriterAnimation, animation_count);
 			tok = tok + 1;
@@ -477,13 +744,11 @@ jsmntok_t *_load_spriter_entity(SpriterCharacter *sc, jsmntok_t *tok, char *json
 				tok = _load_spriter_animation(sc, tok, json);
 			}
 		} else {
-			tok = _skip_tokens(tok + 1);
+			tok = _skip_tokens(tok);
 		}
 	}
 	return tok;
 }
-
-jsmntok_t *_load_spriter_folder(Spriter)
 
 jsmntok_t *_load_spriter_scon(SpriterCharacter *sc, jsmntok_t *tok, char *json) {
 	int size = tok->size;
@@ -491,12 +756,18 @@ jsmntok_t *_load_spriter_scon(SpriterCharacter *sc, jsmntok_t *tok, char *json) 
 	for(int i = 0; i < size; i++) {
 		json[tok->end] = 0;
 		char *name = json + tok->start;
+		tok = tok + 1;
 		if(!strcmp(name, "entity")) {
-			tok = _load_spriter_entity(sc, tok + 2, json);
+			tok = _load_spriter_entity(sc, tok + 1, json);
 		} else if(!strcmp(name, "folder")) {
-
+			int folder_count = tok->size;
+			list_init(&sc->folders, sizeof SpriterFolder, folder_count);
+			tok = tok + 1;
+			for (int j = 0; j < folder_count; j++) {
+				tok = _load_spriter_folder(sc, tok, json);
+			}
 		} else {
-			tok = _skip_tokens(tok + 1);
+			tok = _skip_tokens(tok);
 		}
 	}
 	return tok;
@@ -543,15 +814,9 @@ SpriterCharacter *load_spriter_character(char *path) {
 				default:
 				tok_count = error;
 				jsmntok_t *t = tok;
-				fprintf(LOGGER_STREAM, "%d\n", tok_count);
-				for (int i = 0; i < tok_count; i++) {
-					t = tok + i;
-					fprintf(LOGGER_STREAM,"\n%d %d ", t->size, t->type);
-					if(t->type == JSMN_STRING)
-						fprintf(LOGGER_STREAM,"%c %c", string[t->start], string[t->end]);
-					
-				}
-				log_error("File loaded.");
+				_load_spriter_scon(sc, tok, string);
+				free(tok);
+				free(string);
 				return sc;
 			}
 		}

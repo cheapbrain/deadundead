@@ -97,23 +97,9 @@ struct Font {
 	Kerning* kerns;
 };
 
-struct SpriterTexture {
-	char *name;
-	Texture *texture;
-	float width;
-	float height;
-	float pivot_x;
-	float pivot_y;
-	float t_x;
-	float t_y;
-	float t_w;
-	float t_h;
-};
-
 struct SpriterObjectRef {
-	int id;
 	int timeline;
-	int parent;
+	int parent; // -1 = no parent
 	int key;
 };
 
@@ -136,6 +122,11 @@ struct SpriterTimelineKey {
 	int file;
 };
 
+enum SpriterObjectType {
+	SPRITER_BONE = 0,
+	SPRITER_IMAGE = 1
+};
+
 struct SpriterTimeline {
 	int type;
 	char *name;
@@ -144,8 +135,23 @@ struct SpriterTimeline {
 
 struct SpriterAnimation {
 	char *name;
-	ArrayList animationkeys;
+	int length;
+	int interval;
+	ArrayList animation_keys;
 	ArrayList timelines;
+};
+
+struct SpriterTexture {
+	char *name;
+	Texture *texture;
+	float width;
+	float height;
+	float pivot_x;
+	float pivot_y;
+	float t_x;
+	float t_y;
+	float t_w;
+	float t_h;
 };
 
 struct SpriterFolder {

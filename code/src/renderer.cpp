@@ -156,6 +156,46 @@ void draw(SpriteRenderer *renderer, Font *font, char *text, float x, float y) {
 	}
 }
 
+Vec2 rotate(Vec2 v, Vec2 o, float sin, float cos) {
+	Vec2 out;
+
+	v.x = v.x - o.x;
+	v.y = v.y - o.y;
+
+	out.x = v.x * cos - v.y * sin + o.x;
+	out.y = v.x * sin + v.y * cos + o.y;
+
+	return out;
+}
+
+#define PId180 0.01745329251f
+#define SIN(ANGLE) (sinf(ANGLE * PId180))
+#define COS(ANGLE) (cosf(ANGLE * PId180))
+
+void absolute_coordinates(SpriterAnimationKey *anim_key, SpriterObjectRef *obj, float *scaleX, float *scaleY, Vec2 *origin, float *angle) {
+	Vec2 parent_origin;
+	float parent_angle;
+	if (obj->parent == -1) {
+		parent_origin.x = 0;
+		parent_origin.y = 0;
+		parent_angle = 0;
+	} else {
+		SpriterObjectRef *parent = (SpriterObjectRef *)list_get(&anim_key->bones, obj->parent);
+		absolute_coordinates(anim_key, parent, scaleX, scaleY, &parent_origin, &parent_angle);
+	}
+
+
+}
+
+void draw(SpriteRenderer *renderer, SpriterPlayer *player, float x, float y, float scaleX, float scaleY) {
+	SpriterAnimation *animation = (SpriterAnimation *)list_get(&player->character->animations, 0);
+	SpriterAnimationKey *anim_key = (SpriterAnimationKey *)list_get(&animation->animation_keys, 0);
+	for (int i = 0; i < anim_key->images.count; i++) {
+		SpriterObjectRef *obj = (SpriterObjectRef *)list_get(&anim_key->images, i);
+
+	}
+}
+
 void set_color(SpriteRenderer *renderer, Color *color) {
 	renderer->active_color = *color;
 }
