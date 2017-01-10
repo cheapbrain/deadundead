@@ -113,42 +113,53 @@ bounce = 0.5
 render = RENDER_WALL
 
 name = test1
-texture = ../images/wall.png
+texture = ../images/UP.png
 flags = RENDER_BACK,STATIC_COLLIDE 
-x = 0
-y = 0
-w = 17
-h = 0.2
+x = 0.5
+y = 0.5
+w = 16
+h = 0.5
 bounce = 0
 render = RENDER_WALL
 
 name = test2
-texture = ../images/wall.png
+texture = ../images/DOWN.png
 flags = RENDER_BACK,STATIC_COLLIDE 
-x = 0.7
-y = 0.2
-w = 0.3
-h = 9.5
-bounce = 0
-render = RENDER_WALL
-
-name = test3
-texture = ../images/wall.png
-flags = RENDER_BACK,STATIC_COLLIDE 
-x = 0
-y = 0.7
-w = 17
+x = 0.5
+y = 0
+w = 16
 h = 0.3
 bounce = 0
 render = RENDER_WALL
 
-name = test4
-texture = ../images/wall.png
+name = test3
+texture = ../images/SX.png
 flags = RENDER_BACK,STATIC_COLLIDE 
 x = 0
-y = 0.2
-w = 0.3
-h = 9.5
+y = 0
+w = 0.15
+h = 10
+bounce = 0
+render = RENDER_WALL
+
+name = test4
+texture = ../images/DX.png
+flags = RENDER_BACK,STATIC_COLLIDE 
+x = 0.5
+y = 0
+w = 0.5
+h = 10
+bounce = 0
+render = RENDER_WALL
+
+
+name = test5
+texture = ../images/Dietro.png
+flags = RENDER_BACK 
+x = 0
+y = 0
+w = 17
+h = 10
 bounce = 0
 render = RENDER_WALL
 
