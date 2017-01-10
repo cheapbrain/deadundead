@@ -29,6 +29,12 @@ struct Color {
 extern Color white;
 extern Color black;
 
+struct ArrayList {
+	void *array;
+	int element_size;
+	int count;
+};
+
 struct Texture {
 	char *name;
 	unsigned int id;
@@ -91,6 +97,84 @@ struct Font {
 	Kerning* kerns;
 };
 
+struct SpriterObjectRef {
+	int timeline;
+	int parent; // -1 = no parent
+	int key;
+};
+
+struct SpriterAnimationKey {
+	int time;
+	ArrayList bones;
+	ArrayList images;
+};
+
+struct SpriterTimelineKey {
+	int time;
+	int spin;
+	float x;
+	float y;
+	float scale_x;
+	float scale_y;
+	float angle;
+	float a;
+	int folder;
+	int file;
+};
+
+enum SpriterObjectType {
+	SPRITER_BONE = 0,
+	SPRITER_IMAGE = 1
+};
+
+struct SpriterTimeline {
+	int type;
+	char *name;
+	ArrayList keys;
+};
+
+struct SpriterAnimation {
+	char *name;
+	int length;
+	int interval;
+	ArrayList animation_keys;
+	ArrayList timelines;
+};
+
+struct SpriterTexture {
+	char *name;
+	Texture *texture;
+	float width;
+	float height;
+	float pivot_x;
+	float pivot_y;
+	float t_x;
+	float t_y;
+	float t_w;
+	float t_h;
+};
+
+struct SpriterFolder {
+	ArrayList files;
+};
+
+struct SpriterCharacter {
+	char *name;
+	unsigned int id;
+	ArrayList folders;
+	ArrayList animations;
+};
+
+struct SpriterPlayer {
+	SpriterCharacter *character;
+	float x;
+	float y;
+	float scale_x;
+	float scale_y;
+	int active_animation;
+	float animation_speed;
+};
+
 void identity(Mat3 *mat);
 
 void orthographic(Mat3 *mat, float height, float left, float bottom); // width / height = 17 / 10, 
@@ -109,6 +193,8 @@ Texture *load_texture(char *path);
 Shader *load_shader(char *vpath, char *fpath, int shader_type);
 
 Font *load_font(char *path);
+
+SpriterCharacter *load_spriter_character(char *path);
 
 void dispose_texture(Texture *texture);
 
@@ -130,3 +216,9 @@ void log(float a);
 void log(void *a);
 
 void log(char *a);
+
+void list_init(ArrayList *list, int element_size, int count);
+
+void list_set(ArrayList *list, int index, void *value);
+
+void *list_get(ArrayList *list, int index);

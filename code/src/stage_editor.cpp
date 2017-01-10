@@ -393,6 +393,9 @@ int button(char *text, float x, float y, float w, float h, int focus) {
 }
 
 void stage_editor_init(Stage *stage) {
+	SpriterCharacter *sc = load_spriter_character("../animazioni/Ibi/Ibi.scon");
+	//SpriterCharacter *sc = load_spriter_character("../images/test_anim.scon");
+
 	palette.entities = NULL;
 	palette.names = NULL;
 	map.entities = (EditorEntity *)malloc(sizeof(EditorEntity) * 10);

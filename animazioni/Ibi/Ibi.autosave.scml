@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<spriter_data scml_version="1.0" generator="BrashMonkey Spriter" generator_version="r9">
+<spriter_data scml_version="1.0" generator="BrashMonkey Spriter" generator_version="r10">
     <folder id="0" name="torso">
         <file id="0" name="torso/body.png" width="236" height="171" pivot_x="0.194915" pivot_y="0.415205"/>
         <file id="1" name="torso/collar.png" width="236" height="171" pivot_x="0.194915" pivot_y="0.415205"/>
