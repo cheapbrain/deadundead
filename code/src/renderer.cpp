@@ -187,8 +187,8 @@ void absolute_coordinates(SpriterAnimationKey *anim_key, SpriterObjectRef *obj, 
 
 }
 
-void draw(SpriteRenderer *renderer, SpriterPlayer *player, float x, float y, float scaleX, float scaleY) {
-	SpriterAnimation *animation = (SpriterAnimation *)list_get(&player->character->animations, 0);
+void draw(SpriteRenderer *renderer, SpriterInstance *spriter_instance, float x, float y, float scaleX, float scaleY) {
+	SpriterAnimation *animation = (SpriterAnimation *)list_get(&spriter_instance->character->animations, 0);
 	SpriterAnimationKey *anim_key = (SpriterAnimationKey *)list_get(&animation->animation_keys, 0);
 	for (int i = 0; i < anim_key->images.count; i++) {
 		SpriterObjectRef *obj = (SpriterObjectRef *)list_get(&anim_key->images, i);

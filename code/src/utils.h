@@ -165,7 +165,7 @@ struct SpriterCharacter {
 	ArrayList animations;
 };
 
-struct SpriterPlayer {
+struct SpriterInstance {
 	SpriterCharacter *character;
 	float x;
 	float y;

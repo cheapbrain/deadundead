@@ -52,6 +52,7 @@ void world_update(World *world, double delta) {
 	EntityList *dynamic_list = &world->lists[DYNAMIC_COLLIDE_LIST];
 	EntityList *static_list = &world->lists[STATIC_COLLIDE_LIST];
 
+	//risolvo collisioni sulla x dei giocatori con il terrain
 	for (int i = 0; i < static_list->count; i++) {
 		Entity *st = world_get_entity(world, static_list->entity_id[i]);
 		Rectangle rect_static = {{st->x, st->y},{st->width, st->height}};
@@ -68,6 +69,7 @@ void world_update(World *world, double delta) {
 		}
 	}
 
+	//risolvo collisioni sulla y dei giocatori con il terrain
 	for (int i = 0; i < static_list->count; i++) {
 		Entity *st = world_get_entity(world, static_list->entity_id[i]);
 		Rectangle rect_static = {{st->x, st->y},{st->width, st->height}};
@@ -88,6 +90,8 @@ void world_update(World *world, double delta) {
 			}
 		}
 	}
+	
+
 }
 
 void world_render(World *world, double delta) {
