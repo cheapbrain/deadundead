@@ -232,12 +232,12 @@ void wall_render(Entity *e) {
 
 
 
-const render_func render_functions[_RENDER_FUNCTION_COUNT] = {
+const render_func render_functions[_RENDER_FUNCTION_COUNT] = {//funzioni
 	player_render, 
 	wall_render
 };
 
-const char *render_func_names[_RENDER_FUNCTION_COUNT] = {
+const char *render_func_names[_RENDER_FUNCTION_COUNT] = {//stringhe corrispondintenti (per lettura da file)
 	"RENDER_PLAYER",
 	"RENDER_WALL"
 };
