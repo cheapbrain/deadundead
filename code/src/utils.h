@@ -173,6 +173,7 @@ struct SpriterInstance {
 	float scale_y;
 	int active_animation;
 	float animation_speed;
+	Texture *in_hand;
 };
 
 void identity(Mat3 *mat);

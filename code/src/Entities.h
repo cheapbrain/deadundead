@@ -32,16 +32,21 @@ enum EntityListType
 	_LIST_COUNT
 };
 
+enum PlayerStatus {
+	MOVING,
+	STUNNED
+};
+
 const EntityTag list_tags[_LIST_COUNT] = {
 	UPDATE,
 	RENDER,
 	RENDER_BACK,
 	RENDER_FRONT,
-	DYNAMIC_COLLIDE,
-	STATIC_COLLIDE,
-	HITTABLE,
-	ACTIVE_EVENT,
-	PASSIVE_EVENT
+	DYNAMIC_COLLIDE,	//collidono solo con static
+	STATIC_COLLIDE,		//collidono solo con dynamic
+	HITTABLE,			//con salute
+	ACTIVE_EVENT,		//interagibili
+	PASSIVE_EVENT		//si attivano alla collisione
 };
 
 typedef void (*update_func)(Entity *, World *world, double delta);
@@ -50,7 +55,7 @@ typedef void (*render_func)(Entity *);
 struct Entity {
 	int id;
 	int tag;
-	float x, y, width, height;
+	float x, y, width, height; //per la hitbox
 	float old_x, old_y;
 	float speed_x, speed_y;
 	float health;
@@ -59,13 +64,20 @@ struct Entity {
 	int player_id;
 	float bounce_coeff;
 
+	PlayerStatus status;
+	double score;				//punteggio del giocatore (quanto tempo ha tenuto il token)
+	float skill_bar;			//quanto è carica la barra dell'abilità
+	float timer;				//timer generico (per attacchi, stato,...)
+	int type_in_hand;			//tipo di oggetto in mano (fendente, lanciabile, sparabile,...)
+	int id_in_hand;				//quale oggetto di quel tipo ho in mano
+	SpriterInstance *animation; //per settare quale animazione fare
+
 	update_func update;
 	render_func render;
-	int (*colliding)(const void*, const void*);
-	void (*on_collide)();
-	void (*on_hit)();
-	void (*on_enter)();
-	void (*on_interact)();
+	void (*on_collide)(Entity *source, Entity *target);
+	void (*on_hit)(Entity *source, Entity *target);
+	void (*on_enter)(Entity *source, Entity *target);
+	void (*on_interact)(Entity *source, Entity *target);
 
 	int indexes[_LIST_COUNT];
 };
