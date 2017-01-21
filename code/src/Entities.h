@@ -72,6 +72,8 @@ struct Entity {
 	int id_in_hand;				//quale oggetto di quel tipo ho in mano
 	SpriterInstance *animation; //per settare quale animazione fare
 
+	Entity *thrower;			//utilizzato per proiettili, in modo che quando vengono creati non collidano con chi li ha creati
+
 	update_func update;
 	render_func render;
 	void (*on_collide)(Entity *source, Entity *target);

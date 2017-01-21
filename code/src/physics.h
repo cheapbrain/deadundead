@@ -1,10 +1,12 @@
 #pragma once
 
 #include "utils.h"
-#include "Entities.h"
 
-//calcola se i rettangoli si intersecano
-int collides(struct Rectangle *r1, struct Rectangle *r2);
+//i rettangoli si intersecano
+int collides(Rectangle *r1, Rectangle *r2);
 
-//Ricerca le entità nell'area specificata
-struct Entity **search_in_area(struct Entity **list, int size, struct Rectangle *area);
+//centro del rettangolo nel cerchio
+int collides(Vec2 *center, float radius, Rectangle *r);
+
+//distanza al quadrato tra 2 posizioni
+float distance2(Vec2 *pos1, Vec2 *pos2);
