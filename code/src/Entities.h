@@ -34,7 +34,8 @@ enum EntityListType
 
 enum PlayerStatus {
 	MOVING,
-	STUNNED
+	STUNNED,	//finché il timer non scade non fa niente
+	ATTACKING	//finché il timer non scade non può attaccare di nuovo
 };
 
 const EntityTag list_tags[_LIST_COUNT] = {
@@ -79,7 +80,7 @@ struct Entity {
 	void (*on_collide)(Entity *source, Entity *target);
 	void (*on_hit)(Entity *source, Entity *target);
 	void (*on_enter)(Entity *source, Entity *target);
-	void (*on_interact)(Entity *source, Entity *target);
+	void (*on_interact)(Entity *source, Entity *target);	//target è l'entità stessa
 
 	int indexes[_LIST_COUNT];
 };
