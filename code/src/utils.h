@@ -176,6 +176,12 @@ struct SpriterInstance {
 	Texture *in_hand;
 };
 
+struct IntSet {
+	int *elements;
+	int count;
+	int size;
+}
+
 void identity(Mat3 *mat);
 
 void orthographic(Mat3 *mat, float height, float left, float bottom); // width / height = 17 / 10, 
@@ -223,3 +229,9 @@ void list_init(ArrayList *list, int element_size, int count);
 void list_set(ArrayList *list, int index, void *value);
 
 void *list_get(ArrayList *list, int index);
+
+//definito in entities.cpp
+void int_set_init(IntSet *set, int initial_size);
+int int_set_add(IntSet *set, int element);	//aggiunge solo se l'elemento non c'è già; ritorna se lo ha inserito
+int int_set_contains(IntSet *set, int element);
+void int_set_destroy(IntSet *set);

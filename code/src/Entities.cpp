@@ -5,7 +5,7 @@
 #include "utils.h"
 #include "renderer.h"
 #include "physics.h"
-
+#include "gameplay.h"
 
 int _list_add(EntityList *list, World *world, Entity *entity) {
 	if (list->count == list->capacity) {
@@ -51,7 +51,59 @@ void world_update(World *world, double delta) {
 
 	EntityList *dynamic_list = &world->lists[DYNAMIC_COLLIDE_LIST];
 	EntityList *static_list = &world->lists[STATIC_COLLIDE_LIST];
+	//salvo gli id delle entità dinamiche che hanno fatto collisione per fargli eseguire la funzione dopo e solo una volta (se la eseguissi sul momento potre aver problemi se la funzione chiede per esempio una eliminazione)
+	IntSet collided_set;
+	int_set_init(&collided_set, static_list -> count);
+	//salvo anche la prima entità statica con cui hanno fatto collisione
+	ArrayList collided_with;
+	list_init(&collided_with, sizeof(Entity *), static_list -> count);
 
+	//risolvo collisioni x e y tra dynamic e terrain
+	for (int i = 0; i < static_list->count; i++) {
+		Entity *st = world_get_entity(world, static_list->entity_id[i]);
+		Rectangle rect_static = {{st->x, st->y},{st->width, st->height}};
+		for (int j = 0; j < dynamic_list->count; j++) {
+			int has_collided = 0;
+			Entity *dn = world_get_entity(world, dynamic_list->entity_id[j]);
+			Rectangle rect_dyn = {{dn->x, dn->old_y},{dn->width, dn->height}};
+			if (dn->x != dn->old_x && collides(&rect_static, &rect_dyn)) {
+				float overlap;
+				if (dn->x > dn->old_x) overlap = dn->x + dn->width - st->x + .0001f;
+				else overlap = dn->x - st->x - st->width - .0001f;
+				dn->x -= overlap;
+				dn->speed_x =  -dn->speed_x * (st->bounce_coeff + dn->bounce_coeff)/2;
+				has_collided = 1;
+			}
+			rect_dyn->pos.y = dn->y;
+			if (dn->y != dn->old_y && collides(&rect_static, &rect_dyn)) {
+				float overlap;
+				if (dn->y > dn->old_y) overlap = dn->y + dn->height - st->y + .0001f;
+				else {
+					overlap = dn->y - st->y - st->height - .0001f;
+					dn->is_on_floor = 1;
+				}
+				dn->y -= overlap;
+				dn->speed_y = -dn->speed_y * (st->bounce_coeff + dn->bounce_coeff)/2;
+				has_collided = 1;
+			}
+			if (has_collided) {
+				if (int_set_add(&collided_set, dynamic_list->entity_id[j])) {
+					list_set(&collided_with, collided_set->count - 1, (void *)st);
+				}
+			}
+		}
+	}
+
+	//le faccio collidere
+	for (int i = 0; i < collided_set.count; i++) {
+		Entity *e = world_get_entity(world, collided_set.elements[i]);
+		if (e -> on_collide != null) {
+			e -> on_collide(e, (Entity *) list_get(&collided_with, i), world);
+		}
+	}
+	int_set_destroy(&collided_set);
+	free(collided_with->array);
+	/*
 	//risolvo collisioni sulla x dei giocatori con il terrain
 	for (int i = 0; i < static_list->count; i++) {
 		Entity *st = world_get_entity(world, static_list->entity_id[i]);
@@ -90,6 +142,7 @@ void world_update(World *world, double delta) {
 			}
 		}
 	}
+	*/
 	
 
 }
@@ -217,6 +270,14 @@ void player_update(Entity *e, World *world, double delta) {
 	e->x += (float)(e->speed_x * delta);
 	e->y += (float)(e->speed_y * delta);
 	e->is_on_floor = 0;
+
+	/*altre azioni*/
+	if (e->status != ATTACKING && e->status != STUNNED && button_state(B_PUNCH, e->player_id)) {//ho usato state perchè tanto ho l'as, e non sarebbe bello spaccare il mouse se è alto
+		attack(world, e);
+	}
+	if (e->status != STUNNED && button_pressed(B_PICKUP, e->player_id)) {
+		player_interact (e, world);
+	}
 }
 
 void player_render(Entity *e) {
@@ -249,3 +310,31 @@ const update_func update_functions[_UPDATE_FUNCTION_COUNT] = {
 const char *update_func_names[_UPDATE_FUNCTION_COUNT] = {
 	"UPDATE_PLAYER"
 };
+
+void int_set_init(IntSet *set, int initial_size) {
+	set -> count = 0;
+	set -> size = initial_size;
+	set -> elements = (int *) malloc(sizeof(int)*initial_size);
+}
+int int_set_add(IntSet *set, int element) {
+	if (count >= size) {
+		set -> size = set->count*2 + 1;
+		set -> elements = realloc(set -> elements, sizeof(int)*set->size );
+	}
+	if (int_set_contains(set, element) {
+		return 0;
+	}
+	set->elements[set->count++] = element;
+	return 1;
+}
+int int_set_contains(IntSet *set, int element) {
+	for (int i = 0; i < set->count; i++) {
+		if (set->elements[i] == element) {
+			return 1;
+		}
+	}
+	return 0;
+}
+void int_set_destroy(IntSet *set) {
+	free(set -> elements);
+}

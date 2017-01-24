@@ -62,13 +62,14 @@ struct Entity {
 	float health;
 	Texture *texture;
 	int is_on_floor;
+	int is_facing_right;
 	int player_id;
 	float bounce_coeff;
 
 	PlayerStatus status;
 	double score;				//punteggio del giocatore (quanto tempo ha tenuto il token)
 	float skill_bar;			//quanto è carica la barra dell'abilità
-	float timer;				//timer generico (per attacchi, stato,...)
+	double timer;				//timer generico (per attacchi, stato,...)
 	int type_in_hand;			//tipo di oggetto in mano (fendente, lanciabile, sparabile,...)
 	int id_in_hand;				//quale oggetto di quel tipo ho in mano
 	SpriterInstance *animation; //per settare quale animazione fare
@@ -77,7 +78,7 @@ struct Entity {
 
 	update_func update;
 	render_func render;
-	void (*on_collide)(Entity *source, Entity *target);
+	void (*on_collide)(Entity *self, Entity *other, World *world); //il world serve per alcuni oggetti
 	void (*on_hit)(Entity *source, Entity *target);
 	void (*on_enter)(Entity *source, Entity *target);
 	void (*on_interact)(Entity *source, Entity *target);	//target è l'entità stessa

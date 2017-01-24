@@ -37,3 +37,13 @@ Entity *closest(Vec2 *pos, float max_dist, World *world, EntityListType list) {
 	}
 	return e_res;
 }
+
+Vec2 get_entity_center(Entity *e) {
+	Vec2 res = {e->x+e->whidth/2, e->y+e->height/2};
+	return res;
+}
+
+Rectangle get_entity_rectangle(Entity *e) {
+	Rectangle res = {{e->x, e->y}, {e->whidth, e->height}};
+	return res;
+}
