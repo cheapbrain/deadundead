@@ -25,12 +25,11 @@ Entity *closest(Vec2 *pos, float max_dist, World *world, EntityListType list) {
 	Entity *e_res = NULL;
 	Entity *e_curr;
 	Vec2 e_center;
-	for (int i = 0; i < el->count; i++) 
-		e_curr = world_get_entity(world, el->entity_id[i];
-		e_center.x = e->x + e->whidth/2;
-		e_center.y = e->y + e->height/2;
-		curr_dist = distance(&e_center, pos);
-		if (curr_dist < min_dist && curr_dist < max_dist) {
+	for (int i = 0; i < el->count; i++) {
+		e_curr = world_get_entity(world, el->entity_id[i]);
+		e_center = get_entity_center(e_curr);
+		curr_dist = distance2(&e_center, pos);
+		if (curr_dist < min_dist && curr_dist < max_dist*max_dist) {
 			min_dist = curr_dist;
 			e_res = e_curr;
 		}
@@ -39,11 +38,11 @@ Entity *closest(Vec2 *pos, float max_dist, World *world, EntityListType list) {
 }
 
 Vec2 get_entity_center(Entity *e) {
-	Vec2 res = {e->x+e->whidth/2, e->y+e->height/2};
+	Vec2 res = {e->x+e->width/2, e->y+e->height/2};
 	return res;
 }
 
 Rectangle get_entity_rectangle(Entity *e) {
-	Rectangle res = {{e->x, e->y}, {e->whidth, e->height}};
+	Rectangle res = {{e->x, e->y}, {e->width, e->height}};
 	return res;
 }

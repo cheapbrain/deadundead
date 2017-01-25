@@ -74,7 +74,7 @@ void world_update(World *world, double delta) {
 				dn->speed_x =  -dn->speed_x * (st->bounce_coeff + dn->bounce_coeff)/2;
 				has_collided = 1;
 			}
-			rect_dyn->pos.y = dn->y;
+			rect_dyn.pos.y = dn->y;
 			if (dn->y != dn->old_y && collides(&rect_static, &rect_dyn)) {
 				float overlap;
 				if (dn->y > dn->old_y) overlap = dn->y + dn->height - st->y + .0001f;
@@ -88,7 +88,7 @@ void world_update(World *world, double delta) {
 			}
 			if (has_collided) {
 				if (int_set_add(&collided_set, dynamic_list->entity_id[j])) {
-					list_set(&collided_with, collided_set->count - 1, (void *)st);
+					list_set(&collided_with, collided_set.count - 1, (void *)st);
 				}
 			}
 		}
@@ -97,12 +97,12 @@ void world_update(World *world, double delta) {
 	//le faccio collidere
 	for (int i = 0; i < collided_set.count; i++) {
 		Entity *e = world_get_entity(world, collided_set.elements[i]);
-		if (e -> on_collide != null) {
+		if (e -> on_collide != NULL) {
 			e -> on_collide(e, (Entity *) list_get(&collided_with, i), world);
 		}
 	}
 	int_set_destroy(&collided_set);
-	free(collided_with->array);
+	free(collided_with.array);
 	/*
 	//risolvo collisioni sulla x dei giocatori con il terrain
 	for (int i = 0; i < static_list->count; i++) {
@@ -317,11 +317,11 @@ void int_set_init(IntSet *set, int initial_size) {
 	set -> elements = (int *) malloc(sizeof(int)*initial_size);
 }
 int int_set_add(IntSet *set, int element) {
-	if (count >= size) {
+	if (set->count >= set->size) {
 		set -> size = set->count*2 + 1;
-		set -> elements = realloc(set -> elements, sizeof(int)*set->size );
+		set -> elements = (int *) realloc(set -> elements, sizeof(int)*set->size );
 	}
-	if (int_set_contains(set, element) {
+	if (int_set_contains(set, element)) {
 		return 0;
 	}
 	set->elements[set->count++] = element;

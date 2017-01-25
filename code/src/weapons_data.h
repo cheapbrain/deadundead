@@ -28,7 +28,7 @@ struct WeaponDataProjectile {//un'arma da lancio (o proiettile di shooter)
 struct WeaponDataShooter {	//un'arma che spara proiettili; munizioni infinite
 	int projectile_id;	//il tipo di proiettile sparato
 	double attack_timer;
-}
+};
 
 /**************************GET*INFO*****************************/
 WeaponDataMelee *get_data_melee(int id);

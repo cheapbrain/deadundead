@@ -180,7 +180,7 @@ struct IntSet {
 	int *elements;
 	int count;
 	int size;
-}
+};
 
 void identity(Mat3 *mat);
 
