@@ -6,6 +6,7 @@
 #include "renderer.h"
 #include "physics.h"
 #include "gameplay.h"
+#include "objects_data.h"
 
 int _list_add(EntityList *list, World *world, Entity *entity) {
 	if (list->count == list->capacity) {
@@ -32,6 +33,8 @@ void world_init(World *world, int capacity) {
 	world->entity_capacity = capacity;
 	world->entities = (Entity *)malloc(world->entity_capacity * sizeof Entity);
 
+	int_set_init(&(world->to_be_removed), 20);
+
 	for (int i = 0; i < _LIST_COUNT; i++) {
 		EntityList *list = &world->lists[i];
 		list->id = i;
@@ -41,7 +44,7 @@ void world_init(World *world, int capacity) {
 	}
 }
 
-
+void world_actual_remove_entity(World *world, int id);
 void world_update(World *world, double delta) {
 	EntityList *update_list = &world->lists[UPDATE_LIST];
 	for (int i = 0; i < update_list->count; i++) {
@@ -103,6 +106,13 @@ void world_update(World *world, double delta) {
 	}
 	int_set_destroy(&collided_set);
 	free(collided_with.array);
+
+	//elimino le entità in attesa di rimozione
+	for (int i = 0; i < world->to_be_removed.count; i++) {
+		world_actual_remove_entity(world, world->to_be_removed.elements[i]);
+	}
+	world->to_be_removed.count = 0;
+
 	/*
 	//risolvo collisioni sulla x dei giocatori con il terrain
 	for (int i = 0; i < static_list->count; i++) {
@@ -143,8 +153,6 @@ void world_update(World *world, double delta) {
 		}
 	}
 	*/
-	
-
 }
 
 void world_render(World *world, double delta) {
@@ -208,6 +216,10 @@ Entity *world_new_entity(World *world, Entity *entity) {
 }
 
 void world_remove_entity(World *world, int id) {
+	int_set_add(&(world->to_be_removed),id);
+}
+
+static void world_actual_remove_entity(World *world, int id) {
 	Entity *entity = &world->entities[id];
 	for (int i = 0; i < _LIST_COUNT; i++) {
 		if (entity->indexes[i] >= 0) {
@@ -271,7 +283,16 @@ void player_update(Entity *e, World *world, double delta) {
 	e->y += (float)(e->speed_y * delta);
 	e->is_on_floor = 0;
 
+	if (e->status != NORMAL) {
+		e->timer -= delta;
+		if (e->timer <= 0) {
+			e->status = NORMAL;
+		}
+	}
 	/*altre azioni*/
+	if (e->type_in_hand == OTHER) {
+		do_other_update(e);
+	}
 	if (e->status != ATTACKING && e->status != STUNNED && button_state(B_PUNCH, e->player_id)) {//ho usato state perchè tanto ho l'as, e non sarebbe bello spaccare il mouse se è alto
 		attack(world, e);
 	}

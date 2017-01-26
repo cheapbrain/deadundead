@@ -4,6 +4,7 @@
 #include <string.h>
 #include <tchar.h>
 #include <math.h>
+#include <time.h>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -157,6 +158,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 }
 
 void game_init() {
+	srand((unsigned int) time(NULL));
 	char *title = "title";
 	int vsync = 0;
 	int width, height;
