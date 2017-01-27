@@ -28,7 +28,7 @@ const WeaponDataMelee wd_melee[] = {
 		2.0f,
 		1.0,
 
-		{load_texture("../images/candelabro_acceso.png"), {0.3f, 0.3f}}
+		{"../images/candelabro_acceso.png", {0.3f, 0.3f}}
 	},
 #define ID_SCOPA_ACCESA 2
 	{//SCOPA ACCESA
@@ -36,7 +36,7 @@ const WeaponDataMelee wd_melee[] = {
 		1.0f,
 		1.0,
 
-//		{load_texture("../images/scopa_accesa.png"), {0.1f, 0.5f}}
+		{"../images/scopa_accesa.png", {0.1f, 0.5f}}
 	},
 #define ID_CANDELABRO 3
 	{//CANDELABRO
@@ -44,7 +44,7 @@ const WeaponDataMelee wd_melee[] = {
 		1.0f,
 		1.0,
 
-//		{load_texture("../images/candelabro.png"), {0.3f, 0.3f}}
+		{"../images/candelabro.png", {0.3f, 0.3f}}
 	},
 #define ID_SCOPA 4
 	{//SCOPA
@@ -52,7 +52,7 @@ const WeaponDataMelee wd_melee[] = {
 		1.0f,
 		1.0,
 
-//		{load_texture("../images/scopa.png"), {0.1f, 0.5f}}
+		{"../images/scopa.png", {0.1f, 0.5f}}
 	}
 };
 
@@ -65,42 +65,42 @@ void func_p_staffa (Entity *self, Entity *first_hit, World *world);
 #define NUM_PROJECTILE 2 
 const WeaponDataProjectile wd_projectile[] = {//i non spawnabili vanno in fondo
 	{//BOMBA
-		{1.0f,1.0f},
+		{0.2f,0.2f},
 		45,
 		2.0f,
 		3.0,
 		&func_bomba,
 
-//		{load_texture("../images/bomba.png"), {0.2f, 0.2f}}
+		{"../images/bomba.png", {0.2f, 0.2f}}
 	},
 	{//PIATTO
 		{0.3f,0.3f},
 		30,
 		2.0f,
-		0,
+		-1,
 		&func_piatto,
 
-//		{load_texture("../images/piatto.png"), {0.3f, 0.3f}}
+		{"../images/piatto.png", {0.3f, 0.3f}}
 	},
 #define ID_P_BALESTRA (0+NUM_PROJECTILE)
 	{//PROIETTILE BALESTRA
 		{0.15f,0.02f},
 		0,
 		4.0f,
-		0,
+		-1,
 		&func_p_balestra,
 
-//		{load_texture("../images/balestra_p.png"), {0.15f, 0.05f}}
+		{"../images/balestra_p.png", {0.15f, 0.05f}}
 	},
 #define ID_P_STAFFA (1+NUM_PROJECTILE)
 	{//PROIETTILE STAFFA
 		{0.1f,0.1f},
 		0,
 		2.0f,
-		0,
+		-1,
 		&func_p_staffa,
 
-//		{load_texture("../images/staffa_p.png"), {0.1f, 0.1f}}
+		{"../images/staffa_p.png", {0.1f, 0.1f}}
 	}
 };
 
@@ -109,26 +109,26 @@ const WeaponDataShooter wd_shooter[] = {
 		ID_P_BALESTRA,
 		1.0,
 
-//		{load_texture("../images/balestra.png"), {0.3f, 0.3f}}
+		{"../images/balestra.png", {0.3f, 0.3f}}
 	},
 	{//STAFFA
 		ID_P_STAFFA,
 		0.8,
 
-//		{load_texture("../images/staffa.png"), {0.05f, 0.3f}}
+		{"../images/staffa.png", {0.05f, 0.3f}}
 	}
 };
 
 //quantità spawnabili
-#define NUM_OTHER (sizeof(other_data)/sizeof(OtherData))
+#define NUM_OTHER /*(sizeof(other_data)/sizeof(OtherData))*/0
 #define NUM_MELEE (sizeof(wd_melee)/sizeof(WeaponDataMelee) - NUM_MELEE_NON_S)
 #define NUM_SHOOTER (sizeof(wd_shooter)/sizeof(WeaponDataShooter))
 
-void pickupable_on_interact (Entity *source, Entity *target);
+void pickupable_on_interact (Entity *source, Entity *target, World *world);
 void spawn_pickupable(float pos_x, float pos_y, int type, int id, World *world) {
 	Entity *e = world_new_entity(world, RENDER | ACTIVE_EVENT);
 	const ObjectDrawInfo *di = get_object_draw_info(type, id);
-	e->texture = di->texture;
+	e->texture = load_texture(di->texture);
 	e->width = di->size.x;
 	e->height = di->size.y;
 
@@ -177,7 +177,7 @@ static void projectile_update_function(Entity *self, World *world, double delta)
 		self -> old_x = self -> x;
 		self -> x += (float) ((self->speed_x)*delta);
 	} else {
-#define DOWNWARD_ACCELLERATION	1//TODO
+#define DOWNWARD_ACCELLERATION	0.1//TODO
 #define DOWNWARD_MAX_SPEED		-1//TODO
 		self -> old_x = self -> x; self -> old_y = self -> y;
 		self -> x += (float) ((self->speed_x)*delta); self -> y += (float) ((self->speed_x)*delta);
@@ -190,7 +190,7 @@ static void projectile_update_function(Entity *self, World *world, double delta)
 	}
 
 	//controllo se attivarmi
-	if (self -> timer == 0) {
+	if (self -> timer < 0) {
 		//alla collisione
 		Rectangle rect_self = {{self->x, self->y},{self->width, self->height}};
 		EntityList *hittable_list = &world->lists[HITTABLE_LIST];
@@ -207,7 +207,7 @@ static void projectile_update_function(Entity *self, World *world, double delta)
 		//alla scadenza del timer
 		self -> timer -= delta;
 		if (self -> timer <= 0) {
-			get_data_projectile(self->id_in_hand) -> hit_func(self, NULL, world);
+			get_data_projectile(self->id_in_hand) -> hit_func(self, NULL, world);/*poi qui va rimosso*/
 		}
 	}
 }
@@ -230,7 +230,7 @@ void create_projectile(World *world, Entity *source, int projectile_id) {
 	if (!source->is_facing_right) {
 		p->speed_x = -p->speed_x;
 	}
-	p->texture = data->draw_info.texture;
+	p->texture = load_texture(data->draw_info.texture);
 	//int is_on_floor;
 	p->is_facing_right = source->is_facing_right;
 	//int player_id;
@@ -247,7 +247,7 @@ void create_projectile(World *world, Entity *source, int projectile_id) {
 
 	p->update = &projectile_update_function;
 	p->render = &wall_render; //TODO
-	if (data->timer == 0) {
+	if (data->timer < 0) {
 		p->on_collide = data->hit_func;
 	} else {
 		p->on_collide = NULL;
@@ -325,10 +325,11 @@ void do_other_update(Entity *holder) {
 //da mettere su entità che rappresentano oggetti da raccogliere e tenere in mano
 //source è il player che ha interagito, target è l'oggetto raccolto
 //elimina il vecchio oggetto tenuto dal player e ci mette i suoi dati
-static void pickupable_on_interact (Entity *source, Entity *target) {
+static void pickupable_on_interact (Entity *source, Entity *target, World *world) {
 	if (source->status == ATTACKING) {
 		source->timer = 0;
 	}
 	source->type_in_hand = target->type_in_hand;
 	source->id_in_hand = target->id_in_hand;
+	world_remove_entity(world, target->id);
 }

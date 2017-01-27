@@ -42,10 +42,6 @@ void world_init(World *world, int capacity) {
 		list->capacity = 100;
 		list->entity_id = (int *)malloc(sizeof (int) * 100);
 	}
-	/*
-	spawn_random_pickupable(1, 1, world);
-	spawn_random_pickupable(3, 1, world);
-	*/
 }
 
 void world_actual_remove_entity(World *world, int id);
@@ -155,12 +151,14 @@ void world_update(World *world, double delta) {
 	for (int i = 0; i < collided_set.count; i++) {
 		Entity *e = world_get_entity(world, collided_set.elements[i]);
 		if (e -> on_collide != NULL) {
+			//Rectangle hitbox = {{e->x, e->y},{0.5f,0.5f}};
 			e -> on_collide(e, (Entity *) list_get(&collided_with, i), world);
+			//test_hitbox(world, &hitbox);
 		}
 	}
 	int_set_destroy(&collided_set);
 	free(collided_with.array);
-
+	
 	//elimino le entità in attesa di rimozione
 	for (int i = 0; i < world->to_be_removed.count; i++) {
 		world_actual_remove_entity(world, world->to_be_removed.elements[i]);
@@ -312,6 +310,10 @@ void player_update(Entity *e, World *world, double delta) {
 	if (e->status != STUNNED && button_pressed(B_PICKUP, e->player_id)) {
 		player_interact (e, world);
 	}
+	/*testo i pickupable*/
+	if (button_pressed(B_EMOTE1, e->player_id)) {
+		spawn_random_pickupable(1,1,world);
+	}
 }
 
 void player_render(Entity *e) {
@@ -322,7 +324,7 @@ void player_render(Entity *e) {
 
 	const ObjectDrawInfo *di = get_object_draw_info(e->type_in_hand, e->id_in_hand);
 	if (di != NULL && di->texture != NULL) {
-		draw(&game.renderer, di->texture, e->x+(e->width - di->size.x)/2, e->y+(e->height - di->size.y)/2, di->size.x, di->size.y, 0, 0, 1, 1);
+		draw(&game.renderer, load_texture(di->texture), e->x+(e->width - di->size.x)/2, e->y+(e->height - di->size.y)/2, di->size.x, di->size.y, 0, 0, 1, 1);
 	}
 }
 

@@ -11,14 +11,14 @@ enum TypeInHand {
 };
 
 struct ObjectDrawInfo {
-	Texture *texture;
+	char *texture;
 	Vec2 size;
 };
 
 struct OtherData {
 	void (*on_update) (Entity *holder);
 	void (*on_attack) (Entity *holder, World *world);
-	void (*on_interact)(Entity *source, Entity *target);
+	void (*on_interact)(Entity *source, Entity *target, World *world);
 
 	ObjectDrawInfo draw_info;
 };
@@ -35,7 +35,7 @@ struct WeaponDataProjectile {//un'arma da lancio (o proiettile di shooter)
 	Vec2 size;
 	int angle;		//l'angolo di tiro in gradi; se 0 è un tiro dritto non affetto dalla gravità
 	float speed;
-	double timer;	//se 0 hit_func viene chiamata alla collisione con static o dinamic, altrimenti quando scade il timer (e rimbalza)
+	double timer;	//se <0 hit_func viene chiamata alla collisione con static o dynamic, altrimenti quando scade il timer (e rimbalza)
 	void (*hit_func) (Entity *self, Entity *first_hit, World *world);	//nota: se è a timer first_hit sarà sempre NULL
 
 	ObjectDrawInfo draw_info;

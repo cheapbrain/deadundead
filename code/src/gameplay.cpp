@@ -20,7 +20,7 @@ void stun_entity(Entity *e, double timer) {
 }
 
 /*TestHitbox*/
-void update_hitbox (Entity *e, World *world, double delta) {
+static void update_hitbox (Entity *e, World *world, double delta) {
 	e->timer -= delta;
 	if (e->timer <= 0) {
 		world_remove_entity(world, e->id);
@@ -97,6 +97,6 @@ void player_interact (Entity *player, World *world) {
 	interacted = get_closest(&player_center, PLAYER_MAXIMUM_INTERACT_DISTANCE, world, ACTIVE_EVENT_LIST);
 #undef PLAYER_MAXIMUM_INTERACT_DISTANCE
 	if (interacted != NULL) {
-		interacted->on_interact(player, interacted);
+		interacted->on_interact(player, interacted, world);
 	}
 }

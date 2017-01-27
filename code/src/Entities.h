@@ -83,7 +83,7 @@ struct Entity {
 	void (*on_collide)(Entity *self, Entity *other, World *world); //il world serve per alcuni oggetti
 	void (*on_hit)(Entity *source, Entity *target);
 	void (*on_enter)(Entity *source, Entity *target);
-	void (*on_interact)(Entity *source, Entity *target);	//target è l'entità stessa
+	void (*on_interact)(Entity *source, Entity *target, World *world);	//target è l'entità stessa
 
 	int indexes[_LIST_COUNT];
 };
