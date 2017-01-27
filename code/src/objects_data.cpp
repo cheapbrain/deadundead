@@ -67,7 +67,7 @@ const WeaponDataProjectile wd_projectile[] = {//i non spawnabili vanno in fondo
 	{//BOMBA
 		{0.2f,0.2f},
 		45,
-		2.0f,
+		6.0f,
 		3.0,
 		&func_bomba,
 
@@ -75,8 +75,8 @@ const WeaponDataProjectile wd_projectile[] = {//i non spawnabili vanno in fondo
 	},
 	{//PIATTO
 		{0.3f,0.3f},
-		30,
-		2.0f,
+		45,
+		6.0f,
 		-1,
 		&func_piatto,
 
@@ -177,14 +177,20 @@ static void projectile_update_function(Entity *self, World *world, double delta)
 		self -> old_x = self -> x;
 		self -> x += (float) ((self->speed_x)*delta);
 	} else {
-#define DOWNWARD_ACCELLERATION	0.1//TODO
-#define DOWNWARD_MAX_SPEED		-1//TODO
+#define DOWNWARD_ACCELLERATION	7.f//TODO
+#define DOWNWARD_MAX_SPEED		-4.f//TODO
+#define X_FRICTION				7.f
 		self -> old_x = self -> x; self -> old_y = self -> y;
-		self -> x += (float) ((self->speed_x)*delta); self -> y += (float) ((self->speed_x)*delta);
-		self -> speed_y -= (float) (DOWNWARD_ACCELLERATION*delta);
+		self -> x += (float) ((self->speed_x)*delta); self -> y += (float) ((self->speed_y)*delta);
+		self -> speed_y -= (DOWNWARD_ACCELLERATION*(float)delta);
+		if (self->is_on_floor) {
+			self->is_on_floor = 0;
+			self -> speed_x -= (self->speed_x)*X_FRICTION*(float) delta;
+		}
 		if (self -> speed_y < DOWNWARD_MAX_SPEED) {
 			self -> speed_y = DOWNWARD_MAX_SPEED;
 		}
+#undef X_FRICTION
 #undef DOWNWARD_ACCELLERATION
 #undef DOWNWARD_MAX_SPEED
 	}
