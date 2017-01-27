@@ -18,36 +18,41 @@ const WeaponDataMelee wd_melee[] = {
 	{//PUGNO
 		{{1.0f,1.0f},{1.0f,1.0f}},
 		1.0f,
-		NULL,
-		1.0
+		1.0,
+
+		{NULL, {0,0}}
 	},
 #define ID_CANDELABRO_ACCESO 1
 	{//CANDELABRO ACCESO
 		{{1.0f,1.0f},{1.0f,1.0f}},
 		2.0f,
-		"candelabro_acceso",
-		1.0
+		1.0,
+
+		{load_texture("../images/candelabro_acceso.png"), {0.3f, 0.3f}}
 	},
 #define ID_SCOPA_ACCESA 2
 	{//SCOPA ACCESA
 		{{1.0f,1.0f},{1.0f,1.0f}},
 		1.0f,
-		"scopa_accesa",
-		1.0
+		1.0,
+
+//		{load_texture("../images/scopa_accesa.png"), {0.1f, 0.5f}}
 	},
 #define ID_CANDELABRO 3
 	{//CANDELABRO
 		{{1.0f,1.0f},{1.0f,1.0f}},
 		1.0f,
-		"candelabro",
-		1.0
+		1.0,
+
+//		{load_texture("../images/candelabro.png"), {0.3f, 0.3f}}
 	},
 #define ID_SCOPA 4
 	{//SCOPA
 		{{1.0f,1.0f},{1.0f,1.0f}},
 		1.0f,
-		"scopa",
-		1.0
+		1.0,
+
+//		{load_texture("../images/scopa.png"), {0.1f, 0.5f}}
 	}
 };
 
@@ -63,48 +68,54 @@ const WeaponDataProjectile wd_projectile[] = {//i non spawnabili vanno in fondo
 		{1.0f,1.0f},
 		45,
 		2.0f,
-		"bomba",
 		3.0,
-		&func_bomba
+		&func_bomba,
+
+//		{load_texture("../images/bomba.png"), {0.2f, 0.2f}}
 	},
 	{//PIATTO
-		{1.0f,1.0f},
+		{0.3f,0.3f},
 		30,
 		2.0f,
-		"piatto",
 		0,
-		&func_piatto
+		&func_piatto,
+
+//		{load_texture("../images/piatto.png"), {0.3f, 0.3f}}
 	},
 #define ID_P_BALESTRA (0+NUM_PROJECTILE)
 	{//PROIETTILE BALESTRA
-		{1.0f,1.0f},
+		{0.15f,0.02f},
 		0,
 		4.0f,
-		"balestra_dardo",
 		0,
-		&func_p_balestra
+		&func_p_balestra,
+
+//		{load_texture("../images/balestra_p.png"), {0.15f, 0.05f}}
 	},
 #define ID_P_STAFFA (1+NUM_PROJECTILE)
 	{//PROIETTILE STAFFA
-		{1.0f,1.0f},
+		{0.1f,0.1f},
 		0,
 		2.0f,
-		"staffa_scintilla",
 		0,
-		&func_p_staffa
+		&func_p_staffa,
+
+//		{load_texture("../images/staffa_p.png"), {0.1f, 0.1f}}
 	}
 };
 
 const WeaponDataShooter wd_shooter[] = {
 	{//BALESTRA
 		ID_P_BALESTRA,
-		"balestra",
-		1.0
+		1.0,
+
+//		{load_texture("../images/balestra.png"), {0.3f, 0.3f}}
 	},
 	{//STAFFA
 		ID_P_STAFFA,
-		"staffa",
-		0.8
+		0.8,
+
+//		{load_texture("../images/staffa.png"), {0.05f, 0.3f}}
 	}
 };
 
@@ -114,12 +125,17 @@ const WeaponDataShooter wd_shooter[] = {
 #define NUM_SHOOTER (sizeof(wd_shooter)/sizeof(WeaponDataShooter))
 
 void pickupable_on_interact (Entity *source, Entity *target);
-static void spawn_pickupable(float pos_x, float pos_y, int type, int id, World *world) {
+void spawn_pickupable(float pos_x, float pos_y, int type, int id, World *world) {
 	Entity *e = world_new_entity(world, RENDER | ACTIVE_EVENT);
-	//TODO Texture e render_func;
+	const ObjectDrawInfo *di = get_object_draw_info(type, id);
+	e->texture = di->texture;
+	e->width = di->size.x;
+	e->height = di->size.y;
+
 	e->type_in_hand = type;
 	e->id_in_hand = id;
-	e->x = pos_x; e->y = pos_y;
+	e->x = pos_x+e->width/2; e->y = pos_y+e->height/2;
+	e->render = &wall_render;
 	if (type == OTHER && other_data[id].on_interact != NULL) {
 		e->on_interact = other_data[id].on_interact;
 	} else {
@@ -214,7 +230,7 @@ void create_projectile(World *world, Entity *source, int projectile_id) {
 	if (!source->is_facing_right) {
 		p->speed_x = -p->speed_x;
 	}
-	p->texture = load_texture(data->texture);
+	p->texture = data->draw_info.texture;
 	//int is_on_floor;
 	p->is_facing_right = source->is_facing_right;
 	//int player_id;
@@ -283,6 +299,16 @@ void func_p_staffa(Entity *self, Entity *first_hit, World *world) {simple_projec
 const WeaponDataMelee *get_data_melee(int id) {return &(wd_melee[id]);}
 const WeaponDataProjectile *get_data_projectile(int id){return &(wd_projectile[id]);}
 const WeaponDataShooter *get_data_shooter(int id){return &(wd_shooter[id]);}
+
+const ObjectDrawInfo *get_object_draw_info(int type, int id) {
+	switch (type) {
+	case OTHER:		return &(other_data[id].draw_info); break;
+	case MELEE:		return &(get_data_melee(id)->draw_info); break;
+	case SHOOTER:	return &(get_data_shooter(id)->draw_info); break;
+	case PROJECTILE:return &(get_data_projectile(id)->draw_info); break;
+	default:		return NULL;
+	}
+}
 
 void do_other_attack(World *world, Entity *holder) {
 	if (other_data[holder->id_in_hand].on_attack != NULL) {

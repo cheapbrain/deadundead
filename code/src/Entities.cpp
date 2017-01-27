@@ -42,6 +42,10 @@ void world_init(World *world, int capacity) {
 		list->capacity = 100;
 		list->entity_id = (int *)malloc(sizeof (int) * 100);
 	}
+	/*
+	spawn_random_pickupable(1, 1, world);
+	spawn_random_pickupable(3, 1, world);
+	*/
 }
 
 void world_actual_remove_entity(World *world, int id);
@@ -60,8 +64,9 @@ void world_update(World *world, double delta) {
 	//salvo anche la prima entità statica con cui hanno fatto collisione
 	ArrayList collided_with;
 	list_init(&collided_with, sizeof(Entity *), static_list -> count);
-
+	
 	//risolvo collisioni x e y tra dynamic e terrain
+	/*BUGGO
 	for (int i = 0; i < static_list->count; i++) {
 		Entity *st = world_get_entity(world, static_list->entity_id[i]);
 		Rectangle rect_static = {{st->x, st->y},{st->width, st->height}};
@@ -74,7 +79,7 @@ void world_update(World *world, double delta) {
 				if (dn->x > dn->old_x) overlap = dn->x + dn->width - st->x + .0001f;
 				else overlap = dn->x - st->x - st->width - .0001f;
 				dn->x -= overlap;
-				dn->speed_x =  -dn->speed_x * (st->bounce_coeff + dn->bounce_coeff)/2;
+				dn->speed_x = 0;
 				has_collided = 1;
 			}
 			rect_dyn.pos.y = dn->y;
@@ -89,6 +94,7 @@ void world_update(World *world, double delta) {
 				dn->speed_y = -dn->speed_y * (st->bounce_coeff + dn->bounce_coeff)/2;
 				has_collided = 1;
 			}
+
 			if (has_collided) {
 				if (int_set_add(&collided_set, dynamic_list->entity_id[j])) {
 					list_set(&collided_with, collided_set.count - 1, (void *)st);
@@ -96,24 +102,8 @@ void world_update(World *world, double delta) {
 			}
 		}
 	}
+	*/
 
-	//le faccio collidere
-	for (int i = 0; i < collided_set.count; i++) {
-		Entity *e = world_get_entity(world, collided_set.elements[i]);
-		if (e -> on_collide != NULL) {
-			e -> on_collide(e, (Entity *) list_get(&collided_with, i), world);
-		}
-	}
-	int_set_destroy(&collided_set);
-	free(collided_with.array);
-
-	//elimino le entità in attesa di rimozione
-	for (int i = 0; i < world->to_be_removed.count; i++) {
-		world_actual_remove_entity(world, world->to_be_removed.elements[i]);
-	}
-	world->to_be_removed.count = 0;
-
-	/*
 	//risolvo collisioni sulla x dei giocatori con il terrain
 	for (int i = 0; i < static_list->count; i++) {
 		Entity *st = world_get_entity(world, static_list->entity_id[i]);
@@ -126,7 +116,11 @@ void world_update(World *world, double delta) {
 				if (dn->x > dn->old_x) overlap = dn->x + dn->width - st->x + .0001f;
 				else overlap = dn->x - st->x - st->width - .0001f;
 				dn->x -= overlap;
-				dn->speed_x = 0;
+				//dn->speed_x = 0;
+				dn->speed_x = -dn->speed_x * (dn->bounce_coeff + st->bounce_coeff)/2;
+				if (int_set_add(&collided_set, dynamic_list->entity_id[j])) {
+					list_set(&collided_with, collided_set.count - 1, (void *)st);
+				}
 			}
 		}
 	}
@@ -147,12 +141,31 @@ void world_update(World *world, double delta) {
 						dn->is_on_floor = 1;
 					}
 					dn->y -= overlap;
-					dn->speed_y = -dn->speed_y * st->bounce_coeff;
+					//dn->speed_y = -dn->speed_y * st->bounce_coeff;
+					dn->speed_y = -dn->speed_y * (st->bounce_coeff + dn->bounce_coeff)/2;
+					if (int_set_add(&collided_set, dynamic_list->entity_id[j])) {
+						list_set(&collided_with, collided_set.count - 1, (void *)st);
+					}
 				}
 			}
 		}
 	}
-	*/
+	
+	//le faccio collidere
+	for (int i = 0; i < collided_set.count; i++) {
+		Entity *e = world_get_entity(world, collided_set.elements[i]);
+		if (e -> on_collide != NULL) {
+			e -> on_collide(e, (Entity *) list_get(&collided_with, i), world);
+		}
+	}
+	int_set_destroy(&collided_set);
+	free(collided_with.array);
+
+	//elimino le entità in attesa di rimozione
+	for (int i = 0; i < world->to_be_removed.count; i++) {
+		world_actual_remove_entity(world, world->to_be_removed.elements[i]);
+	}
+	world->to_be_removed.count = 0;
 }
 
 void world_render(World *world, double delta) {
@@ -270,8 +283,8 @@ void player_update(Entity *e, World *world, double delta) {
 
 	//e->speed_x = 0;
 	e->speed_x -= 10 * e->speed_x * (float)delta;
-	if (button_state(B_RIGHT, e->player_id)) e->speed_x += 40.f * (float)delta;
-	if (button_state(B_LEFT, e->player_id)) e->speed_x -= 40.f * (float)delta;
+	if (button_state(B_RIGHT, e->player_id)) {e->speed_x += 40.f * (float)delta; e->is_facing_right = 1;}
+	if (button_state(B_LEFT, e->player_id)) {e->speed_x -= 40.f * (float)delta; e->is_facing_right = 0;}
 
 	e->speed_y -= (float)(17.f * delta);
 
@@ -302,10 +315,15 @@ void player_update(Entity *e, World *world, double delta) {
 }
 
 void player_render(Entity *e) {
-	if (e->speed_x > 0)
+	if (/*e->speed_x > 0*/e->is_facing_right)
 		draw(&game.renderer, e->texture, e->x, e->y, e->width, e->height, 0, 0, 1, 1);
 	else
 		draw(&game.renderer, e->texture, e->x, e->y, e->width, e->height, 1, 0, -1, 1);
+
+	const ObjectDrawInfo *di = get_object_draw_info(e->type_in_hand, e->id_in_hand);
+	if (di != NULL && di->texture != NULL) {
+		draw(&game.renderer, di->texture, e->x+(e->width - di->size.x)/2, e->y+(e->height - di->size.y)/2, di->size.x, di->size.y, 0, 0, 1, 1);
+	}
 }
 
 void wall_render(Entity *e) {

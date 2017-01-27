@@ -19,6 +19,26 @@ void stun_entity(Entity *e, double timer) {
 	}
 }
 
+/*TestHitbox*/
+void update_hitbox (Entity *e, World *world, double delta) {
+	e->timer -= delta;
+	if (e->timer <= 0) {
+		world_remove_entity(world, e->id);
+	}
+}
+void test_hitbox(World *world, Rectangle *hitbox) {
+	Entity *e = world_new_entity(world, RENDER | UPDATE);
+	e->timer = 0.5;
+	e->x = hitbox->pos.x;
+	e->y = hitbox->pos.y;
+	e->width = hitbox->size.x;
+	e->height = hitbox->size.y;
+	e->texture = load_texture("../images/hitbox.png");
+	e->update = &update_hitbox;
+	e->render = &wall_render;
+}
+
+
 /***************ATTACCHI*****************/
 static void melee_attack(World *world, Entity *source) {
 	//TODO nell'update andrà cosa succede quando colpito?
@@ -26,10 +46,13 @@ static void melee_attack(World *world, Entity *source) {
 	const WeaponDataMelee *wd = get_data_melee(source->id_in_hand);
 
 	Rectangle hit_zone = wd->hitbox;
-	hit_zone.pos.x += source->x; hit_zone.pos.y += source->y;
-	if (!source->is_facing_right) {
-		hit_zone.pos.x -= source->width;
+	hit_zone.pos.y += source->y;
+	if (source->is_facing_right) {
+		hit_zone.pos.x += source->x;
+	} else {
+		hit_zone.pos.x = source->x + source->width - hit_zone.size.x - hit_zone.pos.x;
 	}
+	test_hitbox(world, &hit_zone);
 	for (int i = 0; i < hl->count; i++) {
 		Entity *e = world_get_entity(world, hl->entity_id[i]);
 		Rectangle e_hitbox = {{e->x, e->y},{e->width, e->height}};
