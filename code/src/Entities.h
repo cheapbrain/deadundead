@@ -15,7 +15,8 @@ enum EntityTag
 	STATIC_COLLIDE = 1<<5,
 	HITTABLE = 1<<6,
 	ACTIVE_EVENT = 1<<7,
-	PASSIVE_EVENT = 1<<8
+	PASSIVE_EVENT = 1<<8,
+	PLAYER = 1<<9
 };
 
 enum EntityListType
@@ -33,9 +34,10 @@ enum EntityListType
 };
 
 enum PlayerStatus {
-	MOVING,
+	NORMAL,
 	STUNNED,	//finché il timer non scade non fa niente
-	ATTACKING	//finché il timer non scade non può attaccare di nuovo
+	ATTACKING,	//finché il timer non scade non può attaccare di nuovo
+	INVULNERABLE
 };
 
 const EntityTag list_tags[_LIST_COUNT] = {
@@ -69,7 +71,7 @@ struct Entity {
 	PlayerStatus status;
 	double score;				//punteggio del giocatore (quanto tempo ha tenuto il token)
 	float skill_bar;			//quanto è carica la barra dell'abilità
-	double timer;				//timer generico (per attacchi, stato,...)
+	double timer;				//timer generico (su player quando scade cambia lo stato in normal)
 	int type_in_hand;			//tipo di oggetto in mano (fendente, lanciabile, sparabile,...)
 	int id_in_hand;				//quale oggetto di quel tipo ho in mano
 	SpriterInstance *animation; //per settare quale animazione fare
@@ -81,7 +83,7 @@ struct Entity {
 	void (*on_collide)(Entity *self, Entity *other, World *world); //il world serve per alcuni oggetti
 	void (*on_hit)(Entity *source, Entity *target);
 	void (*on_enter)(Entity *source, Entity *target);
-	void (*on_interact)(Entity *source, Entity *target);	//target è l'entità stessa
+	void (*on_interact)(Entity *source, Entity *target, World *world);	//target è l'entità stessa
 
 	int indexes[_LIST_COUNT];
 };
@@ -126,6 +128,8 @@ struct World {
 	Entity *entities;
 	int entity_count;
 	int entity_capacity;
+
+	IntSet to_be_removed;
 	
 	EntityList lists[_LIST_COUNT];
 };

@@ -18,7 +18,7 @@ float distance2(Vec2 *pos1, Vec2 *pos2) {
 	return (pos1->x - pos2->x)*(pos1->x - pos2->x) + (pos1->y - pos2->y)*(pos1->y - pos2->y);
 }
 
-Entity *closest(Vec2 *pos, float max_dist, World *world, EntityListType list) {
+Entity *get_closest(Vec2 *pos, float max_dist, World *world, EntityListType list) {
 	EntityList *el = &(world->lists[list]);
 	float min_dist = FLT_MAX;
 	float curr_dist;
