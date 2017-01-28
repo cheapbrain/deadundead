@@ -32,6 +32,7 @@ void world_init(World *world, int capacity) {
 	world->entity_count = 0;
 	world->entity_capacity = capacity;
 	world->entities = (Entity *)malloc(world->entity_capacity * sizeof Entity);
+	world->free_id = 1;
 
 	int_set_init(&(world->to_be_removed), 20);
 
