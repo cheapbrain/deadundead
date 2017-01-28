@@ -57,6 +57,7 @@ typedef void (*render_func)(Entity *);
 
 struct Entity {
 	int id;
+	int index;
 	int tag;
 	float x, y, width, height; //per la hitbox
 	float old_x, old_y;
@@ -76,7 +77,7 @@ struct Entity {
 	int id_in_hand;				//quale oggetto di quel tipo ho in mano
 	SpriterInstance *animation; //per settare quale animazione fare
 
-	Entity *thrower;			//utilizzato per proiettili, in modo che quando vengono creati non collidano con chi li ha creati
+	int thrower_id;			//utilizzato per proiettili, in modo che quando vengono creati non collidano con chi li ha creati
 
 	update_func update;
 	render_func render;
@@ -120,7 +121,7 @@ struct EntityList {
 	int id;
 	int count;
 	int capacity;
-	int *entity_id;
+	int *entity_indexes;
 };
 
 struct World {
@@ -128,6 +129,7 @@ struct World {
 	Entity *entities;
 	int entity_count;
 	int entity_capacity;
+	int free_id;
 
 	IntSet to_be_removed;
 	
@@ -144,7 +146,7 @@ Entity *world_new_entity(World *world, int tag);
 
 Entity *world_new_entity(World *world, Entity *entity);
 
-void world_remove_entity(World *world, int id);
+void world_remove_entity(World *world, int index);
 
 Entity *world_get_entity(World *world, int id);
 

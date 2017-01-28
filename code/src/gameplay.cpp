@@ -23,7 +23,7 @@ void stun_entity(Entity *e, double timer) {
 static void update_hitbox (Entity *e, World *world, double delta) {
 	e->timer -= delta;
 	if (e->timer <= 0) {
-		world_remove_entity(world, e->id);
+		world_remove_entity(world, e->index);
 	}
 }
 void test_hitbox(World *world, Rectangle *hitbox) {
@@ -54,7 +54,7 @@ static void melee_attack(World *world, Entity *source) {
 	}
 	test_hitbox(world, &hit_zone);
 	for (int i = 0; i < hl->count; i++) {
-		Entity *e = world_get_entity(world, hl->entity_id[i]);
+		Entity *e = world->entities + hl->entity_indexes[i];
 		Rectangle e_hitbox = {{e->x, e->y},{e->width, e->height}};
 		if (e != source && collides(&hit_zone, &e_hitbox)) {
 			damage_entity(e, wd->damage);

@@ -26,7 +26,7 @@ Entity *get_closest(Vec2 *pos, float max_dist, World *world, EntityListType list
 	Entity *e_curr;
 	Vec2 e_center;
 	for (int i = 0; i < el->count; i++) {
-		e_curr = world_get_entity(world, el->entity_id[i]);
+		e_curr = world->entities + el->entity_indexes[i];
 		e_center = get_entity_center(e_curr);
 		curr_dist = distance2(&e_center, pos);
 		if (curr_dist < min_dist && curr_dist < max_dist*max_dist) {

@@ -160,7 +160,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 void game_init() {
 	srand((unsigned int) time(NULL));
 	char *title = "title";
-	int vsync = 0;
+	int vsync = 1;
 	int width, height;
 	
 	GLFWmonitor *active_monitor;

@@ -163,9 +163,9 @@ static void hit_in_area(World *world, float radius, Entity *projectile, void (*h
 	EntityList *hittable_list = &world->lists[HITTABLE_LIST];
 
 	for (int i = 0; i < hittable_list->count; i++) {
-		Entity *e = world_get_entity(world, hittable_list->entity_id[i]);
+		Entity *e = world->entities + hittable_list->entity_indexes[i];
 		Rectangle er = get_entity_rectangle(e);
-		if ((!exclude_thrower || e != projectile->thrower) && collides(&p_center, radius, &er)) {
+		if ((!exclude_thrower || e->id != projectile->thrower_id) && collides(&p_center, radius, &er)) {
 			hit_func(e);
 		}
 	}
@@ -202,9 +202,9 @@ static void projectile_update_function(Entity *self, World *world, double delta)
 		EntityList *hittable_list = &world->lists[HITTABLE_LIST];
 
 		for (int i = 0; i < hittable_list->count; i++) {
-			Entity *e = world_get_entity(world, hittable_list->entity_id[i]);
+			Entity *e = world->entities + hittable_list->entity_indexes[i];
 			Rectangle rect_e = {{e->x, e->y},{e->width, e->height}};
-			if (e != self -> thrower && collides(&rect_self, &rect_e)) {
+			if (e -> id != self -> thrower_id && collides(&rect_self, &rect_e)) {
 				self -> on_collide(self, e, world);
 				break;
 			}
@@ -249,7 +249,7 @@ void create_projectile(World *world, Entity *source, int projectile_id) {
 	p->id_in_hand = projectile_id;
 	//SpriterInstance *animation; //per settare quale animazione fare
 
-	p->thrower = source;
+	p->thrower_id = source->id;
 
 	p->update = &projectile_update_function;
 	p->render = &wall_render; //TODO
@@ -281,20 +281,20 @@ void simple_projectile(Entity *e, float damage, Entity *self, World *world) {
 	if ((e->tag & HITTABLE) != 0) {
 		damage_entity(e, damage);
 	}
-	world_remove_entity(world, self->id);
+	world_remove_entity(world, self->index);
 }
 /************FUNZIONI*SPECIFICHE**********************/
 void func_bomba_danni(Entity *e) {damage_entity(e, 3.0f);}
 void func_bomba (Entity *self, Entity *first_hit, World *world) {
 	hit_in_area(world, 5.0f, self, &func_bomba_danni, 0);
-	world_remove_entity(world, self->id);
+	world_remove_entity(world, self->index);
 }
 
 void func_piatto_hit(Entity *e) {damage_entity(e, 1.5f);}
 void func_piatto_hit_player(Entity *e) {func_piatto_hit(e); stun_entity(e, 1.0);}
 void func_piatto (Entity *self, Entity *first_hit, World *world) {
 	hit_if_hittable(first_hit, &func_piatto_hit, &func_piatto_hit_player);
-	world_remove_entity(world, self->id);
+	world_remove_entity(world, self->index);
 }
 
 void func_p_balestra(Entity *self, Entity *first_hit, World *world) {simple_projectile(first_hit, 1.0f, self, world);}
@@ -337,5 +337,5 @@ static void pickupable_on_interact (Entity *source, Entity *target, World *world
 	}
 	source->type_in_hand = target->type_in_hand;
 	source->id_in_hand = target->id_in_hand;
-	world_remove_entity(world, target->id);
+	world_remove_entity(world, target->index);
 }

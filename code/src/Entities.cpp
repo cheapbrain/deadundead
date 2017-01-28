@@ -11,18 +11,18 @@
 int _list_add(EntityList *list, World *world, Entity *entity) {
 	if (list->count == list->capacity) {
 		list->capacity *= 2;
-		list->entity_id = (int *)realloc(list->entity_id, sizeof (int) * list->capacity);
+		list->entity_indexes = (int *)realloc(list->entity_indexes, sizeof (int) * list->capacity);
 	}
 	int index = list->count++;
-	list->entity_id[index] = entity->id;
+	list->entity_indexes[index] = entity->index;
 	return index;
 }
 
 void _list_remove(EntityList *list, World *world, int index) {
 	list->count--;
 	if (index < list->count) {
-		list->entity_id[index] = list->entity_id[list->count];
-		world_get_entity(world, list->entity_id[index])->indexes[list->id] = index;
+		list->entity_indexes[index] = list->entity_indexes[list->count];
+		(world->entities + list->entity_indexes[index])->indexes[list->id] = index;
 	}
 }
 
@@ -40,7 +40,7 @@ void world_init(World *world, int capacity) {
 		list->id = i;
 		list->count = 0;
 		list->capacity = 100;
-		list->entity_id = (int *)malloc(sizeof (int) * 100);
+		list->entity_indexes = (int *)malloc(sizeof (int) * 100);
 	}
 }
 
@@ -48,7 +48,7 @@ void world_actual_remove_entity(World *world, int id);
 void world_update(World *world, double delta) {
 	EntityList *update_list = &world->lists[UPDATE_LIST];
 	for (int i = 0; i < update_list->count; i++) {
-		Entity *e = world_get_entity(world, update_list->entity_id[i]);
+		Entity *e = world->entities + update_list->entity_indexes[i];
 		e->update(e, world, delta);
 	}
 
@@ -102,10 +102,10 @@ void world_update(World *world, double delta) {
 
 	//risolvo collisioni sulla x dei giocatori con il terrain
 	for (int i = 0; i < static_list->count; i++) {
-		Entity *st = world_get_entity(world, static_list->entity_id[i]);
+		Entity *st = world->entities + static_list->entity_indexes[i];
 		Rectangle rect_static = {{st->x, st->y},{st->width, st->height}};
 		for (int j = 0; j < dynamic_list->count; j++) {
-			Entity *dn = world_get_entity(world, dynamic_list->entity_id[j]);
+			Entity *dn = world->entities + dynamic_list->entity_indexes[j];
 			Rectangle rect_dyn = {{dn->x, dn->old_y},{dn->width, dn->height}};
 			if (dn->x != dn->old_x && collides(&rect_static, &rect_dyn)) {
 				float overlap;
@@ -114,7 +114,7 @@ void world_update(World *world, double delta) {
 				dn->x -= overlap;
 				//dn->speed_x = 0;
 				dn->speed_x = -dn->speed_x * (dn->bounce_coeff + st->bounce_coeff)/2;
-				if (int_set_add(&collided_set, dynamic_list->entity_id[j])) {
+				if (int_set_add(&collided_set, dynamic_list->entity_indexes[j])) {
 					list_set(&collided_with, collided_set.count - 1, (void *)st);
 				}
 			}
@@ -123,10 +123,10 @@ void world_update(World *world, double delta) {
 
 	//risolvo collisioni sulla y dei giocatori con il terrain
 	for (int i = 0; i < static_list->count; i++) {
-		Entity *st = world_get_entity(world, static_list->entity_id[i]);
+		Entity *st = world->entities + static_list->entity_indexes[i];
 		Rectangle rect_static = {{st->x, st->y},{st->width, st->height}};
 		for (int j = 0; j < dynamic_list->count; j++) {
-			Entity *dn = world_get_entity(world, dynamic_list->entity_id[j]);
+			Entity *dn = world->entities + dynamic_list->entity_indexes[j];
 			Rectangle rect_dyn = {{dn->x, dn->y},{dn->width, dn->height}};
 			if (dn->y != dn->old_y) {
 				if (collides(&rect_static, &rect_dyn)) {
@@ -139,7 +139,7 @@ void world_update(World *world, double delta) {
 					dn->y -= overlap;
 					//dn->speed_y = -dn->speed_y * st->bounce_coeff;
 					dn->speed_y = -dn->speed_y * (st->bounce_coeff + dn->bounce_coeff)/2;
-					if (int_set_add(&collided_set, dynamic_list->entity_id[j])) {
+					if (int_set_add(&collided_set, dynamic_list->entity_indexes[j])) {
 						list_set(&collided_with, collided_set.count - 1, (void *)st);
 					}
 				}
@@ -149,7 +149,7 @@ void world_update(World *world, double delta) {
 	
 	//le faccio collidere
 	for (int i = 0; i < collided_set.count; i++) {
-		Entity *e = world_get_entity(world, collided_set.elements[i]);
+		Entity *e = world->entities + collided_set.elements[i];
 		if (e -> on_collide != NULL) {
 			//Rectangle hitbox = {{e->x, e->y},{0.5f,0.5f}};
 			e -> on_collide(e, (Entity *) list_get(&collided_with, i), world);
@@ -173,15 +173,15 @@ void world_render(World *world, double delta) {
 	EntityList *front_layer = &world->lists[RENDER_FRONT_LIST];
 
 	for (int i = 0; i < back_layer->count; i++) {
-		Entity *e = world_get_entity(world, back_layer->entity_id[i]);
+		Entity *e = world->entities + back_layer->entity_indexes[i];
 		e->render(e);
 	}
 	for (int i = 0; i < middle_layer->count; i++) {
-		Entity *e = world_get_entity(world, middle_layer->entity_id[i]);
+		Entity *e = world->entities + middle_layer->entity_indexes[i];
 		e->render(e);
 	}
 	for (int i = 0; i < front_layer->count; i++) {
-		Entity *e = world_get_entity(world, front_layer->entity_id[i]);
+		Entity *e = world->entities + front_layer->entity_indexes[i];
 		e->render(e);
 	}
 }
@@ -192,7 +192,8 @@ Entity *world_new_entity(World *world, int tag) {
 		world->entities = (Entity *)realloc(world->entities, sizeof Entity * world->entity_capacity);
 	}
 	Entity *new_entity = world->entities + world->entity_count;
-	new_entity->id = world->entity_count++;
+	new_entity->id = world->free_id++;
+	new_entity->index = world->entity_count++;
 	new_entity->tag = tag;
 
 	for (int i = 0; i < _LIST_COUNT; i++) {
@@ -213,7 +214,8 @@ Entity *world_new_entity(World *world, Entity *entity) {
 	}
 	Entity *new_entity = world->entities + world->entity_count;
 	*new_entity = *entity;
-	new_entity->id = world->entity_count++;
+	new_entity->id = world->free_id++;
+	new_entity->index = world->entity_count++;
 	new_entity->tag = tag;
 
 	for (int i = 0; i < _LIST_COUNT; i++) {
@@ -226,32 +228,38 @@ Entity *world_new_entity(World *world, Entity *entity) {
 	return new_entity;
 }
 
-void world_remove_entity(World *world, int id) {
-	int_set_add(&(world->to_be_removed),id);
+void world_remove_entity(World *world, int index) {
+	int_set_add(&(world->to_be_removed), index);
 }
 
-static void world_actual_remove_entity(World *world, int id) {
-	Entity *entity = &world->entities[id];
+static void world_actual_remove_entity(World *world, int index) {
+	Entity *entity = world->entities + index;
 	for (int i = 0; i < _LIST_COUNT; i++) {
 		if (entity->indexes[i] >= 0) {
-			_list_remove(&world->lists[i], world, entity->id);
+			_list_remove(&world->lists[i], world, entity->indexes[i]);
 		}
 	}
 
 	world->entity_count--;
-	if (id < world->entity_count) {
-		world->entities[id] = world->entities[world->entity_count];
+	if (index < world->entity_count) {
+		*entity = world->entities[world->entity_count];
+		entity->index = index;
 		for (int i = 0; i < _LIST_COUNT; i++) {
 			if (entity->indexes[i] >= 0) {
-				world->lists[i].entity_id[entity->indexes[i]] = entity->id;
+				world->lists[i].entity_indexes[entity->indexes[i]] = index;
 			}
 		}
 	}
 }
 
 Entity *world_get_entity(World *world, int id) {
-	Entity *e = world->entities + id;
-	return e;
+	Entity *e = world->entities;
+	Entity *last = e + world->entity_count;
+	while (e < last) {
+		if (e->id == id) return e;
+		else e++;
+	}
+	return NULL;
 }
 
 void world_resize_entity_list(World *world, int new_capacity) {
@@ -312,7 +320,7 @@ void player_update(Entity *e, World *world, double delta) {
 	}
 	/*testo i pickupable*/
 	if (button_pressed(B_EMOTE1, e->player_id)) {
-		spawn_random_pickupable(1,1,world);
+		spawn_random_pickupable(e->x,e->y+1,world);
 	}
 }
 
