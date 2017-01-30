@@ -630,6 +630,7 @@ jsmntok_t *_load_spriter_timeline_key(SpriterTimeline *timeline, jsmntok_t *tok,
 	key.a = 1;
 	key.folder = 0;
 	key.file = 0;
+	key.spin = 1;
 	int id = 0;
 
 	int size = tok->size;

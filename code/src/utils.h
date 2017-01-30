@@ -173,6 +173,7 @@ struct SpriterInstance {
 	float scale_y;
 	int active_animation;
 	float animation_speed;
+	float animation_time;
 	Texture *in_hand;
 };
 

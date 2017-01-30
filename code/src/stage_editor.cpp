@@ -15,7 +15,7 @@ int show_menu;
 int spacebar_state;
 int selected;
 Texture *bg;
-
+SpriterInstance instance;
 
 
 Entity null_entity = {0};
@@ -394,7 +394,6 @@ int button(char *text, float x, float y, float w, float h, int focus) {
 
 void stage_editor_init(Stage *stage) {
 	SpriterCharacter *sc = load_spriter_character("../animazioni/Ibi/Ibi.scon");
-	//SpriterCharacter *sc = load_spriter_character("../images/test_anim.scon");
 
 	palette.entities = NULL;
 	palette.names = NULL;
@@ -403,6 +402,15 @@ void stage_editor_init(Stage *stage) {
 	map.count = 0;
 	bg = load_texture("../images/bg.png");
 	load_palette(&palette);
+
+	instance.character = sc;
+	instance.x = 4;
+	instance.y = 1;
+	instance.scale_x = 1.f/100;
+	instance.scale_y = 1.f/100;
+	instance.active_animation = 7;
+	instance.animation_speed = 1000;
+	instance.animation_time = 0;
 }
 
 void stage_editor_enter(Stage *stage, int previous_stage_id) {
@@ -514,6 +522,15 @@ void stage_editor_render(Stage *stage, double delta) {
 		for (int y = 0; y <= 10; y++)
 			draw(&game.renderer, game.renderer.default_texture, 0, y - .013f, 17, line_size);
 	}
+
+	if (button_released(B_EMOTE1, 0)) {
+		instance.active_animation = (instance.active_animation + 1) % instance.character->animations.count;
+	}
+
+	set_shader(&game.renderer, game.renderer.default_shader);
+	set_color(&game.renderer, &white);
+	instance.animation_time += (float)(instance.animation_speed * delta);
+	draw(&game.renderer, &instance);
 
 	char text[100];
 	sprintf(text, "e: %d", map.count);

@@ -85,11 +85,44 @@ void draw(SpriteRenderer *renderer, Texture *texture, float x, float y, float w,
 		flush(renderer);
 	}
 
-  float s = sinf(angle);
-  float c = cosf(angle);
+	float s = sinf(angle);
+	float c = cosf(angle);
 
-  x -= ox;
-  y -= oy;
+	x -= ox;
+	y -= oy;
+	w += x;
+	h += y;
+	tw += tx;
+	th += ty;
+
+	Vec2 lb = {x * c - y * s + ox, x * s + y * c + oy};
+	Vec2 lt = {x * c - h * s + ox, x * s + h * c + oy};
+	Vec2 rb = {w * c - y * s + ox, w * s + y * c + oy};
+	Vec2 rt = {w * c - h * s + ox, w * s + h * c + oy};
+
+	Color *color = &renderer->active_color;
+	float *buffer = renderer->buffer;
+	int size = renderer->size;
+	VERTEX(lt.x, lt.y, tx, ty)
+	VERTEX(lb.x, lb.y, tx, th)
+	VERTEX(rb.x, rb.y, tw, th)
+	VERTEX(lt.x, lt.y, tx, ty)
+	VERTEX(rb.x, rb.y, tw, th)
+	VERTEX(rt.x, rt.y, tw, ty)
+	renderer->size = size;
+}
+
+void draw(SpriteRenderer *renderer, Texture *texture, float x, float y, float w, float h, float ox, float oy, float a_sin, float a_cos, float tx, float ty, float tw, float th) {
+	set_texture(renderer, texture);
+	if (renderer->size + 8 * 6 > renderer->capacity) {
+		flush(renderer);
+	}
+
+	float s = a_sin;
+	float c = a_cos;
+
+	x -= ox;
+	y -= oy;
 	w += x;
 	h += y;
 	tw += tx;
@@ -156,14 +189,21 @@ void draw(SpriteRenderer *renderer, Font *font, char *text, float x, float y) {
 	}
 }
 
-Vec2 rotate(Vec2 v, Vec2 o, float sin, float cos) {
+Vec2 rotate(Vec2 *v, float a_sin, float a_cos) {
+	Vec2 out;
+	out.x = v->x * a_cos - v->y * a_sin;
+	out.y = v->x * a_sin + v->y * a_cos;
+	return out;
+}
+
+Vec2 rotate(Vec2 *v, Vec2 *o, float a_sin, float a_cos) {
 	Vec2 out;
 
-	v.x = v.x - o.x;
-	v.y = v.y - o.y;
+	v->x = v->x - o->x;
+	v->y = v->y - o->y;
 
-	out.x = v.x * cos - v.y * sin + o.x;
-	out.y = v.x * sin + v.y * cos + o.y;
+	out.x = v->x * a_cos - v->y * a_sin + o->x;
+	out.y = v->x * a_sin + v->y * a_cos + o->y;
 
 	return out;
 }
@@ -172,27 +212,108 @@ Vec2 rotate(Vec2 v, Vec2 o, float sin, float cos) {
 #define SIN(ANGLE) (sinf(ANGLE * PId180))
 #define COS(ANGLE) (cosf(ANGLE * PId180))
 
-void absolute_coordinates(SpriterAnimationKey *anim_key, SpriterObjectRef *obj, float *scaleX, float *scaleY, Vec2 *origin, float *angle) {
-	Vec2 parent_origin;
-	float parent_angle;
-	if (obj->parent == -1) {
-		parent_origin.x = 0;
-		parent_origin.y = 0;
-		parent_angle = 0;
-	} else {
-		SpriterObjectRef *parent = (SpriterObjectRef *)list_get(&anim_key->bones, obj->parent);
-		absolute_coordinates(anim_key, parent, scaleX, scaleY, &parent_origin, &parent_angle);
-	}
-
-
+float lerp(float a, float b, float k) {
+	return a * (1 - k) + b * k;
 }
 
-void draw(SpriteRenderer *renderer, SpriterInstance *spriter_instance, float x, float y, float scaleX, float scaleY) {
-	SpriterAnimation *animation = (SpriterAnimation *)list_get(&spriter_instance->character->animations, 0);
-	SpriterAnimationKey *anim_key = (SpriterAnimationKey *)list_get(&animation->animation_keys, 0);
+float angle_lerp(float a, float b, float k, float spin) {
+	if (spin == 0) return a;
+	if (spin > 0 && b - a < 0) b += 360;
+	if (spin < 0 && b - a > 0) b -= 360;
+	return lerp(a, b, k);
+}
+
+void absolute_coordinates(
+		SpriterAnimation *anim, SpriterAnimationKey *anim_key, SpriterObjectRef *obj, 
+		float *scaleX, float *scaleY, Vec2 *origin, float *a_sin, float *a_cos, float *alpha, float time) {
+
+	if (obj->parent >= 0) {
+		SpriterObjectRef *parent = (SpriterObjectRef *)list_get(&anim_key->bones, obj->parent);
+		absolute_coordinates(anim, anim_key, parent, scaleX, scaleY, origin, a_sin, a_cos, alpha, time);
+	}
+
+	SpriterTimeline *timeline = (SpriterTimeline *)list_get(&anim->timelines, obj->timeline);
+	SpriterTimelineKey *key = (SpriterTimelineKey *)list_get(&timeline->keys, obj->key);
+	SpriterTimelineKey *next_key = (SpriterTimelineKey *)list_get(&timeline->keys, (obj->key + 1) % timeline->keys.count);
+	float time1 = key->time;
+	float time2 = next_key->time;
+	if (time <= time1) time += anim->length;
+	if (time2 <= time1) time2 += anim->length;
+	float k = (time - time1) / (time2 - time1);
+	
+	float angle = angle_lerp(key->angle, next_key->angle, k, key->spin);
+
+	float x = lerp(key->x, next_key->x, k);
+	float y = lerp(key->y, next_key->y, k);
+	float a = lerp(key->a, next_key->a, k);
+	float scale_x = lerp(key->scale_x, next_key->scale_x, k);
+	float scale_y = lerp(key->scale_y, next_key->scale_y, k);
+
+	float o_sin = SIN(angle);
+	float o_cos = COS(angle);
+	float s_sin = *a_sin * o_cos + *a_cos * o_sin;
+	float s_cos = *a_cos * o_cos - *a_sin * o_sin;
+
+	Vec2 pos = {x * *scaleX, y * *scaleY};
+	pos = rotate(&pos, *a_sin, *a_cos);
+	*a_sin = s_sin;
+	*a_cos = s_cos;
+	origin->x += pos.x;
+	origin->y += pos.y;
+	*alpha *= a;
+	*scaleX *= scale_x;
+	*scaleY *= scale_y;
+}
+
+void draw(SpriteRenderer *renderer, SpriterInstance *spriter_instance) {
+	float c_x = spriter_instance->x;
+	float c_y = spriter_instance->y;
+	float c_scaleX = spriter_instance->scale_x;
+	float c_scaleY = spriter_instance->scale_y;
+
+	int animation_id = spriter_instance->active_animation;
+
+	SpriterAnimation *animation = (SpriterAnimation *)list_get(&spriter_instance->character->animations, animation_id);
+	SpriterAnimationKey *anim_keys = (SpriterAnimationKey *)animation->animation_keys.array;
+
+	spriter_instance->animation_time = fmodf(spriter_instance->animation_time, animation->length);
+	float animation_time = spriter_instance->animation_time;
+
+	int first = 0;
+	int last = animation->animation_keys.count - 1;
+	while (1) {
+		int mid = (first + last) >> 1;
+		SpriterAnimationKey *mid_key = anim_keys + mid;
+		if (last - first == 1) break;
+		if (mid_key->time <= animation_time) first = mid;
+		else last = mid;
+	}
+	if ((anim_keys + last)->time <= animation_time) first = last;
+
+
+	SpriterAnimationKey *anim_key = anim_keys + first;
+
 	for (int i = 0; i < anim_key->images.count; i++) {
 		SpriterObjectRef *obj = (SpriterObjectRef *)list_get(&anim_key->images, i);
+		float scaleX = c_scaleX;
+		float scaleY = c_scaleY;
+		Vec2 origin = {c_x, c_y};
+		float a_sin = 0;
+		float a_cos = 1;
+		float alpha = 1;
+		absolute_coordinates(animation, anim_key, obj, &scaleX, &scaleY, &origin, &a_sin, &a_cos, &alpha, animation_time);
 
+		SpriterTimeline *timeline = (SpriterTimeline *)list_get(&animation->timelines, obj->timeline);
+		SpriterTimelineKey *key = (SpriterTimelineKey *)list_get(&timeline->keys, obj->key);
+		SpriterFolder *folder = (SpriterFolder *)list_get(&spriter_instance->character->folders, key->folder);
+		SpriterTexture *file = (SpriterTexture *)list_get(&folder->files, key->file);
+
+		float w = file->width * scaleX;
+		float h = file->height * scaleY;
+		float x = origin.x - file->pivot_x * w;
+		float y = origin.y - file->pivot_y * h;
+		set_color(renderer, 1, 1, 1, alpha);
+		draw(renderer, file->texture, x, y, w, h, origin.x, origin.y, a_sin, a_cos, file->t_x, file->t_y, file->t_w, file->t_h);
 	}
 }
 
