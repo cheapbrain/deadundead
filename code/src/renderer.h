@@ -32,7 +32,8 @@ void draw(SpriteRenderer *renderer, Texture *texture, float x, float y, float w,
 
 void draw(SpriteRenderer *renderer, Texture *texture, float x, float y, float w, float h, float ox, float oy, float angle, float tx, float ty, float tw, float th);
 
-void draw(SpriteRenderer *renderer, Texture *texture, float x, float y, float w, float h, float ox, float oy, float a_sin, float a_cos, float tx, float ty, float tw, float th);
+void draw(SpriteRenderer *renderer, Texture *texture,
+		float x, float y, float w, float h, float ox, float oy, float a_sin, float a_cos, float tx, float ty, float tw, float th, int flip, int rotate_texture);
 
 void draw(SpriteRenderer *renderer, Font *font, char *text, float x, float y);
 

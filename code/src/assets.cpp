@@ -1,6 +1,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
 #include <GL/glew.h>
 #define STB_IMAGE_IMPLEMENTATION
 #define STBI_ONLY_PNG
@@ -435,6 +436,13 @@ static jsmntok_t *_get_string(jsmntok_t *tok, char *json, char **string) {
 	return tok;
 }
 
+static jsmntok_t *_get_bool(jsmntok_t *tok, char *json, int *value) {
+	json[tok->end] = 0;
+	*value = !strcmp(json + tok->start, "true");
+	tok = tok + 1;
+	return tok;
+}
+
 static jsmntok_t *_get_int(jsmntok_t *tok, char *json, int *value) {
 	json[tok->end] = 0;
 	*value = atoi(json + tok->start);
@@ -449,6 +457,22 @@ static jsmntok_t *_get_float(jsmntok_t *tok, char *json, float *value) {
 	return tok;
 }
 
+char *_relative_to_absolute(char *path, char *relative_path) {
+	int file_name_len = strlen(relative_path);
+	int path_len = 0;
+	int j = 0;
+	for(;;) {
+		char c = path[j++];
+		if (c == '/') path_len = j;
+		else if (c == '\0') break;
+	}
+	char *absolute_path = (char *)malloc(path_len + file_name_len + 1);
+	memcpy(absolute_path, path, path_len);
+	memcpy(absolute_path + path_len, relative_path, file_name_len + 1);
+	free(relative_path);
+	return absolute_path;
+}
+
 jsmntok_t *_load_spriter_file(SpriterCharacter *sc, SpriterFolder *folder, jsmntok_t *tok, char *json) {
 	SpriterTexture file;
 	file.pivot_x = 0;
@@ -457,6 +481,7 @@ jsmntok_t *_load_spriter_file(SpriterCharacter *sc, SpriterFolder *folder, jsmnt
 	file.t_y = 0;
 	file.t_w = 1;
 	file.t_h = 1;
+	file.rotate_texture = 0;
 	int id = 0;
 	int size = tok->size;
 	tok = tok + 1;
@@ -477,20 +502,9 @@ jsmntok_t *_load_spriter_file(SpriterCharacter *sc, SpriterFolder *folder, jsmnt
 		} else if (!strcmp(name, "name")) {
 			char *relative_path;
 			tok = _get_string(tok, json, &relative_path);
-			int file_name_len = strlen(relative_path);
-			int path_len = 0;
-			int j = 0;
-			for(;;) {
-				char c = sc->name[j++];
-				if (c == '/') path_len = j;
-				else if (c == '\0') break;
-			}
-			char *absolute_path = (char *)malloc(path_len + file_name_len + 1);
-			memcpy(absolute_path, sc->name, path_len);
-			memcpy(absolute_path + path_len, relative_path, file_name_len + 1);
+			char *absolute_path = _relative_to_absolute(sc->name, relative_path);
 			file.name = absolute_path;
-			file.texture = load_texture(absolute_path);
-			free(relative_path);
+			if (!sc->atlas)	file.texture = load_texture(absolute_path);
 		} else {
 			tok = _skip_tokens(tok);
 		}
@@ -751,7 +765,31 @@ jsmntok_t *_load_spriter_entity(SpriterCharacter *sc, jsmntok_t *tok, char *json
 	return tok;
 }
 
+jsmntok_t *_load_spriter_atlas(SpriterCharacter *sc, jsmntok_t *tok, char *json) {
+	sc->atlas = (Atlas *) malloc(sizeof(Atlas *));
+	list_init(&sc->atlas->textures, sizeof TextureInfo, 1);
+
+	int size = tok->size;
+	tok = tok + 1;
+	for (int i = 0; i < size; i++) {
+		json[tok->end] = 0;
+		char *name = json + tok->start;
+		tok = tok + 1;
+		if (!strcmp(name, "name")) {
+			char *relative_path;
+			tok = _get_string(tok, json, &relative_path);
+			char *absolute_path = _relative_to_absolute(sc->name, relative_path);
+			sc->atlas->name = absolute_path;
+		} else {
+			tok = _skip_tokens(tok);
+		}
+	}
+	return tok;	
+}
+
 jsmntok_t *_load_spriter_scon(SpriterCharacter *sc, jsmntok_t *tok, char *json) {
+	sc->atlas = NULL;
+
 	int size = tok->size;
 	tok = tok + 1;
 	for(int i = 0; i < size; i++) {
@@ -767,6 +805,8 @@ jsmntok_t *_load_spriter_scon(SpriterCharacter *sc, jsmntok_t *tok, char *json) 
 			for (int j = 0; j < folder_count; j++) {
 				tok = _load_spriter_folder(sc, tok, json);
 			}
+		} else if(!strcmp(name, "atlas")) {
+			tok = _load_spriter_atlas(sc, tok + 1, json);
 		} else {
 			tok = _skip_tokens(tok);
 		}
@@ -774,53 +814,220 @@ jsmntok_t *_load_spriter_scon(SpriterCharacter *sc, jsmntok_t *tok, char *json) 
 	return tok;
 }
 
+jsmntok_t *_load_atlas_subframe(Atlas *atlas, TextureInfo *frame, jsmntok_t *tok, char *json) {
+	int size = tok->size;
+	tok = tok + 1;
+	for (int i = 0; i < size; i++) {
+		json[tok->end] = 0;
+		char *name = json + tok->start;
+		tok = tok + 1;
+		if (!strcmp(name, "x")) {
+			tok = _get_float(tok, json, &frame->t_x);
+		} else if (!strcmp(name, "y")) {
+			tok = _get_float(tok, json, &frame->t_y);
+		} else if (!strcmp(name, "w")) {
+			tok = _get_float(tok, json, &frame->t_w);
+		} else if (!strcmp(name, "h")) {
+			tok = _get_float(tok, json, &frame->t_h);
+		} else {
+			tok = _skip_tokens(tok);
+		}
+	}
+	return tok;
+}
+
+jsmntok_t *_load_atlas_source_size(Atlas *atlas, TextureInfo *frame, jsmntok_t *tok, char *json) {
+	int size = tok->size;
+	tok = tok + 1;
+	for (int i = 0; i < size; i++) {
+		json[tok->end] = 0;
+		char *name = json + tok->start;
+		tok = tok + 1;
+		if (!strcmp(name, "x")) {
+			tok = _get_int(tok, json, &frame->offset_x);
+		} else if (!strcmp(name, "y")) {
+			tok = _get_int(tok, json, &frame->offset_y);
+		} else if (!strcmp(name, "w")) {
+			tok = _get_int(tok, json, &frame->width);
+		} else if (!strcmp(name, "h")) {
+			tok = _get_int(tok, json, &frame->height);
+		} else {
+			tok = _skip_tokens(tok);
+		}
+	}
+	return tok;
+}
+
+jsmntok_t *_load_atlas_frame(Atlas *atlas, TextureInfo *frame, jsmntok_t *tok, char *json) {
+	int size = tok->size;
+	tok = tok + 1;
+	for (int i = 0; i < size; i++) {
+		json[tok->end] = 0;
+		char *name = json + tok->start;
+		tok = tok + 1;
+		if (!strcmp(name, "rotated")) {
+			tok = _get_bool(tok, json, &frame->rotate_texture);
+		} else if (!strcmp(name, "trimmed")) {
+			tok = _get_bool(tok, json, &frame->trim);
+		} else if (!strcmp(name, "frame")) {
+			tok = _load_atlas_subframe(atlas, frame, tok, json);
+		} else if (!strcmp(name, "spriteSourceSize")) {
+			tok = _load_atlas_source_size(atlas, frame, tok, json);
+		} else {
+			tok = _skip_tokens(tok);
+		}
+	}
+	return tok;
+}
+
+jsmntok_t *_load_atlas_meta(Atlas *atlas, jsmntok_t *tok, char *json) {
+	int size = tok->size;
+	tok = tok + 1;
+	for (int i = 0; i < size; i++) {
+		json[tok->end] = 0;
+		char *name = json + tok->start;
+		tok = tok + 1;
+		if (!strcmp(name, "image")) {
+			char *relative_path;
+			tok = _get_string(tok, json, &relative_path);
+			char *absolute_path = _relative_to_absolute(atlas->name, relative_path);
+			atlas->texture = load_texture(absolute_path);
+		} else {
+			tok = _skip_tokens(tok);
+		}
+	}
+	return tok;
+}
+
+jsmntok_t *_load_atlas_json(Atlas *atlas, jsmntok_t *tok, char *json) {
+	int size = tok->size;
+	tok = tok + 1;
+	for(int i = 0; i < size; i++) {
+		json[tok->end] = 0;
+		char *name = json + tok->start;
+		tok = tok + 1;
+		if (!strcmp(name, "frames")) {
+			int frame_count = tok->size;
+			list_init(&atlas->textures, sizeof TextureInfo, frame_count);
+			tok = tok + 1;
+			for (int j = 0; j < frame_count; j++) {
+				TextureInfo *frame = (TextureInfo *)list_get(&atlas->textures, j);
+				char *relative_path;
+				tok = _get_string(tok, json, &relative_path);
+				char *absolute_path = _relative_to_absolute(atlas->name, relative_path);
+				frame->name = absolute_path;
+				tok = _load_atlas_frame(atlas, frame, tok, json);
+			}
+		} else if (!strcmp(name, "meta")) {
+			tok = _load_atlas_meta(atlas, tok, json);
+		} else {
+			tok = _skip_tokens(tok);
+		}
+	}
+	return tok;
+}
+
+void _parse_json(char *path, jsmntok_t **p_tok, char **json) {
+	jsmn_parser p;
+	jsmntok_t *tok;
+	int tok_count = 2;
+	char *string = NULL;
+	int string_len = 0;
+	{
+		FILE *fptr;
+		fptr = fopen(path, "rb");
+		if (!fptr) {
+			fprintf(LOGGER_STREAM, "%s ", path);
+			log_error("File not found.");
+		}
+		fseek(fptr, 0, SEEK_END);
+		string_len = ftell(fptr);
+		string = (char*)malloc(string_len + 1);
+		fseek(fptr, 0, SEEK_SET);
+		fread(string, string_len, 1, fptr);
+		fclose(fptr);
+		string[string_len] = '\0';
+	}
+	jsmn_init(&p);
+	tok = (jsmntok_t *)malloc(sizeof(*tok) * tok_count);
+	for (;;) {
+		int error = jsmn_parse(&p, string, string_len, tok, tok_count);
+		switch(error) {
+			case JSMN_ERROR_NOMEM:
+			tok_count = tok_count * 2;
+			tok = (jsmntok_t *)realloc(tok, sizeof(*tok) * tok_count);
+			break;
+			case JSMN_ERROR_INVAL:
+			case JSMN_ERROR_PART:
+			fprintf(LOGGER_STREAM, "%s: ", path);
+			log_error("File corrupted.");
+			break;
+			default:
+			tok_count = error;
+			jsmntok_t *t = tok;
+			*p_tok = tok;
+			*json = string;
+			return;
+		}
+	}
+}
+
 SpriterCharacter *load_spriter_character(char *path) {
 	SpriterCharacter *sc = (SpriterCharacter *)_get_asset(SPRITER_CHARACTER, path);
 
 	if (sc->id == -1) {
-		jsmn_parser p;
+		char *json;
 		jsmntok_t *tok;
-		int tok_count = 2;
-		char *string= NULL;
-		int string_len = 0;
-		{
-			FILE *fptr;
-			fptr = fopen(path, "rb");
-			if (!fptr) {
-				fprintf(LOGGER_STREAM, "%s ", path);
-				log_error("File not found.");
+		_parse_json(path, &tok, &json);
+		_load_spriter_scon(sc, tok, json);
+		free(tok);
+		free(json);
+
+		if (sc->atlas) {
+			_parse_json(sc->atlas->name, &tok, &json);
+			_load_atlas_json(sc->atlas, tok, json);
+			free(tok);
+			free(json);
+
+			ArrayList *textures = &sc->atlas->textures;
+			TextureInfo *frames = (TextureInfo *)textures->array;
+			int frame_count = textures->count;
+			float image_width = (float)sc->atlas->texture->width;
+			float image_height = (float)sc->atlas->texture->height;
+			ArrayList *folders = &sc->folders;
+			for (int i = 0; i < folders->count; i++) {
+				SpriterFolder *folder = (SpriterFolder *)folders->array + i;
+				ArrayList *files = &folder->files;
+				for (int j = 0; j < files->count; j++) {
+					SpriterTexture *file = (SpriterTexture *)files->array + j;
+					for (int k = 0; k < frame_count; k++) {
+						TextureInfo *frame = frames + k;
+						if (!strcmp(frame->name, file->name)) {
+							float pivot_x = file->pivot_x * file->width;
+							float pivot_y = file->pivot_y * file->height;
+							file->pivot_x = (pivot_x - frame->offset_x) / frame->width;
+							file->pivot_y = (pivot_y - file->height + frame->height + frame->offset_y) / frame->height;
+							file->rotate_texture = frame->rotate_texture;
+							file->texture = sc->atlas->texture;
+							if (frame->rotate_texture) {
+								file->t_x = frame->t_x / image_width;
+								file->t_y = frame->t_y / image_height;
+								file->t_w = frame->t_h / image_width;
+								file->t_h = frame->t_w / image_height;
+							} else {
+								file->t_x = frame->t_x / image_width;
+								file->t_y = frame->t_y / image_height;
+								file->t_w = frame->t_w / image_width;
+								file->t_h = frame->t_h / image_height;
+							}
+							file->width = (float)frame->width;
+							file->height = (float)frame->height;
+						}
+					}
+				}
 			}
-			fseek(fptr, 0, SEEK_END);
-			string_len = ftell(fptr);
-			string = (char*)malloc(string_len + 1);
-			fseek(fptr, 0, SEEK_SET);
-			fread(string, string_len, 1, fptr);
-			fclose(fptr);
-			string[string_len] = '\0';
 		}
-		jsmn_init(&p);
-		tok = (jsmntok_t *)malloc(sizeof(*tok) * tok_count);
-		for (;;) {
-			int error = jsmn_parse(&p, string, string_len, tok, tok_count);
-			switch(error) {
-				case JSMN_ERROR_NOMEM:
-				tok_count = tok_count * 2;
-				tok = (jsmntok_t *)realloc(tok, sizeof(*tok) * tok_count);
-				break;
-				case JSMN_ERROR_INVAL:
-				case JSMN_ERROR_PART:
-				fprintf(LOGGER_STREAM, "%s: ", path);
-				log_error("File corrupted.");
-				break;
-				default:
-				tok_count = error;
-				jsmntok_t *t = tok;
-				_load_spriter_scon(sc, tok, string);
-				free(tok);
-				free(string);
-				return sc;
-			}
-		}
+		
 	}
 	return sc;
 }

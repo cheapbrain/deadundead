@@ -1,5 +1,7 @@
 #include <GL/glew.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 #include <math.h>
 
 #include "utils.h"
@@ -112,7 +114,12 @@ void draw(SpriteRenderer *renderer, Texture *texture, float x, float y, float w,
 	renderer->size = size;
 }
 
-void draw(SpriteRenderer *renderer, Texture *texture, float x, float y, float w, float h, float ox, float oy, float a_sin, float a_cos, float tx, float ty, float tw, float th) {
+void draw(SpriteRenderer *renderer, Texture *texture, 
+		float x, float y, float w, float h, 
+		float ox, float oy, float a_sin, float a_cos, 
+		float tx, float ty, float tw, float th, 
+		int flip, int rotate_texture) 
+{
 	set_texture(renderer, texture);
 	if (renderer->size + 8 * 6 > renderer->capacity) {
 		flush(renderer);
@@ -128,20 +135,43 @@ void draw(SpriteRenderer *renderer, Texture *texture, float x, float y, float w,
 	tw += tx;
 	th += ty;
 
-	Vec2 lb = {x * c - y * s + ox, x * s + y * c + oy};
-	Vec2 lt = {x * c - h * s + ox, x * s + h * c + oy};
-	Vec2 rb = {w * c - y * s + ox, w * s + y * c + oy};
-	Vec2 rt = {w * c - h * s + ox, w * s + h * c + oy};
+	Vec2 lb = {x * c - y * s, x * s + y * c + oy};
+	Vec2 lt = {x * c - h * s, x * s + h * c + oy};
+	Vec2 rb = {w * c - y * s, w * s + y * c + oy};
+	Vec2 rt = {w * c - h * s, w * s + h * c + oy};
+
+	if (flip) {
+		lb.x = -lb.x;
+		lt.x = -lt.x;
+		rb.x = -rb.x;
+		rt.x = -rt.x;
+	}
+
+	lb.x += ox;
+	lt.x += ox;
+	rb.x += ox;
+	rt.x += ox;
 
 	Color *color = &renderer->active_color;
 	float *buffer = renderer->buffer;
 	int size = renderer->size;
-	VERTEX(lt.x, lt.y, tx, ty)
-	VERTEX(lb.x, lb.y, tx, th)
-	VERTEX(rb.x, rb.y, tw, th)
-	VERTEX(lt.x, lt.y, tx, ty)
-	VERTEX(rb.x, rb.y, tw, th)
-	VERTEX(rt.x, rt.y, tw, ty)
+
+	if (rotate_texture) {
+		VERTEX(lt.x, lt.y, tw, ty)
+		VERTEX(lb.x, lb.y, tx, ty)
+		VERTEX(rb.x, rb.y, tx, th)
+		VERTEX(lt.x, lt.y, tw, ty)
+		VERTEX(rb.x, rb.y, tx, th)
+		VERTEX(rt.x, rt.y, tw, th)
+	} else {
+		VERTEX(lt.x, lt.y, tx, ty)
+		VERTEX(lb.x, lb.y, tx, th)
+		VERTEX(rb.x, rb.y, tw, th)
+		VERTEX(lt.x, lt.y, tx, ty)
+		VERTEX(rb.x, rb.y, tw, th)
+		VERTEX(rt.x, rt.y, tw, ty)
+	}
+	
 	renderer->size = size;
 }
 
@@ -216,7 +246,7 @@ float lerp(float a, float b, float k) {
 	return a * (1 - k) + b * k;
 }
 
-float angle_lerp(float a, float b, float k, float spin) {
+float angle_lerp(float a, float b, float k, int spin) {
 	if (spin == 0) return a;
 	if (spin > 0 && b - a < 0) b += 360;
 	if (spin < 0 && b - a > 0) b -= 360;
@@ -235,8 +265,8 @@ void absolute_coordinates(
 	SpriterTimeline *timeline = (SpriterTimeline *)list_get(&anim->timelines, obj->timeline);
 	SpriterTimelineKey *key = (SpriterTimelineKey *)list_get(&timeline->keys, obj->key);
 	SpriterTimelineKey *next_key = (SpriterTimelineKey *)list_get(&timeline->keys, (obj->key + 1) % timeline->keys.count);
-	float time1 = key->time;
-	float time2 = next_key->time;
+	float time1 = (float)key->time;
+	float time2 = (float)next_key->time;
 	if (time <= time1) time += anim->length;
 	if (time2 <= time1) time2 += anim->length;
 	float k = (time - time1) / (time2 - time1);
@@ -276,7 +306,7 @@ void draw(SpriteRenderer *renderer, SpriterInstance *spriter_instance) {
 	SpriterAnimation *animation = (SpriterAnimation *)list_get(&spriter_instance->character->animations, animation_id);
 	SpriterAnimationKey *anim_keys = (SpriterAnimationKey *)animation->animation_keys.array;
 
-	spriter_instance->animation_time = fmodf(spriter_instance->animation_time, animation->length);
+	spriter_instance->animation_time = fmodf(spriter_instance->animation_time, (float)animation->length);
 	float animation_time = spriter_instance->animation_time;
 
 	int first = 0;
@@ -308,12 +338,14 @@ void draw(SpriteRenderer *renderer, SpriterInstance *spriter_instance) {
 		SpriterFolder *folder = (SpriterFolder *)list_get(&spriter_instance->character->folders, key->folder);
 		SpriterTexture *file = (SpriterTexture *)list_get(&folder->files, key->file);
 
+		if (spriter_instance->flip) origin.x = c_x + c_x - origin.x;
+
 		float w = file->width * scaleX;
 		float h = file->height * scaleY;
 		float x = origin.x - file->pivot_x * w;
 		float y = origin.y - file->pivot_y * h;
 		set_color(renderer, 1, 1, 1, alpha);
-		draw(renderer, file->texture, x, y, w, h, origin.x, origin.y, a_sin, a_cos, file->t_x, file->t_y, file->t_w, file->t_h);
+		draw(renderer, file->texture, x, y, w, h, origin.x, origin.y, a_sin, a_cos, file->t_x, file->t_y, file->t_w, file->t_h, spriter_instance->flip, file->rotate_texture);
 	}
 }
 

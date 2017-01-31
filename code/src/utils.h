@@ -152,10 +152,31 @@ struct SpriterTexture {
 	float t_y;
 	float t_w;
 	float t_h;
+	int rotate_texture;
 };
 
 struct SpriterFolder {
 	ArrayList files;
+};
+
+struct TextureInfo {
+	char *name;
+	float t_x;
+	float t_y;
+	float t_w;
+	float t_h;
+	int offset_x;
+	int offset_y;
+	int width;
+	int height;
+	int rotate_texture;
+	int trim;
+};
+
+struct Atlas {
+	char *name;
+	Texture *texture;
+	ArrayList textures;
 };
 
 struct SpriterCharacter {
@@ -163,6 +184,7 @@ struct SpriterCharacter {
 	unsigned int id;
 	ArrayList folders;
 	ArrayList animations;
+	Atlas *atlas;
 };
 
 struct SpriterInstance {
@@ -171,6 +193,7 @@ struct SpriterInstance {
 	float y;
 	float scale_x;
 	float scale_y;
+	int flip;
 	int active_animation;
 	float animation_speed;
 	float animation_time;

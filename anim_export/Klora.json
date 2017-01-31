@@ -1,0 +1,375 @@
+{
+	"frames": {
+		"Klora.png": {
+			"frame": {
+				"h": 974,
+				"w": 738,
+				"x": 5,
+				"y": 5
+			},
+			"rotated": "true",
+			"sourceSize": {
+				"h": 1000,
+				"w": 833
+			},
+			"spriteSourceSize": {
+				"h": 974,
+				"w": 738,
+				"x": 59,
+				"y": 26
+			},
+			"trimmed": "true"
+		},
+		"arms/arm_l.png": {
+			"frame": {
+				"h": 66,
+				"w": 106,
+				"x": 779,
+				"y": 1629
+			},
+			"rotated": "false",
+			"sourceSize": {
+				"h": 98,
+				"w": 202
+			},
+			"spriteSourceSize": {
+				"h": 66,
+				"w": 106,
+				"x": 7,
+				"y": 16
+			},
+			"trimmed": "true"
+		},
+		"arms/arm_r.png": {
+			"frame": {
+				"h": 124,
+				"w": 187,
+				"x": 779,
+				"y": 1495
+			},
+			"rotated": "false",
+			"sourceSize": {
+				"h": 138,
+				"w": 217
+			},
+			"spriteSourceSize": {
+				"h": 124,
+				"w": 187,
+				"x": 10,
+				"y": 6
+			},
+			"trimmed": "true"
+		},
+		"arms/forearm_l.png": {
+			"frame": {
+				"h": 66,
+				"w": 131,
+				"x": 896,
+				"y": 1268
+			},
+			"rotated": "true",
+			"sourceSize": {
+				"h": 98,
+				"w": 202
+			},
+			"spriteSourceSize": {
+				"h": 66,
+				"w": 131,
+				"x": 3,
+				"y": 7
+			},
+			"trimmed": "true"
+		},
+		"arms/forearm_r.png": {
+			"frame": {
+				"h": 85,
+				"w": 193,
+				"x": 895,
+				"y": 753
+			},
+			"rotated": "true",
+			"sourceSize": {
+				"h": 98,
+				"w": 202
+			},
+			"spriteSourceSize": {
+				"h": 85,
+				"w": 193,
+				"x": 0,
+				"y": 0
+			},
+			"trimmed": "true"
+		},
+		"hands/air_blur.png": {
+			"frame": {
+				"h": 455,
+				"w": 561,
+				"x": 5,
+				"y": 753
+			},
+			"rotated": "false",
+			"sourceSize": {
+				"h": 455,
+				"w": 561
+			},
+			"spriteSourceSize": {
+				"h": 455,
+				"w": 561,
+				"x": 0,
+				"y": 0
+			},
+			"trimmed": "true"
+		},
+		"hands/hand_l.png": {
+			"frame": {
+				"h": 105,
+				"w": 111,
+				"x": 195,
+				"y": 1522
+			},
+			"rotated": "false",
+			"sourceSize": {
+				"h": 224,
+				"w": 221
+			},
+			"spriteSourceSize": {
+				"h": 105,
+				"w": 111,
+				"x": 15,
+				"y": 95
+			},
+			"trimmed": "true"
+		},
+		"hands/hand_l_half.png": {
+			"frame": {
+				"h": 167,
+				"w": 198,
+				"x": 571,
+				"y": 1495
+			},
+			"rotated": "false",
+			"sourceSize": {
+				"h": 224,
+				"w": 221
+			},
+			"spriteSourceSize": {
+				"h": 167,
+				"w": 198,
+				"x": 0,
+				"y": 30
+			},
+			"trimmed": "true"
+		},
+		"hands/hand_l_palm.png": {
+			"frame": {
+				"h": 86,
+				"w": 156,
+				"x": 895,
+				"y": 956
+			},
+			"rotated": "true",
+			"sourceSize": {
+				"h": 224,
+				"w": 221
+			},
+			"spriteSourceSize": {
+				"h": 86,
+				"w": 156,
+				"x": 2,
+				"y": 93
+			},
+			"trimmed": "true"
+		},
+		"hands/hand_r.png": {
+			"frame": {
+				"h": 142,
+				"w": 180,
+				"x": 5,
+				"y": 1522
+			},
+			"rotated": "false",
+			"sourceSize": {
+				"h": 224,
+				"w": 221
+			},
+			"spriteSourceSize": {
+				"h": 142,
+				"w": 180,
+				"x": 15,
+				"y": 24
+			},
+			"trimmed": "true"
+		},
+		"hands/punch_r.png": {
+			"frame": {
+				"h": 136,
+				"w": 88,
+				"x": 896,
+				"y": 1122
+			},
+			"rotated": "false",
+			"sourceSize": {
+				"h": 224,
+				"w": 221
+			},
+			"spriteSourceSize": {
+				"h": 136,
+				"w": 88,
+				"x": 27,
+				"y": 36
+			},
+			"trimmed": "true"
+		},
+		"head/head.png": {
+			"frame": {
+				"h": 238,
+				"w": 273,
+				"x": 330,
+				"y": 1247
+			},
+			"rotated": "false",
+			"sourceSize": {
+				"h": 248,
+				"w": 277
+			},
+			"spriteSourceSize": {
+				"h": 238,
+				"w": 273,
+				"x": 0,
+				"y": 6
+			},
+			"trimmed": "true"
+		},
+		"head/head_0.png": {
+			"frame": {
+				"h": 238,
+				"w": 273,
+				"x": 613,
+				"y": 1247
+			},
+			"rotated": "false",
+			"sourceSize": {
+				"h": 248,
+				"w": 277
+			},
+			"spriteSourceSize": {
+				"h": 238,
+				"w": 273,
+				"x": 0,
+				"y": 7
+			},
+			"trimmed": "true"
+		},
+		"head/mouth.png": {
+			"frame": {
+				"h": 231,
+				"w": 196,
+				"x": 330,
+				"y": 1495
+			},
+			"rotated": "true",
+			"sourceSize": {
+				"h": 248,
+				"w": 277
+			},
+			"spriteSourceSize": {
+				"h": 231,
+				"w": 196,
+				"x": 0,
+				"y": 7
+			},
+			"trimmed": "true"
+		},
+		"head/mouth_close.png": {
+			"frame": {
+				"h": 55,
+				"w": 15,
+				"x": 330,
+				"y": 1218
+			},
+			"rotated": "true",
+			"sourceSize": {
+				"h": 248,
+				"w": 277
+			},
+			"spriteSourceSize": {
+				"h": 55,
+				"w": 15,
+				"x": 52,
+				"y": 143
+			},
+			"trimmed": "true"
+		},
+		"head/mouth_shout.png": {
+			"frame": {
+				"h": 65,
+				"w": 60,
+				"x": 896,
+				"y": 1409
+			},
+			"rotated": "true",
+			"sourceSize": {
+				"h": 248,
+				"w": 277
+			},
+			"spriteSourceSize": {
+				"h": 65,
+				"w": 60,
+				"x": 18,
+				"y": 131
+			},
+			"trimmed": "true"
+		},
+		"legs/skirt.png": {
+			"frame": {
+				"h": 484,
+				"w": 309,
+				"x": 576,
+				"y": 753
+			},
+			"rotated": "false",
+			"sourceSize": {
+				"h": 494,
+				"w": 320
+			},
+			"spriteSourceSize": {
+				"h": 484,
+				"w": 309,
+				"x": 0,
+				"y": 7
+			},
+			"trimmed": "true"
+		},
+		"torso/body.png": {
+			"frame": {
+				"h": 315,
+				"w": 294,
+				"x": 5,
+				"y": 1218
+			},
+			"rotated": "true",
+			"sourceSize": {
+				"h": 365,
+				"w": 320
+			},
+			"spriteSourceSize": {
+				"h": 315,
+				"w": 294,
+				"x": 17,
+				"y": 32
+			},
+			"trimmed": "true"
+		}
+	},
+	"meta": {
+		"app": "Spriter",
+		"format": "RGBA8888",
+		"image": "Klora.png",
+		"scale": 1,
+		"size": {
+			"h": 1700,
+			"w": 989
+		},
+		"version": "r9"
+	}
+}
