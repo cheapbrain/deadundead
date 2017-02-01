@@ -295,9 +295,9 @@ void absolute_coordinates(
 	*scaleY *= scale_y;
 }
 
-void draw(SpriteRenderer *renderer, SpriterInstance *spriter_instance) {
-	float c_x = spriter_instance->x;
-	float c_y = spriter_instance->y;
+void draw(SpriteRenderer *renderer, SpriterInstance *spriter_instance, float p_x, float p_y) {
+	float c_x = spriter_instance->offset_x + p_x;
+	float c_y = spriter_instance->offset_y + p_y;
 	float c_scaleX = spriter_instance->scale_x;
 	float c_scaleY = spriter_instance->scale_y;
 

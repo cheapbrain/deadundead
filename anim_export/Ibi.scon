@@ -168339,7 +168339,7 @@
 							}
 						]
 					},
-					"name": "Atk_Senz'armi_1",
+					"name": "Attacco",
 					"timeline": [
 						{
 							"id": 0,
@@ -184668,7 +184668,7 @@
 							}
 						]
 					},
-					"name": "Fendente",
+					"name": "Attacco_Fendente",
 					"timeline": [
 						{
 							"id": 0,
@@ -188144,7 +188144,7 @@
 							}
 						]
 					},
-					"name": "Lancia",
+					"name": "Attacco_Lancia",
 					"timeline": [
 						{
 							"id": 0,
@@ -191047,8 +191047,8 @@
 					"height": 44,
 					"id": 8,
 					"name": "arms/shoulder.png",
-					"pivot_x": 0.304348,
-					"pivot_y": 0.545455,
+					"pivot_x": 0.337921,
+					"pivot_y": 0.546051,
 					"width": 69
 				}
 			],
@@ -191266,8 +191266,8 @@
 					"height": 78,
 					"id": 2,
 					"name": "legs/leg_r.png",
-					"pivot_x": 0.306122,
-					"pivot_y": 0.48717900000000003,
+					"pivot_x": 0.207196,
+					"pivot_y": 0.49366299999999996,
 					"width": 98
 				},
 				{

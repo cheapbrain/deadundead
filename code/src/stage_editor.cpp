@@ -15,11 +15,6 @@ int show_menu;
 int spacebar_state;
 int selected;
 Texture *bg;
-SpriterInstance instance1;
-SpriterInstance instance2;
-SpriterInstance instance3;
-SpriterInstance instance4;
-
 
 Entity null_entity = {0};
 
@@ -123,6 +118,22 @@ void load_palette(EntityArray *palette) {
 
 				} else if (!strcmp(key, "texture")) {
 					palette->entities[palette->count-1].texture = load_texture(value);
+				} else if (!strcmp(key, "animation_path")) {
+					palette->entities[palette->count-1].animation.character = load_spriter_character(value);
+				} else if (!strcmp(key, "animation_offset_x")) {
+					palette->entities[palette->count-1].animation.offset_x = (float)atof(value);
+				} else if (!strcmp(key, "animation_offset_y")) {
+					palette->entities[palette->count-1].animation.offset_y = (float)atof(value);
+				} else if (!strcmp(key, "animation_scale_x")) {
+					palette->entities[palette->count-1].animation.scale_x = (float)atof(value);
+				} else if (!strcmp(key, "animation_scale_y")) {
+					palette->entities[palette->count-1].animation.scale_y = (float)atof(value);
+				} else if (!strcmp(key, "animation_speed")) {
+					palette->entities[palette->count-1].animation.animation_speed = (float)atof(value);
+				} else if (!strcmp(key, "animation_flip")) {
+					palette->entities[palette->count-1].animation.flip = (int)atoi(value);
+				} else if (!strcmp(key, "animation_active")) {
+					palette->entities[palette->count-1].animation.active_animation = (int)atoi(value);
 				} else if (!strcmp(key, "x")) {
 					palette->entities[palette->count-1].x = (float)atof(value);
 				} else if (!strcmp(key, "y")) {
@@ -396,10 +407,6 @@ int button(char *text, float x, float y, float w, float h, int focus) {
 }
 
 void stage_editor_init(Stage *stage) {
-	SpriterCharacter *sc1 = load_spriter_character("../anim_export/Ibi.scon");
-	SpriterCharacter *sc2 = load_spriter_character("../anim_export/Diogo.scon");
-	SpriterCharacter *sc3 = load_spriter_character("../anim_export/Frollo.scon");
-	SpriterCharacter *sc4 = load_spriter_character("../anim_export/Klora.scon");
 
 	palette.entities = NULL;
 	palette.names = NULL;
@@ -408,46 +415,6 @@ void stage_editor_init(Stage *stage) {
 	map.count = 0;
 	bg = load_texture("../images/bg.png");
 	load_palette(&palette);
-
-	instance1.character = sc1;
-	instance1.x = 2;
-	instance1.y = 1;
-	instance1.scale_x = 1.f/400;
-	instance1.scale_y = 1.f/400;
-	instance1.active_animation = 2;
-	instance1.animation_speed = 1000;
-	instance1.animation_time = 0;
-	instance1.flip = 0;
-
-	instance2.character = sc2;
-	instance2.x = 5;
-	instance2.y = 1;
-	instance2.scale_x = 1.f/400;
-	instance2.scale_y = 1.f/400;
-	instance2.active_animation = 2;
-	instance2.animation_speed = 1000;
-	instance2.animation_time = 0;
-	instance2.flip = 0;
-
-	instance3.character = sc3;
-	instance3.x = 8;
-	instance3.y = 1;
-	instance3.scale_x = 1.f/400;
-	instance3.scale_y = 1.f/400;
-	instance3.active_animation = 0;
-	instance3.animation_speed = 1000;
-	instance3.animation_time = 0;
-	instance3.flip = 0;
-
-	instance4.character = sc4;
-	instance4.x = 11;
-	instance4.y = 1;
-	instance4.scale_x = 1.f/400;
-	instance4.scale_y = 1.f/400;
-	instance4.active_animation = 0;
-	instance4.animation_speed = 1000;
-	instance4.animation_time = 0;
-	instance4.flip = 1;
 }
 
 void stage_editor_enter(Stage *stage, int previous_stage_id) {
@@ -559,35 +526,6 @@ void stage_editor_render(Stage *stage, double delta) {
 		for (int y = 0; y <= 10; y++)
 			draw(&game.renderer, game.renderer.default_texture, 0, y - .013f, 17, line_size);
 	}
-
-	set_shader(&game.renderer, game.renderer.default_shader);
-	set_color(&game.renderer, &white);
-
-
-
-	if (button_released(B_EMOTE1, 0)) {
-		instance1.active_animation = (instance1.active_animation + 1) % instance1.character->animations.count;
-	}
-	instance1.animation_time += (float)(instance1.animation_speed * delta);
-	draw(&game.renderer, &instance1);
-	
-	if (button_released(B_EMOTE2, 0)) {
-		instance2.active_animation = (instance2.active_animation + 1) % instance2.character->animations.count;
-	}
-	instance2.animation_time += (float)(instance2.animation_speed * delta);
-	draw(&game.renderer, &instance2);
-	
-	if (button_released(B_EMOTE3, 0)) {
-		instance3.active_animation = (instance3.active_animation + 1) % instance3.character->animations.count;
-	}
-	instance3.animation_time += (float)(instance3.animation_speed * delta);
-	draw(&game.renderer, &instance3);
-	
-	if (button_released(B_EMOTE4, 0)) {
-		instance4.active_animation = (instance4.active_animation + 1) % instance4.character->animations.count;
-	}
-	instance4.animation_time += (float)(instance4.animation_speed * delta);
-	draw(&game.renderer, &instance4);
 
 	char text[100];
 	sprintf(text, "e: %d", map.count);

@@ -179,18 +179,40 @@ struct Atlas {
 	ArrayList textures;
 };
 
+enum AnimationStates {
+	ANIMATION_STATE_IDLE = 0,
+	ANIMATION_STATE_RUN,
+	ANIMATION_STATE_JUMP_START,
+	ANIMATION_STATE_JUMP_END,
+	ANIMATION_STATE_IN_AIR,
+	ANIMATION_STATE_HURT,
+	ANIMATION_STATE_STUNNED,
+	ANIMATION_STATE_ATTACK,
+	ANIMATION_STATE_PICKUP,
+	_ANIMATION_STATE_COUNT
+};
+
+enum AnimationWeapons {
+	ANIMATION_WEAPON_HANDS = 0,
+	ANIMATION_WEAPON_GUN,
+	ANIMATION_WEAPON_SWORD,
+	ANIMATION_WEAPON_BOMB,
+	_ANIMATION_WEAPON_COUNT
+};
+
 struct SpriterCharacter {
 	char *name;
 	unsigned int id;
 	ArrayList folders;
 	ArrayList animations;
 	Atlas *atlas;
+	int animation_bindings[_ANIMATION_STATE_COUNT * _ANIMATION_WEAPON_COUNT];
 };
 
 struct SpriterInstance {
 	SpriterCharacter *character;
-	float x;
-	float y;
+	float offset_x;
+	float offset_y;
 	float scale_x;
 	float scale_y;
 	int flip;
@@ -199,6 +221,8 @@ struct SpriterInstance {
 	float animation_time;
 	Texture *in_hand;
 };
+
+void play_animation(SpriterInstance *si, int state, int weapon);
 
 struct IntSet {
 	int *elements;

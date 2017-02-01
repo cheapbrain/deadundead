@@ -1,7 +1,3 @@
-name = bg
-x = 0.000000
-y = 0.000000
-
 name = footer
 x = 0.000000
 y = 0.000000
@@ -49,10 +45,6 @@ y = 0.000000
 name = libreria
 x = 16.000000
 y = 0.000000
-
-name = player1
-x = 5.000000
-y = 1.000000
 
 name = montacaricosx
 x = 3.000000
@@ -161,4 +153,20 @@ y = 6.000000
 name = balconedxcollider
 x = 10.000000
 y = 6.000000
+
+name = player1
+x = 5.000000
+y = 1.000000
+
+name = player2
+x = 12.000000
+y = 1.000000
+
+name = player4
+x = 12.000000
+y = 7.000000
+
+name = player3
+x = 4.000000
+y = 4.000000
 

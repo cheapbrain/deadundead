@@ -75,7 +75,7 @@ struct Entity {
 	double timer;				//timer generico (su player quando scade cambia lo stato in normal)
 	int type_in_hand;			//tipo di oggetto in mano (fendente, lanciabile, sparabile,...)
 	int id_in_hand;				//quale oggetto di quel tipo ho in mano
-	SpriterInstance *animation; //per settare quale animazione fare
+	SpriterInstance animation; //per settare quale animazione fare
 
 	int thrower_id;			//utilizzato per proiettili, in modo che quando vengono creati non collidano con chi li ha creati
 

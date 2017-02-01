@@ -37,7 +37,7 @@ void draw(SpriteRenderer *renderer, Texture *texture,
 
 void draw(SpriteRenderer *renderer, Font *font, char *text, float x, float y);
 
-void draw(SpriteRenderer *renderer, SpriterInstance *spriter_instance);
+void draw(SpriteRenderer *renderer, SpriterInstance *spriter_instance, float x, float y);
 
 void set_color(SpriteRenderer *renderer, Color *color);
 

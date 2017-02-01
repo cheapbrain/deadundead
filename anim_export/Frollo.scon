@@ -47810,7 +47810,7 @@
 							}
 						]
 					},
-					"name": "Stordito_2",
+					"name": "Stordito",
 					"timeline": [
 						{
 							"id": 0,
@@ -59730,7 +59730,7 @@
 							}
 						]
 					},
-					"name": "Atk_Senz'armi_001",
+					"name": "Attacco",
 					"timeline": [
 						{
 							"id": 0,
@@ -67798,7 +67798,7 @@
 							}
 						]
 					},
-					"name": "Fendente",
+					"name": "Attacco_Fendente",
 					"timeline": [
 						{
 							"id": 0,
@@ -71108,7 +71108,7 @@
 							}
 						]
 					},
-					"name": "Lancia",
+					"name": "Attacco_Lancia",
 					"timeline": [
 						{
 							"id": 0,

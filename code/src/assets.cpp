@@ -162,7 +162,7 @@ Texture *load_texture(char *path) {
 		texture->height = height;
 		texture->id = id;
 
-		fprintf(LOGGER_STREAM, "Loaded texture: %s\n", path);
+		//fprintf(LOGGER_STREAM, "Loaded texture: %s\n", path);
 	}
 	return texture;
 }
@@ -972,6 +972,8 @@ void _parse_json(char *path, jsmntok_t **p_tok, char **json) {
 	}
 }
 
+const char *animation_state_names[];
+
 SpriterCharacter *load_spriter_character(char *path) {
 	SpriterCharacter *sc = (SpriterCharacter *)_get_asset(SPRITER_CHARACTER, path);
 
@@ -982,6 +984,66 @@ SpriterCharacter *load_spriter_character(char *path) {
 		_load_spriter_scon(sc, tok, json);
 		free(tok);
 		free(json);
+
+		int k = _ANIMATION_STATE_COUNT;
+		int state_count = k * _ANIMATION_WEAPON_COUNT;
+		char *animation_names[_ANIMATION_STATE_COUNT * _ANIMATION_WEAPON_COUNT];
+
+		animation_names[ANIMATION_STATE_IDLE + k * ANIMATION_WEAPON_HANDS] = "Idle";
+		animation_names[ANIMATION_STATE_IDLE + k * ANIMATION_WEAPON_GUN] = "Idle_Fucile";
+		animation_names[ANIMATION_STATE_IDLE + k * ANIMATION_WEAPON_SWORD] = "Idle_Fendente";
+		animation_names[ANIMATION_STATE_IDLE + k * ANIMATION_WEAPON_BOMB] = "Idle_Lancia";
+		animation_names[ANIMATION_STATE_RUN + k * ANIMATION_WEAPON_HANDS] = "Corsa";
+		animation_names[ANIMATION_STATE_RUN + k * ANIMATION_WEAPON_GUN] = "Corsa_Fucile";
+		animation_names[ANIMATION_STATE_RUN + k * ANIMATION_WEAPON_SWORD] = "Corsa_Fendente";
+		animation_names[ANIMATION_STATE_RUN + k * ANIMATION_WEAPON_BOMB] = "Corsa_Lancia";
+		animation_names[ANIMATION_STATE_JUMP_START + k * ANIMATION_WEAPON_HANDS] = "Inizio_salto";
+		animation_names[ANIMATION_STATE_JUMP_START + k * ANIMATION_WEAPON_GUN] = "Inizio_salto_Fucile";
+		animation_names[ANIMATION_STATE_JUMP_START + k * ANIMATION_WEAPON_SWORD] = "Inizio_salto_Fendente";
+		animation_names[ANIMATION_STATE_JUMP_START + k * ANIMATION_WEAPON_BOMB] = "Inizio_salto_Lancia";
+		animation_names[ANIMATION_STATE_JUMP_END + k * ANIMATION_WEAPON_HANDS] = "Fine_salto";
+		animation_names[ANIMATION_STATE_JUMP_END + k * ANIMATION_WEAPON_GUN] = "Fine_salto_Fucile";
+		animation_names[ANIMATION_STATE_JUMP_END + k * ANIMATION_WEAPON_SWORD] = "Fine_salto_Fendente";
+		animation_names[ANIMATION_STATE_JUMP_END + k * ANIMATION_WEAPON_BOMB] = "Fine_salto_Lancia";
+		animation_names[ANIMATION_STATE_IN_AIR + k * ANIMATION_WEAPON_HANDS] = "In_aria";
+		animation_names[ANIMATION_STATE_IN_AIR + k * ANIMATION_WEAPON_GUN] = "In_aria_Fucile";
+		animation_names[ANIMATION_STATE_IN_AIR + k * ANIMATION_WEAPON_SWORD] = "In_aria_Fendente";
+		animation_names[ANIMATION_STATE_IN_AIR + k * ANIMATION_WEAPON_BOMB] = "In_aria_Lancia";
+		animation_names[ANIMATION_STATE_HURT + k * ANIMATION_WEAPON_HANDS] = "Colpito";
+		animation_names[ANIMATION_STATE_HURT + k * ANIMATION_WEAPON_GUN] = "Colpito_Fucile";
+		animation_names[ANIMATION_STATE_HURT + k * ANIMATION_WEAPON_SWORD] = "Colpito_Fendente";
+		animation_names[ANIMATION_STATE_HURT + k * ANIMATION_WEAPON_BOMB] = "Colpito_Lancia";
+		animation_names[ANIMATION_STATE_ATTACK + k * ANIMATION_WEAPON_HANDS] = "Attacco";
+		animation_names[ANIMATION_STATE_ATTACK + k * ANIMATION_WEAPON_GUN] = "Idle_Fucile";
+		animation_names[ANIMATION_STATE_ATTACK + k * ANIMATION_WEAPON_SWORD] = "Attacco_Fendente";
+		animation_names[ANIMATION_STATE_ATTACK + k * ANIMATION_WEAPON_BOMB] = "Attacco_Lancia";
+		animation_names[ANIMATION_STATE_STUNNED + k * ANIMATION_WEAPON_HANDS] = "Stordito";
+		animation_names[ANIMATION_STATE_STUNNED + k * ANIMATION_WEAPON_GUN] = "Stordito";
+		animation_names[ANIMATION_STATE_STUNNED + k * ANIMATION_WEAPON_SWORD] = "Stordito";
+		animation_names[ANIMATION_STATE_STUNNED + k * ANIMATION_WEAPON_BOMB] = "Stordito";
+		animation_names[ANIMATION_STATE_PICKUP + k * ANIMATION_WEAPON_HANDS] = "Raccogli";
+		animation_names[ANIMATION_STATE_PICKUP + k * ANIMATION_WEAPON_GUN] = "Raccogli";
+		animation_names[ANIMATION_STATE_PICKUP + k * ANIMATION_WEAPON_SWORD] = "Raccogli";
+		animation_names[ANIMATION_STATE_PICKUP + k * ANIMATION_WEAPON_BOMB] = "Raccogli";
+
+
+		for (int i = 0; i < state_count; i++) {
+			ArrayList *anims = &sc->animations;
+			int animation_count = anims->count;
+			int found = 0;
+			for (int j = 0; j < animation_count; j++) {
+				SpriterAnimation *animation = (SpriterAnimation *)anims->array + j;
+				if (!strcmp(animation->name, animation_names[i])) {
+					sc->animation_bindings[i] = j;
+					found = 1;
+					break;
+				}
+			}
+			if (!found) {
+				fprintf(LOGGER_STREAM, "%s: \"%s\" not found\n", sc->name, animation_names[i]);
+			}
+		}
+
 
 		if (sc->atlas) {
 			_parse_json(sc->atlas->name, &tok, &json);
@@ -1030,6 +1092,10 @@ SpriterCharacter *load_spriter_character(char *path) {
 		
 	}
 	return sc;
+}
+
+void play_animation(SpriterInstance *si, int state, int weapon) {
+	si->active_animation = si->character->animation_bindings[state + _ANIMATION_STATE_COUNT * weapon];
 }
 
 void dispose_texture(Texture *texture) {

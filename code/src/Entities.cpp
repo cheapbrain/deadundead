@@ -288,6 +288,27 @@ void player_update(Entity *e, World *world, double delta) {
 	e->old_x = e->x;
 	e->old_y = e->y;
 
+	if (button_pressed(B_EMOTE2, e->player_id)) {
+		e->animation.character = load_spriter_character("../anim_export/Diogo.scon");
+	}
+
+	if (button_pressed(B_EMOTE3, e->player_id)) {
+		e->animation.character = load_spriter_character("../anim_export/Frollo.scon");
+	}
+
+	if (button_pressed(B_EMOTE4, e->player_id)) {
+		e->animation.character = load_spriter_character("../anim_export/Klora.scon");
+	}
+
+	if (e->is_on_floor) {
+		if (e->speed_x > 0.1f || e->speed_x < -0.1f) {
+			play_animation(&e->animation, ANIMATION_STATE_RUN, ANIMATION_WEAPON_HANDS);
+		} else
+			play_animation(&e->animation, ANIMATION_STATE_IDLE, ANIMATION_WEAPON_HANDS);
+	} else {
+		play_animation(&e->animation, ANIMATION_STATE_IN_AIR, ANIMATION_WEAPON_HANDS);
+	}
+
 	//e->speed_x = 0;
 	e->speed_x -= 10 * e->speed_x * (float)delta;
 	if (button_state(B_RIGHT, e->player_id)) {e->speed_x += 40.f * (float)delta; e->is_facing_right = 1;}
@@ -323,13 +344,12 @@ void player_update(Entity *e, World *world, double delta) {
 	if (button_pressed(B_EMOTE1, e->player_id)) {
 		spawn_random_pickupable(e->x,e->y+1,world);
 	}
+	e->animation.animation_time += (float) delta * 1000.f;
 }
 
 void player_render(Entity *e) {
-	if (/*e->speed_x > 0*/e->is_facing_right)
-		draw(&game.renderer, e->texture, e->x, e->y, e->width, e->height, 0, 0, 1, 1);
-	else
-		draw(&game.renderer, e->texture, e->x, e->y, e->width, e->height, 1, 0, -1, 1);
+	e->animation.flip = !e->is_facing_right;
+	draw(&game.renderer, &e->animation, e->x, e->y);
 
 	const ObjectDrawInfo *di = get_object_draw_info(e->type_in_hand, e->id_in_hand);
 	if (di != NULL && di->texture != NULL) {

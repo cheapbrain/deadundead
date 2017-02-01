@@ -9,6 +9,7 @@ struct StageGameplay {
 	Stage super;
 	Shader *shader;
 	EntityArray palette;
+	Texture *bg;
 	World world;
 };
 
