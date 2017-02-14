@@ -68,6 +68,8 @@ static void projectile_attack(World *world, Entity *source) {
 	create_projectile(world, source, source->id_in_hand);
 	source->id_in_hand = 0;
 	source->type_in_hand = MELEE;
+	source->status = ATTACKING;
+	source->timer = 0.5;//TODO
 }
 
 static void shooter_attack(World *world, Entity *source) {
@@ -89,14 +91,16 @@ void attack(World *world, Entity *source) {
 /**********INTERAZIONE*************/
 void player_interact (Entity *player, World *world) {
 	Vec2 player_center;
+	int interacted_id;
 	Entity *interacted;
 	
 	player_center.x = player->x + player->width/2;
 	player_center.y = player->y + player->height/2;
 #define PLAYER_MAXIMUM_INTERACT_DISTANCE 1 /*TODO*/
-	interacted = get_closest(&player_center, PLAYER_MAXIMUM_INTERACT_DISTANCE, world, ACTIVE_EVENT_LIST);
+	interacted_id = get_closest(&player_center, PLAYER_MAXIMUM_INTERACT_DISTANCE, world, ACTIVE_EVENT_LIST);
 #undef PLAYER_MAXIMUM_INTERACT_DISTANCE
-	if (interacted != NULL) {
+	if (interacted_id != -1) {
+		interacted = world_get_entity(world, interacted_id);
 		interacted->on_interact(player, interacted, world);
 	}
 }
