@@ -332,7 +332,7 @@ void player_update(Entity *e, World *world, double delta) {
 	}
 	/*altre azioni*/
 	if (e->type_in_hand == OTHER) {
-		do_other_update(e);
+		do_other_update(e, delta);
 	}
 	if (e->status != ATTACKING && e->status != STUNNED && button_state(B_PUNCH, e->player_id)) {//ho usato state perchè tanto ho l'as, e non sarebbe bello spaccare il mouse se è alto
 		attack(world, e);
