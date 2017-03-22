@@ -18,7 +18,7 @@ float distance2(Vec2 *pos1, Vec2 *pos2) {
 	return (pos1->x - pos2->x)*(pos1->x - pos2->x) + (pos1->y - pos2->y)*(pos1->y - pos2->y);
 }
 
-Entity *get_closest(Vec2 *pos, float max_dist, World *world, EntityListType list) {
+int get_closest(Vec2 *pos, float max_dist, World *world, EntityListType list) {
 	EntityList *el = &(world->lists[list]);
 	float min_dist = FLT_MAX;
 	float curr_dist;
@@ -34,7 +34,23 @@ Entity *get_closest(Vec2 *pos, float max_dist, World *world, EntityListType list
 			e_res = e_curr;
 		}
 	}
-	return e_res;
+	if (e_res != NULL) {
+		return e_res->id;
+	} else {
+		return -1;
+	}
+}
+
+void get_entities_in_area(Vec2 *pos, float radius, World *world, EntityListType list, IntSet *set) {
+	EntityList *el = &(world->lists[list]);
+	for (int i = 0; i < el->count; i++) {
+		Entity *e = world->entities + el->entity_indexes[i];
+		Rectangle r = {{e->x, e->y}, {e->width, e->height}};
+
+		if (collides(pos, radius, &r)) {
+			int_set_add(set, e->id);
+		}
+	}
 }
 
 Vec2 get_entity_center(Entity *e) {

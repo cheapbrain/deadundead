@@ -2,6 +2,10 @@
 
 #include "Entities.h"
 
+enum PassiveEventType {
+	POZZA_AMPOLLA_VERDE
+};
+
 /********************************STRUTTURE*PER*INFO*ARMI*****************************************/
 enum TypeInHand {
 	MELEE,		//NOTA: tipo melee id 0 è un pugno (senza niente in mano)
@@ -16,7 +20,7 @@ struct ObjectDrawInfo {
 };
 
 struct OtherData {
-	void (*on_update) (Entity *holder);
+	void (*on_update) (Entity *holder, double delta);
 	void (*on_attack) (Entity *holder, World *world);
 	void (*on_interact)(Entity *source, Entity *target, World *world);
 
@@ -59,4 +63,7 @@ const WeaponDataProjectile *get_data_projectile(int id);
 const WeaponDataShooter *get_data_shooter(int id);
 
 void do_other_attack(World *world, Entity *holder);
-void do_other_update(Entity *holder);
+void do_other_update(Entity *holder, double delta);
+
+/***************FUNZIONI*SPECIFICHE*ELEMENTI*SCENARIO***********/
+void camino_on_interact(Entity *source, Entity *target, World *world);
